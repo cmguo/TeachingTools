@@ -19,6 +19,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += \
     buttonsheet.cpp \
     compasses.cpp \
+    control/showboardcontrol.cpp \
     lineruler.cpp \
     protractor.cpp \
     teachingtools.cpp \
@@ -28,6 +29,7 @@ HEADERS += \
     TeachingTools_global.h \
     buttonsheet.h \
     compasses.h \
+    control/showboardcontrol.h \
     lineruler.h \
     protractor.h \
     teachingtools.h \
@@ -52,3 +54,11 @@ else:unix: LIBS += -L$$OUT_PWD/../QtComposition/ -lQtCompositiond
 
 INCLUDEPATH += $$PWD/../QtComposition
 DEPENDPATH += $$PWD/../QtComposition
+
+
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../ShowBoard/release/ -lShowBoard
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../ShowBoard/debug/ -lShowBoardd
+else:unix: LIBS += -L$$OUT_PWD/../ShowBoard/ -lShowBoard
+
+INCLUDEPATH += $$PWD/../ShowBoard
+DEPENDPATH += $$PWD/../ShowBoard

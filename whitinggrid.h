@@ -68,10 +68,21 @@ public:
 
    void setType(WhitingGridType type){
        this->type_ = type;
+       update();
    }
 
 public:
+   void addGrid(){
+       if(gridCount_<50)
+         gridCount_++;
+       update();
+   }
 
+   void decGrid(){
+       if(gridCount_>1)
+         gridCount_--;
+       update();
+   }
 
 private:
     qreal m_width;
@@ -81,6 +92,8 @@ private:
     QColor m_realLineColor;
     int m_realLineWidth;
     WhitingGridType type_;
+    int gridCount_ = 1;
+    int padding = 5;
 };
 
 #endif // WHITINGGRID_H
