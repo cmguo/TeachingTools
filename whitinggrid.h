@@ -7,7 +7,8 @@
 enum WhitingGridType
 {
     TinWordFormat, // 田字格
-    FourLinesAndThreeGrids // 四线三格
+    FourLinesAndThreeGrids, // 四线三格
+    PinYinTinGrids // 拼音田字格
 };
 class TEACHINGTOOLS_EXPORT WhitingGrid : public QGraphicsObject
 {
@@ -19,13 +20,13 @@ class TEACHINGTOOLS_EXPORT WhitingGrid : public QGraphicsObject
     Q_PROPERTY(WhitingGridType type_ READ getType WRITE setType)
 public:
     WhitingGrid(QGraphicsObject *parent = nullptr);
-    WhitingGrid(int w,int h,WhitingGridType type = WhitingGridType::TinWordFormat,QGraphicsObject *parent = nullptr);
+    WhitingGrid(int h,WhitingGridType type = WhitingGridType::TinWordFormat,QGraphicsObject *parent = nullptr);
     QRectF boundingRect()const override;
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) override;
 
     void paintTinWordFormat(QPainter *painter,const QStyleOptionGraphicsItem *option, QWidget *widget);
     void paintFourLinesAndThreeGrids(QPainter *painter,const QStyleOptionGraphicsItem *option, QWidget *widget);
-
+    void paintPinYinTinGrids(QPainter *painter,const QStyleOptionGraphicsItem *option, QWidget *widget);
     void setDotLineColor(QColor &color){
 
         this->m_dotLineColor = color;
@@ -68,6 +69,7 @@ public:
 
    void setType(WhitingGridType type){
        this->type_ = type;
+       adjustWidth();
        update();
    }
 
@@ -83,6 +85,8 @@ public:
          gridCount_--;
        update();
    }
+private:
+   void adjustWidth();
 
 private:
     qreal m_width;
@@ -93,7 +97,10 @@ private:
     int m_realLineWidth;
     WhitingGridType type_;
     int gridCount_ = 1;
-    int padding = 5;
+    int padding = 1;
+    float tinWidthHeihtRatio = 1.0f;
+    float fourLineThreeGridsWidthHeihtRatio = 310.0f/152.0f;
+    float pinYinTinWidthHeightRatio = 240.0f/369.0f;
 };
 
 #endif // WHITINGGRID_H

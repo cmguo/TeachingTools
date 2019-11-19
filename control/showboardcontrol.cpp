@@ -14,7 +14,7 @@ ShowBoardControl::ShowBoardControl(ResourceView * res)
 QGraphicsItem *ShowBoardControl::create(ResourceView *res)
 {
 
-    QGraphicsItem *item =new WhitingGrid(100,100, WhitingGridType::TinWordFormat);
+    QGraphicsItem *item =new WhitingGrid(300,WhitingGridType::TinWordFormat);
 
     return item;
 }
@@ -39,11 +39,18 @@ void ShowBoardControl::decGrid()
 void ShowBoardControl::changeGridType()
 {
     WhitingGrid *item = static_cast<WhitingGrid*>(item_);
-    if(item->getType() == WhitingGridType::TinWordFormat){
+    switch (item->getType()) {
+    case WhitingGridType::TinWordFormat:
         item->setType(WhitingGridType::FourLinesAndThreeGrids);
-    }else{
+        break;
+    case WhitingGridType::FourLinesAndThreeGrids:
+        item->setType(WhitingGridType::PinYinTinGrids);
+        break;
+    case WhitingGridType::PinYinTinGrids:
         item->setType(WhitingGridType::TinWordFormat);
+        break;
     }
+    sizeChanged();
 }
 
 
