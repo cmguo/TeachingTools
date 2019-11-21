@@ -62,3 +62,6 @@ else:unix: LIBS += -L$$OUT_PWD/../ShowBoard/ -lShowBoard
 
 INCLUDEPATH += $$PWD/../ShowBoard
 DEPENDPATH += $$PWD/../ShowBoard
+
+RESOURCES += \
+    TeachingToosRes.qrc

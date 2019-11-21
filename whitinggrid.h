@@ -10,85 +10,53 @@ enum WhitingGridType
     FourLinesAndThreeGrids, // 四线三格
     PinYinTinGrids // 拼音田字格
 };
-class TEACHINGTOOLS_EXPORT WhitingGrid : public QGraphicsObject
+class TEACHINGTOOLS_EXPORT WhitingGrid : public QGraphicsItem
 {
-    Q_OBJECT
-    Q_PROPERTY(int m_dotLineWidth READ getDotLineWidth WRITE setDotLineWidth)
-    Q_PROPERTY(int m_realLineWidth READ getRealLineWidth WRITE setRealLineWidth)
-    Q_PROPERTY(QColor m_realLineColor READ getRealLineColor WRITE setRealLineColor)
-    Q_PROPERTY(QColor m_dotLineColor READ getDotLineColor WRITE setDotLineColor)
-    Q_PROPERTY(WhitingGridType type_ READ getType WRITE setType)
 public:
-    WhitingGrid(QGraphicsObject *parent = nullptr);
-    WhitingGrid(int h,WhitingGridType type = WhitingGridType::TinWordFormat,QGraphicsObject *parent = nullptr);
+    WhitingGrid(QGraphicsItem *parent = nullptr);
+    WhitingGrid(int h,WhitingGridType type = WhitingGridType::TinWordFormat,QGraphicsItem *parent = nullptr);
     QRectF boundingRect()const override;
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) override;
 
     void paintTinWordFormat(QPainter *painter,const QStyleOptionGraphicsItem *option, QWidget *widget);
     void paintFourLinesAndThreeGrids(QPainter *painter,const QStyleOptionGraphicsItem *option, QWidget *widget);
     void paintPinYinTinGrids(QPainter *painter,const QStyleOptionGraphicsItem *option, QWidget *widget);
-    void setDotLineColor(QColor &color){
 
-        this->m_dotLineColor = color;
-        this->update(boundingRect());
-    }
-    void setDotLineWidth(int width){
-        this->m_dotLineWidth =  width;
-        this->update(boundingRect());
-    }
+    virtual bool sceneEventFilter(QGraphicsItem *watched, QEvent *event) override;
+    virtual QVariant itemChange(GraphicsItemChange change, const QVariant &value) override;
+    QGraphicsItem* createControlBar();
 
-    void setRealLineWidth(int width){
-        this->m_realLineWidth = width;
-        this->update(boundingRect());
-    }
+    void setDotLineColor(QColor &color);
+    void setDotLineWidth(int width);
 
-    void setRealLineColor(QColor &color){
-        this->m_realLineColor = color;
-        this->update(boundingRect());
-    }
+    void setRealLineWidth(int width);
 
-    int getDotLineWidth() const {
-        return this->m_dotLineWidth;
-    }
+    void setRealLineColor(QColor &color);
 
-    QColor getDotLineColor() const{
-        return this->m_dotLineColor;
-    }
+    int getDotLineWidth() const;
 
-    int getRealLineWidth() const{
-        return this->m_realLineWidth;
-    }
+    QColor getDotLineColor() const;
 
-    QColor getRealLineColor() const{
-        return this->m_realLineColor;
-    }
+    int getRealLineWidth() const;
 
-   WhitingGridType getType(){
-        return type_;
-    }
+    QColor getRealLineColor() const;
 
-   void setType(WhitingGridType type){
-       this->type_ = type;
-       adjustWidth();
-       update();
-   }
+   WhitingGridType getType();
+
+   void setType(WhitingGridType type);
 
 public:
-   void addGrid(){
-       if(gridCount_<50)
-         gridCount_++;
-       update();
-   }
+   void addGrid();
 
-   void decGrid(){
-       if(gridCount_>1)
-         gridCount_--;
-       update();
-   }
+   void decGrid();
 private:
    void adjustWidth();
+   void adjustControlItemPos();
 
 private:
+    QGraphicsPixmapItem *addItem;
+    QGraphicsPixmapItem *decItem;
+    QGraphicsRectItem *controlItem;
     qreal m_width;
     qreal m_height;
     QColor m_dotLineColor;
@@ -101,6 +69,9 @@ private:
     float tinWidthHeihtRatio = 1.0f;
     float fourLineThreeGridsWidthHeihtRatio = 310.0f/152.0f;
     float pinYinTinWidthHeightRatio = 240.0f/369.0f;
+    QSizeF newScaleSize;
+    QSizeF controlItemSize=QSizeF(35,35);
+
 };
 
 #endif // WHITINGGRID_H

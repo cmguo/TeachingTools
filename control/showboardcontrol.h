@@ -2,6 +2,7 @@
 #define SHOWBOARDCONTROL_H
 
 #include <core/control.h>
+#include <QGraphicsPixmapItem>
 #include <qexport.h>
 #include "TeachingTools_global.h"
 
@@ -14,13 +15,14 @@ public:
 
     virtual QString toolsString(QString const & parent = QString()) const override;
 private slots:
-    void addGrid();
-    void decGrid();
     void changeGridType();
 
 protected:
     virtual QGraphicsItem * create(ResourceView * res) override;
 
+    virtual void attaching() override;
+
+    virtual void attached() override;
 };
 
 #endif // SHOWBOARDCONTROL_H
