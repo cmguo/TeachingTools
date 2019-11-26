@@ -5,6 +5,7 @@
 #include <QEvent>
 #include <QGraphicsSceneResizeEvent>
 #include <core/control.h>
+#include <control/showboardcontrol.h>
 
 WhitingGrid::WhitingGrid(QGraphicsItem *parent)
 {
@@ -134,7 +135,7 @@ bool WhitingGrid::sceneEventFilter(QGraphicsItem *watched, QEvent *event)
     }
     if(watched == addItem && event->type()==QEvent::GraphicsSceneMousePress){
        addGrid();
-       Control *control = Control::fromItem(this);
+       ShowBoardControl *control = qobject_cast<ShowBoardControl*>(ShowBoardControl::fromItem(this));
        if(control != nullptr)
           control->sizeChanged();
        adjustControlItemPos();
@@ -143,7 +144,7 @@ bool WhitingGrid::sceneEventFilter(QGraphicsItem *watched, QEvent *event)
 
     if(watched == decItem && event->type()==QEvent::GraphicsSceneMousePress ){
        decGrid();
-       Control *control = Control::fromItem(this);
+       ShowBoardControl *control = qobject_cast<ShowBoardControl*>(ShowBoardControl::fromItem(this));
        if(control != nullptr)
           control->sizeChanged();
        adjustControlItemPos();

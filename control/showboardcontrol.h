@@ -14,6 +14,8 @@ public:
     Q_INVOKABLE ShowBoardControl(ResourceView *res);
 
     virtual QString toolsString(QString const & parent = QString()) const override;
+
+    using :: Control::sizeChanged;
 private slots:
     void changeGridType();
 
