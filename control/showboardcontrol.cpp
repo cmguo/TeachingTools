@@ -7,6 +7,8 @@
 #include <views/itemframe.h>
 #include <QPen>
 #include <QDebug>
+#include <core/resource.h>
+#include <core/resourceview.h>
 
 static char const * toolstr =
         "changeGridType()|转换|:/showboard/icons/icon_delete.png;";
@@ -16,9 +18,9 @@ ShowBoardControl::ShowBoardControl(ResourceView * res)
 }
 
 QGraphicsItem *ShowBoardControl::create(ResourceView *res)
-{
-
-    QGraphicsItem *item =new WhitingGrid(300,WhitingGridType::TinWordFormat);
+{   QString path = res->url().path();
+    int type = res->url().path().split("/")[1].toInt(0);
+    QGraphicsItem *item =new WhitingGrid(300,WhitingGridType(type));
     return item;
 }
 
