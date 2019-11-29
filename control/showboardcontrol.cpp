@@ -7,8 +7,8 @@
 #include <views/itemframe.h>
 #include <QPen>
 #include <QDebug>
-#include <core/resource.h>
 #include <core/resourceview.h>
+#include <QUrl>
 
 static char const * toolstr =
         "changeGridType()|转换|:/showboard/icons/icon_delete.png;";
