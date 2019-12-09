@@ -8,7 +8,9 @@
 #include <QPen>
 #include <QDebug>
 #include <core/resourceview.h>
+#include <QGraphicsProxyWidget>
 #include <QUrl>
+#include <Windows/Controls/inkcanvas.h>
 
 static char const * toolstr =
         "changeGridType()|转换|:/showboard/icons/icon_delete.png;";
@@ -42,7 +44,7 @@ void ShowBoardControl::attached()
 
 QString ShowBoardControl::toolsString(QString const & parent) const
 {
-    return toolstr;
+    return nullptr;
 }
 
 void ShowBoardControl::changeGridType()

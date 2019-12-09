@@ -2,6 +2,7 @@
 #define WHITINGGRID_H
 
 #include <QGraphicsItem>
+#include <Windows/Controls/inkcanvas.h>
 #include "TeachingTools_global.h"
 
 enum WhitingGridType
@@ -52,6 +53,7 @@ public:
 private:
    void adjustWidth();
    void adjustControlItemPos();
+   void adjustInkCanvas();
 
 private:
     QGraphicsPixmapItem *addItem;
@@ -71,6 +73,7 @@ private:
     float pinYinTinWidthHeightRatio = 240.0f/369.0f;
     QSizeF newScaleSize;
     QSizeF controlItemSize=QSizeF(35,35);
+    InkCanvas * ink ;
 
 };
 

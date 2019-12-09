@@ -66,3 +66,10 @@ DEPENDPATH += $$PWD/../ShowBoard
 
 RESOURCES += \
     TeachingToosRes.qrc
+
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../InkCanvas/release/ -lInkCanvas
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../InkCanvas/debug/ -lInkCanvasd
+else:unix: LIBS += -L$$OUT_PWD/../InkCanvas/ -lInkCanvasd
+
+INCLUDEPATH += $$PWD/../InkCanvas
+DEPENDPATH += $$PWD/../InkCanvas

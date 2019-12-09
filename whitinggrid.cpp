@@ -4,8 +4,10 @@
 #include <QDebug>
 #include <QEvent>
 #include <QGraphicsSceneResizeEvent>
+#include <QGraphicsProxyWidget>
 #include <core/control.h>
 #include <control/showboardcontrol.h>
+#include <Windows/Controls/inkcanvas.h>
 
 WhitingGrid::WhitingGrid(QGraphicsItem *parent)
 {
@@ -34,6 +36,12 @@ WhitingGrid::WhitingGrid(int h,WhitingGridType type,QGraphicsItem * parent):m_he
   addItem->setX(2); // icon不居中矫正
   decItem->setX(2);
   adjustControlItemPos();
+  ink = new InkCanvas;
+  ink->setStyleSheet("background:#00000000");
+  ink->SetEditingMode(InkCanvasEditingMode::Ink);
+  QGraphicsProxyWidget * proxy = new QGraphicsProxyWidget(this);
+  proxy->setWidget(ink);
+  adjustInkCanvas();
 }
 
 QRectF WhitingGrid::boundingRect() const
@@ -139,6 +147,7 @@ bool WhitingGrid::sceneEventFilter(QGraphicsItem *watched, QEvent *event)
        if(control != nullptr)
           control->sizeChanged();
        adjustControlItemPos();
+       adjustInkCanvas();
        return true;
     }
 
@@ -148,6 +157,7 @@ bool WhitingGrid::sceneEventFilter(QGraphicsItem *watched, QEvent *event)
        if(control != nullptr)
           control->sizeChanged();
        adjustControlItemPos();
+       adjustInkCanvas();
        return true;
     }
 
@@ -216,6 +226,7 @@ void WhitingGrid::setType(WhitingGridType type){
     this->type_ = type;
     adjustWidth();
     adjustControlItemPos();
+    adjustInkCanvas();
     update();
 }
 
@@ -258,3 +269,14 @@ void WhitingGrid::adjustControlItemPos()
     decItem->setVisible(true);
     decItem->setY(newScaleSize.height()*3/5);
 }
+
+void WhitingGrid::adjustInkCanvas()
+{
+    ink->setFixedSize(boundingRect().width(),boundingRect().height());
+    qDebug()<<"width:"<<boundingRect().width()<<"height:"<<boundingRect().height();
+    QGraphicsProxyWidget * proxy = ink->graphicsProxyWidget();
+    if (proxy)
+       proxy->resize(ink->minimumSize());
+}
+
+
