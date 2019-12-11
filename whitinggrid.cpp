@@ -16,49 +16,49 @@ WhitingGrid::WhitingGrid(QGraphicsItem *parent)
 
 WhitingGrid::WhitingGrid(int h,WhitingGridType type,QGraphicsItem * parent):m_height(h),type_(type),QGraphicsItem(parent)
 {
-  m_realLineColor = QColor(0xCACACA);
-  m_dotLineColor = QColor(0xCACACA);
-  m_dotLineWidth = 2;
-  m_realLineWidth = 3;
-  adjustWidth();
-  newScaleSize.setWidth(m_width);
-  newScaleSize.setHeight(m_height);
-  setFlag(QGraphicsItem::ItemIsFocusable, true);
-  controlItem = new QGraphicsRectItem();
-  controlItem->setBrush(QBrush(Qt::transparent));
-  controlItem->setPen(Qt::NoPen);
-  addItem = new QGraphicsPixmapItem(controlItem);
-  addItem->setPixmap(QPixmap(":/icon/icon/add.svg"));
-  addItem->setAcceptedMouseButtons(Qt::LeftButton);
-  decItem = new QGraphicsPixmapItem(controlItem);
-  decItem->setPixmap(QPixmap(":/icon/icon/remove.svg"));
-  decItem->setAcceptedMouseButtons(Qt::LeftButton);
-  addItem->setX(2); // icon不居中矫正
-  decItem->setX(2);
-  adjustControlItemPos();
-  ink = new InkCanvas;
-  ink->setStyleSheet("background:#00000000");
-  ink->SetEditingMode(InkCanvasEditingMode::Ink);
-  QGraphicsProxyWidget * proxy = new QGraphicsProxyWidget(this);
-  proxy->setWidget(ink);
-  adjustInkCanvas();
+    m_realLineColor = QColor(0xCACACA);
+    m_dotLineColor = QColor(0xCACACA);
+    m_dotLineWidth = 2;
+    m_realLineWidth = 3;
+    adjustWidth();
+    newScaleSize.setWidth(m_width);
+    newScaleSize.setHeight(m_height);
+    setFlag(QGraphicsItem::ItemIsFocusable, true);
+    controlItem = new QGraphicsRectItem();
+    controlItem->setBrush(QBrush(Qt::transparent));
+    controlItem->setPen(Qt::NoPen);
+    addItem = new QGraphicsPixmapItem(controlItem);
+    addItem->setPixmap(QPixmap(":/icon/icon/add.svg"));
+    addItem->setAcceptedMouseButtons(Qt::LeftButton);
+    decItem = new QGraphicsPixmapItem(controlItem);
+    decItem->setPixmap(QPixmap(":/icon/icon/remove.svg"));
+    decItem->setAcceptedMouseButtons(Qt::LeftButton);
+    addItem->setX(2); // icon不居中矫正
+    decItem->setX(2);
+    adjustControlItemPos();
+    ink = new InkCanvas;
+    ink->setStyleSheet("background:#00000000");
+    ink->SetEditingMode(InkCanvasEditingMode::Ink);
+    QGraphicsProxyWidget * proxy = new QGraphicsProxyWidget(this);
+    proxy->setWidget(ink);
+    adjustInkCanvas();
 }
 
 QRectF WhitingGrid::boundingRect() const
 {
-   return QRectF(0,0,m_width*gridCount_+2*padding,m_height+2*padding);
+    return QRectF(0,0,m_width*gridCount_+2*padding,m_height+2*padding);
 }
 
 void WhitingGrid::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
 {
-        Q_UNUSED(option)
-        Q_UNUSED(widget)
+    Q_UNUSED(option)
+    Q_UNUSED(widget)
 
     switch (getType()) {
     case WhitingGridType::TinWordFormat:
         paintTinWordFormat(painter,option,widget);
         break;
-     case WhitingGridType::FourLinesAndThreeGrids:
+    case WhitingGridType::FourLinesAndThreeGrids:
         paintFourLinesAndThreeGrids(painter,option,widget);
         break;
     case WhitingGridType::PinYinTinGrids:
@@ -69,40 +69,40 @@ void WhitingGrid::paint(QPainter *painter, const QStyleOptionGraphicsItem *optio
 
 void WhitingGrid::paintTinWordFormat(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
 {
-        QPen p = QPen(m_realLineColor,m_realLineWidth);
-        p.setJoinStyle(Qt::PenJoinStyle::MiterJoin);
-        painter->setPen(p);
-        QRectF rect = boundingRect().adjusted(padding,padding,-padding,-padding);
-        painter->setBrush(Qt::white);
-        painter->drawRect(rect);
-        for(int i = 1; i<gridCount_;i++){
-           painter->drawLine(rect.x()+m_width*i,rect.y(),rect.x()+m_width*i,rect.bottom());
-        }
-        p.setColor(m_dotLineColor);
-        p.setWidth(m_dotLineWidth);
-        p.setStyle(Qt::DotLine);
-        painter->setPen(p);
-        painter->drawLine(rect.x(),rect.y()+rect.height()/2,rect.right(),rect.y()+rect.height()/2);
-        for(int i = 0; i<gridCount_;i++){
-           painter->drawLine(rect.x()+m_width/2+m_width*i,rect.y(),rect.x()+m_width/2+m_width*i,rect.bottom());
-        }
+    QPen p = QPen(m_realLineColor,m_realLineWidth);
+    p.setJoinStyle(Qt::PenJoinStyle::MiterJoin);
+    painter->setPen(p);
+    QRectF rect = boundingRect().adjusted(padding,padding,-padding,-padding);
+    painter->setBrush(Qt::white);
+    painter->drawRect(rect);
+    for(int i = 1; i<gridCount_;i++){
+        painter->drawLine(rect.x()+m_width*i,rect.y(),rect.x()+m_width*i,rect.bottom());
+    }
+    p.setColor(m_dotLineColor);
+    p.setWidth(m_dotLineWidth);
+    p.setStyle(Qt::DotLine);
+    painter->setPen(p);
+    painter->drawLine(rect.x(),rect.y()+rect.height()/2,rect.right(),rect.y()+rect.height()/2);
+    for(int i = 0; i<gridCount_;i++){
+        painter->drawLine(rect.x()+m_width/2+m_width*i,rect.y(),rect.x()+m_width/2+m_width*i,rect.bottom());
+    }
 
 }
 
 void WhitingGrid::paintFourLinesAndThreeGrids(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
 {
-        QRectF rect = boundingRect().adjusted(padding,padding,-padding,-padding);
-        QPen p = QPen(Qt::white,m_realLineWidth);
-        p.setJoinStyle(Qt::PenJoinStyle::MiterJoin);
-        painter->setPen(p);
-        painter->setBrush(Qt::white);
-        painter->drawRect(rect);
-        p.setColor(m_realLineColor);
-        painter->setPen(p);
-        painter->drawLine(rect.x(),rect.y(),rect.right(),rect.y());
-        painter->drawLine(rect.x(),rect.y()+rect.height()/3,rect.right(),rect.y()+rect.height()/3);
-        painter->drawLine(rect.x(),rect.y()+rect.height()*2/3,rect.right(),rect.y()+rect.height()*2/3);
-        painter->drawLine(rect.x(),rect.bottom(),rect.right(),rect.bottom());
+    QRectF rect = boundingRect().adjusted(padding,padding,-padding,-padding);
+    QPen p = QPen(Qt::white,m_realLineWidth);
+    p.setJoinStyle(Qt::PenJoinStyle::MiterJoin);
+    painter->setPen(p);
+    painter->setBrush(Qt::white);
+    painter->drawRect(rect);
+    p.setColor(m_realLineColor);
+    painter->setPen(p);
+    painter->drawLine(rect.x(),rect.y(),rect.right(),rect.y());
+    painter->drawLine(rect.x(),rect.y()+rect.height()/3,rect.right(),rect.y()+rect.height()/3);
+    painter->drawLine(rect.x(),rect.y()+rect.height()*2/3,rect.right(),rect.y()+rect.height()*2/3);
+    painter->drawLine(rect.x(),rect.bottom(),rect.right(),rect.bottom());
 }
 
 void WhitingGrid::paintPinYinTinGrids(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
@@ -119,7 +119,7 @@ void WhitingGrid::paintPinYinTinGrids(QPainter *painter, const QStyleOptionGraph
     painter->drawLine(rect.x(),rect.y()+rect.height()*130.5/369.0f,rect.right(),rect.y()+rect.height()*130.5/369.0f);
     // 绘制竖直实线
     for(int i = 1; i<gridCount_;i++){
-       painter->drawLine(rect.x()+m_width*i,rect.y(),rect.x()+m_width*i,rect.bottom());
+        painter->drawLine(rect.x()+m_width*i,rect.y(),rect.x()+m_width*i,rect.bottom());
     }
     p.setColor(m_dotLineColor);
     p.setWidth(m_dotLineWidth);
@@ -129,38 +129,42 @@ void WhitingGrid::paintPinYinTinGrids(QPainter *painter, const QStyleOptionGraph
     rect = rect.adjusted(0,m_height*132/369.0f,0,0);
     painter->drawLine(rect.x(),rect.y()+rect.height()/2,rect.right(),rect.y()+rect.height()/2);
     for(int i = 0; i<gridCount_;i++){
-       painter->drawLine(rect.x()+m_width/2+m_width*i,rect.y(),rect.x()+m_width/2+m_width*i,rect.bottom());
+        painter->drawLine(rect.x()+m_width/2+m_width*i,rect.y(),rect.x()+m_width/2+m_width*i,rect.bottom());
     }
 }
 
 bool WhitingGrid::sceneEventFilter(QGraphicsItem *watched, QEvent *event)
 {
+
+    if(event->type()==QEvent::GraphicsSceneMousePress){
+        QGraphicsSceneMouseEvent *mouseEvent = static_cast<QGraphicsSceneMouseEvent*>(event);
+        double clickGap = addItem->boundingRect().height()/2;
+        if(mouseEvent->pos().y()>(addItem->pos().y()-clickGap) && mouseEvent->pos().y()<(addItem->pos().y()+clickGap*3)){
+            addGrid();
+            ShowBoardControl *control = qobject_cast<ShowBoardControl*>(ShowBoardControl::fromItem(this));
+            if(control != nullptr)
+                control->sizeChanged();
+            adjustControlItemPos();
+            adjustInkCanvas();
+            return true;
+        }
+        if(decItem->isVisible()&&mouseEvent->pos().y()>(decItem->pos().y()-clickGap) && mouseEvent->pos().y()<(decItem->pos().y()+clickGap*3)){
+            decGrid();
+            ShowBoardControl *control = qobject_cast<ShowBoardControl*>(ShowBoardControl::fromItem(this));
+            if(control != nullptr)
+                control->sizeChanged();
+            adjustControlItemPos();
+            adjustInkCanvas();
+            return true;
+        }
+
+    }
     if(watched == controlItem && event->type()==QEvent::GraphicsSceneResize){
         QGraphicsSceneResizeEvent *sceneResizeEvent = static_cast<QGraphicsSceneResizeEvent*>(event);
-         newScaleSize = sceneResizeEvent->newSize();
-         adjustControlItemPos();
-         return true;
+        newScaleSize = sceneResizeEvent->newSize();
+        adjustControlItemPos();
+        return true;
     }
-    if(watched == addItem && event->type()==QEvent::GraphicsSceneMousePress){
-       addGrid();
-       ShowBoardControl *control = qobject_cast<ShowBoardControl*>(ShowBoardControl::fromItem(this));
-       if(control != nullptr)
-          control->sizeChanged();
-       adjustControlItemPos();
-       adjustInkCanvas();
-       return true;
-    }
-
-    if(watched == decItem && event->type()==QEvent::GraphicsSceneMousePress ){
-       decGrid();
-       ShowBoardControl *control = qobject_cast<ShowBoardControl*>(ShowBoardControl::fromItem(this));
-       if(control != nullptr)
-          control->sizeChanged();
-       adjustControlItemPos();
-       adjustInkCanvas();
-       return true;
-    }
-
     return false;
 }
 
@@ -168,8 +172,6 @@ QVariant WhitingGrid::itemChange(QGraphicsItem::GraphicsItemChange change, const
 {
     switch (change) {
     case ItemVisibleHasChanged:
-        addItem->installSceneEventFilter(this);
-        decItem->installSceneEventFilter(this);
         controlItem->installSceneEventFilter(this);
         break;
     }
@@ -231,7 +233,7 @@ void WhitingGrid::setType(WhitingGridType type){
 }
 
 void WhitingGrid::addGrid(){
-        gridCount_++;
+    gridCount_++;
     update();
 }
 
@@ -245,13 +247,13 @@ void WhitingGrid::adjustWidth(){
     switch (type_) {
     case WhitingGridType::TinWordFormat:
         m_width = m_height * tinWidthHeihtRatio;
-           break;
-       case WhitingGridType::FourLinesAndThreeGrids:
-          m_width = m_height * fourLineThreeGridsWidthHeihtRatio;
-          break;
-       case WhitingGridType::PinYinTinGrids:
-          m_width = m_height * pinYinTinWidthHeightRatio;
-          break;
+        break;
+    case WhitingGridType::FourLinesAndThreeGrids:
+        m_width = m_height * fourLineThreeGridsWidthHeihtRatio;
+        break;
+    case WhitingGridType::PinYinTinGrids:
+        m_width = m_height * pinYinTinWidthHeightRatio;
+        break;
     }
 }
 
@@ -276,7 +278,7 @@ void WhitingGrid::adjustInkCanvas()
     qDebug()<<"width:"<<boundingRect().width()<<"height:"<<boundingRect().height();
     QGraphicsProxyWidget * proxy = ink->graphicsProxyWidget();
     if (proxy)
-       proxy->resize(ink->minimumSize());
+        proxy->resize(ink->minimumSize());
 }
 
 
