@@ -1,9 +1,11 @@
-﻿#ifndef WHITINGGRID_H
+#ifndef WHITINGGRID_H
 #define WHITINGGRID_H
 
 #include <QGraphicsItem>
 #include <Windows/Controls/inkcanvas.h>
 #include "TeachingTools_global.h"
+
+class InkCanvasStrokeCollectedEventArgs;
 
 enum WhitingGridType
 {
@@ -54,7 +56,7 @@ private:
    void adjustWidth();
    void adjustControlItemPos();
    void adjustInkCanvas();
-
+    void onStrokeCollected(InkCanvasStrokeCollectedEventArgs& e);
 private:
     QGraphicsPixmapItem *addItem;
     QGraphicsPixmapItem *decItem;

@@ -1,4 +1,6 @@
-﻿#include "whitinggrid.h"
+#include "whitinggrid.h"
+#include "controls/whitinggridcontrol.h"
+#include "inkcanvas/inkstrokecontrol.h"
 
 #include <QPainter>
 #include <QDebug>
@@ -6,8 +8,8 @@
 #include <QGraphicsSceneResizeEvent>
 #include <QGraphicsProxyWidget>
 #include <core/control.h>
-#include <control/showboardcontrol.h>
 #include <Windows/Controls/inkcanvas.h>
+#include <Windows/Controls/inkevents.h>
 
 WhitingGrid::WhitingGrid(QGraphicsItem *parent)
 {
@@ -36,9 +38,9 @@ WhitingGrid::WhitingGrid(int h,WhitingGridType type,QGraphicsItem * parent):m_he
     addItem->setX(2); // icon不居中矫正
     decItem->setX(2);
     adjustControlItemPos();
-    ink = new InkCanvas;
-    ink->setStyleSheet("background:#00000000");
-    ink->SetEditingMode(InkCanvasEditingMode::Ink);
+    ink = InkStrokeControl::createInkCanvas(8);
+    ink->AddHandler(InkCanvas::StrokeCollectedEvent,
+                    RoutedEventHandlerT<WhitingGrid, InkCanvasStrokeCollectedEventArgs, &WhitingGrid::onStrokeCollected>(this));
     QGraphicsProxyWidget * proxy = new QGraphicsProxyWidget(this);
     proxy->setWidget(ink);
     adjustInkCanvas();
@@ -141,7 +143,7 @@ bool WhitingGrid::sceneEventFilter(QGraphicsItem *watched, QEvent *event)
         double clickGap = addItem->boundingRect().height()/2;
         if(mouseEvent->pos().y()>(addItem->pos().y()-clickGap) && mouseEvent->pos().y()<(addItem->pos().y()+clickGap*3)){
             addGrid();
-            ShowBoardControl *control = qobject_cast<ShowBoardControl*>(ShowBoardControl::fromItem(this));
+            WhitingGridControl *control = qobject_cast<WhitingGridControl*>(WhitingGridControl::fromItem(this));
             if(control != nullptr)
                 control->sizeChanged();
             adjustControlItemPos();
@@ -150,7 +152,7 @@ bool WhitingGrid::sceneEventFilter(QGraphicsItem *watched, QEvent *event)
         }
         if(decItem->isVisible()&&mouseEvent->pos().y()>(decItem->pos().y()-clickGap) && mouseEvent->pos().y()<(decItem->pos().y()+clickGap*3)){
             decGrid();
-            ShowBoardControl *control = qobject_cast<ShowBoardControl*>(ShowBoardControl::fromItem(this));
+            WhitingGridControl *control = qobject_cast<WhitingGridControl*>(WhitingGridControl::fromItem(this));
             if(control != nullptr)
                 control->sizeChanged();
             adjustControlItemPos();
@@ -279,6 +281,11 @@ void WhitingGrid::adjustInkCanvas()
     QGraphicsProxyWidget * proxy = ink->graphicsProxyWidget();
     if (proxy)
         proxy->resize(ink->minimumSize());
+}
+
+void WhitingGrid::onStrokeCollected(InkCanvasStrokeCollectedEventArgs& e)
+{
+    InkStrokeControl::applyPressure(e);
 }
 
 

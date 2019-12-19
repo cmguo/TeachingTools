@@ -20,16 +20,33 @@ QMAKE_CXXFLAGS += /utf-8
 
 SOURCES += \
     buttonsheet.cpp \
-    control/showboardcontrol.cpp \
     teachingtools.cpp \
     whitinggrid.cpp
 
 HEADERS += \
     TeachingTools_global.h \
     buttonsheet.h \
-    control/showboardcontrol.h \
     teachingtools.h \
     whitinggrid.h
+
+RESOURCES += \
+    TeachingToosRes.qrc
+
+include(controls/controls.pri)
+include(pagebox/pagebox.pri)
+include(inkcanvas/inkcanvas.pri)
+
+CONFIG(debug, debug|release) {
+    win32: TARGET = $$join(TARGET,,,d)
+}
+
+msvc:CONFIG(release, debug|release) {
+    QMAKE_CXXFLAGS+=/Zi
+    QMAKE_LFLAGS+= /INCREMENTAL:NO /Debug
+    target2.files = $$OUT_PWD/release/iClassRoom.pdb
+    target2.path = $$[QT_INSTALL_LIBS]
+    INSTALLS += target2
+}
 
 # Default rules for deployment.
 unix {
@@ -53,15 +70,10 @@ INCLUDEPATH += $$PWD/../QtComposition
 DEPENDPATH += $$PWD/../QtComposition
 
 
-win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../ShowBoard/release/ -lShowBoard
-else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../ShowBoard/debug/ -lShowBoardd
-else:unix: LIBS += -L$$OUT_PWD/../ShowBoard/ -lShowBoard
+INCLUDEPATH += $$PWD/../QtPromise/src
 
-INCLUDEPATH += $$PWD/../ShowBoard
-DEPENDPATH += $$PWD/../ShowBoard
-
-RESOURCES += \
-    TeachingToosRes.qrc
+INCLUDEPATH += $$PWD/../qtpromise/src/qtpromise $$PWD/../qtpromise/include
+#DEPENDPATH += $$PWD/../qtpromise/src/qtpromise
 
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../InkCanvas/release/ -lInkCanvas
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../InkCanvas/debug/ -lInkCanvasd
