@@ -7,7 +7,8 @@
 
 #include <QGraphicsProxyWidget>
 
-InkPadPlugin::InkPadPlugin()
+InkPadPlugin::InkPadPlugin(QObject * parent)
+    : PageBoxPlugin(parent)
 {
     inkCanvas_ = InkStrokeControl::createInkCanvas(8);
     inkCanvas_->AddHandler(InkCanvas::StrokeCollectedEvent, RoutedEventHandlerT<

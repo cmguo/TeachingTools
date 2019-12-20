@@ -3,8 +3,9 @@
 
 #include <QGraphicsItem>
 
-PageBoxPlugin::PageBoxPlugin()
-    : item_(nullptr)
+PageBoxPlugin::PageBoxPlugin(QObject * parent)
+    : QObject(parent)
+    , item_(nullptr)
 {
 }
 

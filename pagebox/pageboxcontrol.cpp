@@ -2,6 +2,7 @@
 #include "pageboxitem.h"
 #include "pageboxdocitem.h"
 #include "qpropertybindings.h"
+#include "inkpadplugin.h"
 
 #include <core/resource.h>
 #include <core/resourceview.h>
@@ -59,10 +60,16 @@ void PageBoxControl::attaching()
         return;
     PageBoxItem * item = static_cast<PageBoxItem *>(item_);
     PageBoxDocItem * doc = item->document();
-    doc->setLayoutMode(PageBoxDocItem::Continuous);
-    doc->setDirection(PageBoxDocItem::Vertical);
-    doc->setScaleMode(PageBoxDocItem::WholePage);
-    doc->setPadding(30);
+    if (res_->flags() & ResourceView::LargeCanvas) {
+        doc->setLayoutMode(PageBoxDocItem::Continuous);
+        doc->setDirection(PageBoxDocItem::Vertical);
+        doc->setScaleMode(PageBoxDocItem::WholePage);
+        doc->setPadding(30);
+    } else {
+        doc->setLayoutMode(PageBoxDocItem::Duplex);
+        doc->setDirection(PageBoxDocItem::Horizontal);
+        doc->setScaleMode(PageBoxDocItem::WholePage);
+    }
     //doc->setPlugin(new InkPadPlugin);
 }
 
@@ -96,6 +103,12 @@ void PageBoxControl::attached()
     }
 }
 
+void PageBoxControl::detaching()
+{
+    PageBoxItem * item = static_cast<PageBoxItem *>(item_);
+    item->document()->setPlugin(nullptr);
+}
+
 void PageBoxControl::resize(QSizeF const & size)
 {
     PageBoxItem * item = static_cast<PageBoxItem *>(item_);
@@ -104,7 +117,7 @@ void PageBoxControl::resize(QSizeF const & size)
     item->setRect(rect);
     item->sizeChanged();
     Control::resize(size);
-    if (!(res_->flags() & ResourceView::LargeCanvas)) {
+    if (!(res_->flags() & ResourceView::LargeCanvas) && !transform_->children().empty()) { // maybe before attached
         QPointF pos(0, rect.bottom() - 60);
         StaticTransform* ct2 = static_cast<StaticTransform*>(transform_->children().back()->children().first());
         ct2->setTransform(QTransform::fromTranslate(pos.x(), pos.y()));
@@ -144,6 +157,19 @@ void PageBoxControl::loadData()
 
 void PageBoxControl::parseData()
 {
+}
+
+void PageBoxControl::enableInkPad()
+{
+    PageBoxItem * item = static_cast<PageBoxItem *>(item_);
+    for(QObject* c : res_->children()) {
+        InkPadPlugin * ink = qobject_cast<InkPadPlugin*>(c);
+        if (ink) {
+            item->document()->setPlugin(ink);
+            return;
+        }
+    }
+    item->document()->setPlugin(new InkPadPlugin(res_));
 }
 
 QByteArray PageBoxControl::pageBoxState()

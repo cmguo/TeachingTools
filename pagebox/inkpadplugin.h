@@ -14,7 +14,7 @@ class InkPadPlugin : public PageBoxPlugin
 {
     Q_OBJECT
 public:
-    InkPadPlugin();
+    InkPadPlugin(QObject * parent = nullptr);
 
 protected:
     virtual void onRelayout(int pageCount, int curPage) override;

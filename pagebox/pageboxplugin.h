@@ -12,7 +12,7 @@ class TEACHINGTOOLS_EXPORT PageBoxPlugin : public QObject
 {
     Q_OBJECT
 public:
-    PageBoxPlugin();
+    PageBoxPlugin(QObject * parent = nullptr);
 
     virtual ~PageBoxPlugin();
 

@@ -100,7 +100,7 @@ void PageBoxDocItem::setPlugin(PageBoxPlugin* plugin)
     if (plugin == plugin_)
         return;
     if (plugin_) {
-        delete plugin_;
+        scene()->removeItem(pluginItem_);
     }
     plugin_ = plugin;
     if (plugin_) {
@@ -147,7 +147,8 @@ void PageBoxDocItem::setItems(QAbstractItemModel * model)
         QObject::connect(model_, &QAbstractItemModel::rowsMoved,
                          this, &PageBoxDocItem::resourceMoved);
     }
-    curPage_ = 0;
+    if (pos_.isNull())
+        curPage_ = 0;
     relayout();
     rescale();
     emit currentPageChanged(curPage_);
@@ -218,7 +219,10 @@ void PageBoxDocItem::relayout()
         }
     }
     if (plugin_) {
-        plugin_->onRelayout(pageCount(), curPage_);
+        if (pos_.isNull())
+            plugin_->onRelayout(pageCount(), curPage_);
+        else
+            plugin_->onPageChanged(-1, curPage_);
     }
     if (direction_ == Vertical) {
         pos.setX(pageSize_.width());
@@ -443,8 +447,10 @@ void PageBoxDocItem::restoreState(QByteArray data)
 
 void PageBoxDocItem::restorePosition()
 {
-    if (!pos_.isNull())
+    if (!pos_.isNull()) {
         transform_->translateTo(pos_);
+        pos_ = QPointF();
+    }
 }
 
 void PageBoxDocItem::resourceInserted(QModelIndex const &parent, int first, int last)

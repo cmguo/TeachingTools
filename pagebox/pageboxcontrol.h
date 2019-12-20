@@ -24,6 +24,8 @@ protected:
 
     virtual void attached() override;
 
+    virtual void detaching() override;
+
     virtual void resize(QSizeF const & size) override;
 
     virtual SelectMode selectTest(QPointF const & point) override;
@@ -32,6 +34,8 @@ protected:
     virtual void loadData();
 
     virtual void parseData();
+
+    void enableInkPad();
 
 protected:
     QByteArray pageBoxState();
