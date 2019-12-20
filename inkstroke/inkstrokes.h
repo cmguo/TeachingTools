@@ -19,15 +19,30 @@ class TEACHINGTOOLS_EXPORT InkStrokes : public Strokes
 public:
     Q_INVOKABLE InkStrokes(Resource* res);
 
-    Q_INVOKABLE InkStrokes(InkStrokes const & o);
+    Q_INVOKABLE InkStrokes(InkStrokes & o);
+
+    virtual ~InkStrokes() override;
+
+signals:
+    void cloned() const;
 
 public:
     QSharedPointer<StrokeCollection> strokes();
 
     QtPromise::QPromise<void> load(QSizeF const & size, QSharedPointer<DrawingAttributes> attr);
 
+    bool isClone() const
+    {
+        return prev_;
+    }
+
+protected:
+    virtual InkStrokes* clone() const override;
+
 private:
     QSharedPointer<StrokeCollection> strokes_;
+    InkStrokes * next_;
+    InkStrokes * prev_;
 };
 
 #endif // INKSTROKE_H

@@ -10,7 +10,6 @@ REGISTER_RESOURCE_VIEW(InkStrokes, "inkstroke");
 InkStrokeControl::InkStrokeControl(ResourceView *res)
     : WidgetControl(res, FullLayout, DefaultFlags)
 {
-
 }
 
 InkCanvasEditingMode InkStrokeControl::editingMode()
@@ -35,13 +34,27 @@ void InkStrokeControl::attached()
 {
     InkStrokes * strokes = qobject_cast<InkStrokes *>(res_);
     InkCanvas * ink = static_cast<InkCanvas*>(widget_);
-    ink->AddHandler(InkCanvas::StrokeCollectedEvent, RoutedEventHandlerT<
-                    InkStrokeControl, InkCanvasStrokeCollectedEventArgs, &InkStrokeControl::onStrokeCollected>(this));
+    if (!strokes->isClone()) {
+        ink->AddHandler(InkCanvas::StrokeCollectedEvent, RoutedEventHandlerT<
+                        InkStrokeControl, InkCanvasStrokeCollectedEventArgs, &InkStrokeControl::onStrokeCollected>(this));
+    }
+    if (res_->flags() & ResourceView::Splittable) {
+        QObject::connect(strokes, &InkStrokes::cloned, this, [ink, strokes](){
+            ink->SetStrokes(strokes->strokes());
+        });
+    }
+    if (strokes->strokes()) {
+        if (strokes->isClone())
+            setEditingMode(InkCanvasEditingMode::None);
+        ink->SetStrokes(strokes->strokes());
+        loadFinished(true);
+        return;
+    }
     strokes->load(widget_->size(), ink->DefaultDrawingAttributes()).then([life = life(), this, strokes, ink]() {
         if (life.isNull())
             return;
         if (strokes->strokes()) {
-            ink->Strokes()->Add(strokes->strokes());
+            ink->SetStrokes(strokes->strokes());
         }
         loadFinished(true);
     });

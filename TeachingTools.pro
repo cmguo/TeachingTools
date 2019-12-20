@@ -34,7 +34,7 @@ RESOURCES += \
 
 include(controls/controls.pri)
 include(pagebox/pagebox.pri)
-include(inkcanvas/inkcanvas.pri)
+include(inkstroke/inkstroke.pri)
 
 CONFIG(debug, debug|release) {
     win32: TARGET = $$join(TARGET,,,d)

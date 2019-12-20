@@ -1,6 +1,6 @@
 #include "whitinggrid.h"
 #include "controls/whitinggridcontrol.h"
-#include "inkcanvas/inkstrokecontrol.h"
+#include "inkstroke/inkstrokecontrol.h"
 
 #include <QPainter>
 #include <QDebug>

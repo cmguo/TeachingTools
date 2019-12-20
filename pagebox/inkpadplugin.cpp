@@ -1,6 +1,6 @@
 #include "inkpadplugin.h"
 #include "pageboxdocitem.h"
-#include "inkcanvas/inkstrokecontrol.h"
+#include "inkstroke/inkstrokecontrol.h"
 
 #include <Windows/Controls/inkcanvas.h>
 #include <Windows/Controls/inkevents.h>
