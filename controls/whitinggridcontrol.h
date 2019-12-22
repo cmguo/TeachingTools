@@ -1,10 +1,11 @@
 #ifndef WHITINGGRIDCONTROL_H
 #define WHITINGGRIDCONTROL_H
 
+#include "TeachingTools_global.h"
+
 #include <core/control.h>
 #include <QGraphicsPixmapItem>
 #include <qexport.h>
-#include "TeachingTools_global.h"
 
 class TEACHINGTOOLS_EXPORT WhitingGridControl: public Control
 {

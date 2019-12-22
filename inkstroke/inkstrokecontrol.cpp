@@ -9,6 +9,7 @@ REGISTER_RESOURCE_VIEW(InkStrokes, "inkstroke");
 
 InkStrokeControl::InkStrokeControl(ResourceView *res)
     : WidgetControl(res, FullLayout, DefaultFlags)
+    , tempSelect_(false)
 {
 }
 
@@ -69,8 +70,29 @@ void InkStrokeControl::detaching()
 
 Control::SelectMode InkStrokeControl::selectTest(QPointF const & pt)
 {
-    (void) pt;
-    return editingMode() == InkCanvasEditingMode::None ? PassSelect : NotSelect;
+    InkCanvas * ink = static_cast<InkCanvas*>(widget_);
+    if (editingMode() == InkCanvasEditingMode::None) {
+        InkCanvasSelectionHitResult result = ink->HitTestSelection(pt);
+        if (result != InkCanvasSelectionHitResult::None)
+            return NotSelect;
+        QSharedPointer<StrokeCollection> hits = ink->Strokes()->HitTest(pt);
+        if (hits && !hits->empty()) {
+            ink->Select(hits);
+            tempSelect_ = true;
+            return NotSelect;
+        }
+        return PassSelect;
+    } else if (editingMode() == InkCanvasEditingMode::Select && tempSelect_) {
+        InkCanvasSelectionHitResult result = ink->HitTestSelection(pt);
+        if (result == InkCanvasSelectionHitResult::None) {
+            ink->SetEditingMode(InkCanvasEditingMode::None);
+            return PassSelect;
+        } else {
+            return NotSelect;
+        }
+    } else {
+        return NotSelect;
+    }
 }
 
 void InkStrokeControl::onStrokeCollected(InkCanvasStrokeCollectedEventArgs &e)

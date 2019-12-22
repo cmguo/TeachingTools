@@ -39,6 +39,9 @@ protected:
 
 private:
     void onStrokeCollected(InkCanvasStrokeCollectedEventArgs& e);
+
+private:
+    bool tempSelect_;
 };
 
 #endif // INKSTROKECONTROL_H

@@ -43,7 +43,7 @@ CONFIG(debug, debug|release) {
 msvc:CONFIG(release, debug|release) {
     QMAKE_CXXFLAGS+=/Zi
     QMAKE_LFLAGS+= /INCREMENTAL:NO /Debug
-    target2.files = $$OUT_PWD/release/iClassRoom.pdb
+    target2.files = $$OUT_PWD/release/TeachingTools.pdb
     target2.path = $$[QT_INSTALL_LIBS]
     INSTALLS += target2
 }
@@ -64,7 +64,7 @@ DEPENDPATH += $$PWD/../ShowBoard
 
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../QtComposition/release/ -lQtComposition
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../QtComposition/debug/ -lQtCompositiond
-else:unix: LIBS += -L$$OUT_PWD/../QtComposition/ -lQtCompositiond
+else:unix: LIBS += -L$$OUT_PWD/../QtComposition/ -lQtComposition
 
 INCLUDEPATH += $$PWD/../QtComposition
 DEPENDPATH += $$PWD/../QtComposition
@@ -77,7 +77,7 @@ INCLUDEPATH += $$PWD/../qtpromise/src/qtpromise $$PWD/../qtpromise/include
 
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../InkCanvas/release/ -lInkCanvas
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../InkCanvas/debug/ -lInkCanvasd
-else:unix: LIBS += -L$$OUT_PWD/../InkCanvas/ -lInkCanvasd
+else:unix: LIBS += -L$$OUT_PWD/../InkCanvas/ -lInkCanvas
 
 INCLUDEPATH += $$PWD/../InkCanvas
 DEPENDPATH += $$PWD/../InkCanvas
