@@ -34,6 +34,8 @@ PageBoxItem::PageBoxItem(QGraphicsItem * parent)
     proxy->setTransform(QTransform::fromTranslate(pos.x(), pos.y()));
     toolBarProxy_ = proxy;
 
+    QObject::connect(toolBar_->scaleUpBtn, SIGNAL(clicked()), this, SLOT(toolButtonClicked()));
+    QObject::connect(toolBar_->scaleDownBtn, SIGNAL(clicked()), this, SLOT(toolButtonClicked()));
     QObject::connect(toolBar_->preBtn, SIGNAL(clicked()), this, SLOT(toolButtonClicked()));
     QObject::connect(toolBar_->nextBtn, SIGNAL(clicked()), this, SLOT(toolButtonClicked()));
     QObject::connect(toolBar_->exitBtn, SIGNAL(clicked()), this, SLOT(toolButtonClicked()));
@@ -68,10 +70,14 @@ void PageBoxItem::toolButtonClicked()
 {
     if (toolBar_->preBtn == sender()) {
          document_->previousPage();
-    } else if(toolBar_->nextBtn){
+    } else if(toolBar_->nextBtn == sender()){
          document_->nextPage();
-    } else if(toolBar_->exitBtn){
+    } else if(toolBar_->exitBtn == sender()){
          Control::fromItem(this)->resource()->removeFromPage();
+    } else if(toolBar_->scaleUpBtn == sender()){
+         document_->stepScale(true);
+    } else if(toolBar_->scaleDownBtn == sender()){
+        document_->stepScale(false);
     }
 }
 

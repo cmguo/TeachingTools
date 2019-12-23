@@ -23,6 +23,8 @@ public Q_SLOTS:
 
 public:
     QPushButton *fullBtn;
+    QPushButton *scaleUpBtn;
+    QPushButton *scaleDownBtn;
     QPushButton *preBtn;
     QLabel *progressLabel;
     QPushButton *nextBtn;

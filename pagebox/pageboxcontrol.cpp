@@ -27,7 +27,7 @@ QGraphicsItem* PageBoxControl::create(ResourceView *res)
 {
     (void)res;
     PageBoxItem * item = new PageBoxItem;
-    if (res_->flags() & ResourceView::LargeCanvas) {
+    if (res_->flags().testFlag(ResourceView::LargeCanvas)) {
         item->setAcceptedMouseButtons(Qt::NoButton);
     }
     return item;
@@ -60,7 +60,7 @@ void PageBoxControl::attaching()
         return;
     PageBoxItem * item = static_cast<PageBoxItem *>(item_);
     PageBoxDocItem * doc = item->document();
-    if (res_->flags() & ResourceView::LargeCanvas) {
+    if (res_->flags().testFlag(ResourceView::LargeCanvas)) {
         doc->setLayoutMode(PageBoxDocItem::Continuous);
         doc->setDirection(PageBoxDocItem::Vertical);
         doc->setScaleMode(PageBoxDocItem::WholePage);
@@ -76,7 +76,7 @@ void PageBoxControl::attaching()
 void PageBoxControl::attached()
 {
     PageBoxItem * item = static_cast<PageBoxItem *>(item_);
-    if (res_->flags() & ResourceView::LargeCanvas) {
+    if (res_->flags().testFlag(ResourceView::LargeCanvas)) {
         // attach to canvas transform
         QGraphicsItem* canvas = item_->parentItem()->parentItem();
         QGraphicsTransform * ct = Control::fromItem(canvas)->transform();
@@ -117,7 +117,7 @@ void PageBoxControl::resize(QSizeF const & size)
     item->setRect(rect);
     item->sizeChanged();
     Control::resize(size);
-    if (!(res_->flags() & ResourceView::LargeCanvas) && !transform_->children().empty()) { // maybe before attached
+    if (!(res_->flags().testFlag(ResourceView::LargeCanvas)) && !transform_->children().empty()) { // maybe before attached
         QPointF pos(0, rect.bottom() - 60);
         StaticTransform* ct2 = static_cast<StaticTransform*>(transform_->children().back()->children().first());
         ct2->setTransform(QTransform::fromTranslate(pos.x(), pos.y()));
@@ -219,10 +219,22 @@ void PageBoxControl::loadPages(PageBoxItem * item)
     }
     loadFinished(true);
     //*
-    if (res_->flags() & ResourceView::LargeCanvas) {
+    if (res_->flags().testFlag(ResourceView::LargeCanvas)) {
         QGraphicsItem* canvas = item_->parentItem()->parentItem();
-        ResourceTransform* tr = item->document()->detachTransform();
-        Control::fromItem(canvas)->resource()->transform().attachTransform(tr);
+        ResourceTransform& tr = *item->document()->detachTransform();
+        ResourceTransform& tc = Control::fromItem(canvas)->resource()->transform();
+        if (!qFuzzyIsNull(tc.scale().m11() - 1)) {
+            // canvas transform must attached with scale 1.0
+            //   or will enlarge canvas to document translate scale
+            //   not known why, but i adjust it to 1.0 here
+            QTransform t = tc.transform();
+            tc.scaleTo(1);
+            tr = ResourceTransform(tr * tc.transform() * t.inverted());
+            tc.attachTransform(&tr);
+            tc = ResourceTransform(t);
+        } else {
+            tc.attachTransform(&tr);
+        }
     }
     //*/
 }

@@ -86,8 +86,36 @@ void PageBoxDocItem::setManualScale(qreal scale, bool changeMode)
 
 void PageBoxDocItem::transferToManualScale()
 {
+    QRectF vrect = static_cast<PageBoxItem*>(parentItem())->visibleRect();
+    qreal sw = vrect.width() / pageSize2_.width();
+    qreal sh = vrect.height() / pageSize2_.height();
+    qreal sMin = qMin(sh, sw);
+    qreal sMax = direction_ == Vertical ? sw : sh;
+    qreal d = sMax / sMin;
+    maxScaleLevel_ = 1;
+    while (d >= 1.44) {
+        maxScaleLevel_ *= 2;
+        d = sqrt(d);
+    }
+    scaleInterval_ = d;
+    scaleLevel_ = scaleMode_ == WholePage ? 0 : maxScaleLevel_;
     manualScale_ = scale();
     scaleMode_ = ManualScale;
+}
+
+void PageBoxDocItem::stepScale(bool up)
+{
+    if (up) {
+        if (scaleLevel_ < maxScaleLevel_) {
+            ++scaleLevel_;
+            setManualScale(scale() * scaleInterval_);
+        }
+    } else {
+        if (scaleLevel_ > 0) {
+            --scaleLevel_;
+            setManualScale(scale() / scaleInterval_);
+        }
+    }
 }
 
 void PageBoxDocItem::setPadding(qreal pad)
@@ -266,7 +294,7 @@ void PageBoxDocItem::onTransformChanged()
     if (layoutMode_ == Continuous) {
         QRectF vrect = static_cast<PageBoxItem*>(parentItem())->visibleRect();
         QPointF off = (vrect.center() - transform_->transform().map(rect().topLeft())) / scale();
-        qDebug() << "PageBoxDocItem" << transform_->transform() << off;
+        qDebug() << "PageBoxDocItem" << transform_->transform() << vrect << off;
         int lastPage = curPage_;
         if (direction_ == Vertical)
             curPage_ = static_cast<int>(off.y() / (pageSize_.height() + padding()));
@@ -397,6 +425,7 @@ void PageBoxDocItem::goToPage(int page)
             off.setY(topLeft.y() + (pageSize_.height() + padding_) * -curPage_ * scale());
         else
             off.setX(topLeft.x() + (pageSize_.width() + padding_) * -curPage_ * scale());
+        qDebug() << "goToPage" << page << off;
         transform_->translateTo(off);
     }
     emit currentPageChanged(curPage_);
@@ -421,6 +450,7 @@ struct TransformData
 
 QByteArray PageBoxDocItem::saveState()
 {
+    qDebug() << "PageBoxDocItem saveState" << transform_->transform();
     pos_ = offset();
     char * p1 = reinterpret_cast<char *>(&pageSize_);
     char * p2 = reinterpret_cast<char *>(&pageCanvas_);
@@ -450,6 +480,7 @@ void PageBoxDocItem::restorePosition()
     if (!pos_.isNull()) {
         transform_->translateTo(pos_);
         pos_ = QPointF();
+        qDebug() << "PageBoxDocItem restorePosition" << transform_->transform();
     }
 }
 

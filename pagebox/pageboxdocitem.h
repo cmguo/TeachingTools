@@ -48,6 +48,8 @@ public:
 
     void transferToManualScale();
 
+    void stepScale(bool up);
+
     void setPadding(qreal pad);
 
     void setPlugin(PageBoxPlugin* plugin);
@@ -162,7 +164,9 @@ private:
     qreal manualScale_;
     QPointF pos_;
     int curPage_;
+    qreal scaleInterval_;
     int scaleLevel_;
+    int maxScaleLevel_;
 
 private:
     QGraphicsRectItem * pageCanvas_;

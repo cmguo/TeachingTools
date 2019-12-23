@@ -15,7 +15,20 @@ PageBoxToolBar::PageBoxToolBar(QWidget *parent): QWidget(parent)
     fullBtn->setIconSize(QSize(20,20));
     fullBtn->setIcon(QIcon(":/icon/icon/enter_full_screen_btn_icon.svg"));
     fullBtn->setText(("全屏"));
-    fullBtn->setObjectName(("fullBtn"));
+
+    QLabel *spliterLabel4 = new QLabel(this);
+    spliterLabel4->setText("|");
+    scaleUpBtn = new QPushButton(this);
+    scaleUpBtn->setIconSize(QSize(20,20));
+    scaleUpBtn->setText(("+"));
+    scaleUpBtn->setObjectName(("scaleUpBtn"));
+
+    QLabel *spliterLabel3 = new QLabel(this);
+    spliterLabel3->setText("|");
+    scaleDownBtn = new QPushButton(this);
+    scaleDownBtn->setIconSize(QSize(20,20));
+    scaleDownBtn->setText(("-"));
+    scaleDownBtn->setObjectName(("scaleDownBtn"));
 
     QLabel *spliterLabel = new QLabel(this);
     spliterLabel->setText("|");
@@ -36,6 +49,12 @@ PageBoxToolBar::PageBoxToolBar(QWidget *parent): QWidget(parent)
     horizontalLayout->addWidget(fullBtn);
     horizontalLayout->addStretch(1);
     horizontalLayout->addWidget(spliterLabel);
+    horizontalLayout->addWidget(scaleUpBtn);
+    horizontalLayout->addStretch(1);
+    horizontalLayout->addWidget(spliterLabel3);
+    horizontalLayout->addWidget(scaleDownBtn);
+    horizontalLayout->addStretch(1);
+    horizontalLayout->addWidget(spliterLabel4);
     horizontalLayout->addStretch(1);
     horizontalLayout->addWidget(preBtn);
     horizontalLayout->addStretch(1);
