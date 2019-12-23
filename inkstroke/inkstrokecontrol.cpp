@@ -108,6 +108,7 @@ InkCanvas *InkStrokeControl::createInkCanvas(qreal lineWidth)
     ink->DefaultDrawingAttributes()->SetFitToCurve(true);
     ink->DefaultDrawingAttributes()->SetWidth(lineWidth);
     ink->DefaultDrawingAttributes()->SetHeight(lineWidth);
+    ink->SetEditingMode(InkCanvasEditingMode::None);
     ink->setAttribute(Qt::WA_NoSystemBackground);
     return ink;
 }

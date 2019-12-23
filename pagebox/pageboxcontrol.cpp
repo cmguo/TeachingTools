@@ -19,7 +19,7 @@
 REGISTER_CONTROL(PageBoxControl, "pages")
 
 PageBoxControl::PageBoxControl(ResourceView * res)
-    : Control(res, {}, {CanScale})
+    : Control(res, {KeepAspectRatio}, {CanRotate})
 {
 }
 
@@ -90,7 +90,7 @@ void PageBoxControl::attached()
         ControlTransform * ct1 = new ControlTransform(static_cast<ControlTransform*>(transform_), true, false, false);
         QPointF pos(0, item->boundingRect().bottom() - 60);
         StaticTransform* ct2 = new StaticTransform(QTransform::fromTranslate(pos.x(), pos.y()), ct1);
-        item->toolBar()->setTransformations({ct1, ct2});
+        item->toolBar()->setTransformations({ct2, ct1});
     }
     if (property("pageData").isValid()) {
         loadPages(item);

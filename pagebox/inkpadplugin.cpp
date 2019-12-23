@@ -7,6 +7,10 @@
 
 #include <QGraphicsProxyWidget>
 
+static constexpr char const * toolsStr =
+        "stroke()|书写|;"
+        "eraser()|擦除|;";
+
 InkPadPlugin::InkPadPlugin(QObject * parent)
     : PageBoxPlugin(parent)
 {
@@ -16,6 +20,17 @@ InkPadPlugin::InkPadPlugin(QObject * parent)
     QGraphicsProxyWidget * proxy = new QGraphicsProxyWidget;
     proxy->setWidget(inkCanvas_);
     item_ = proxy;
+    setToolsString(toolsStr);
+}
+
+void InkPadPlugin::stroke()
+{
+    inkCanvas_->SetEditingMode(InkCanvasEditingMode::Ink);
+}
+
+void InkPadPlugin::eraser()
+{
+    inkCanvas_->SetEditingMode(InkCanvasEditingMode::EraseByStroke);
 }
 
 void InkPadPlugin::onRelayout(int pageCount, int curPage)

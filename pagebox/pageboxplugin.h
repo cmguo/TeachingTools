@@ -3,12 +3,15 @@
 
 #include "TeachingTools_global.h"
 
+#include <core/toolbuttonprovider.h>
+
 #include <QObject>
 
 class QGraphicsItem;
 class PageBoxDocItem;
+class ToolButton;
 
-class TEACHINGTOOLS_EXPORT PageBoxPlugin : public QObject
+class TEACHINGTOOLS_EXPORT PageBoxPlugin : public ToolButtonProvider
 {
     Q_OBJECT
 public:

@@ -2,6 +2,8 @@
 #include "pageboxdocitem.h"
 #include "pageboxcontrol.h"
 #include "pageboxtoolbar.h"
+#include "pagenumberwidget.h"
+#include "pageboxplugin.h"
 
 #include <views/toolbarwidget.h>
 #include <core/control.h>
@@ -14,6 +16,14 @@
 #include <QPen>
 #include <QDebug>
 
+static constexpr char const * toolsStr =
+        "-full|全屏|NeedUpdate|:/icon/icon/enter_full_screen_btn_icon.svg;"
+        "duplex()|双页|;"
+        "single()|单页|;"
+        "scaleUp()|+|;"
+        "scaleDown()|-|;"
+        "pages||;";
+
 PageBoxItem::PageBoxItem(QGraphicsItem * parent)
     : QGraphicsRectItem(parent)
     , sizeMode_(FixedSize)
@@ -25,23 +35,28 @@ PageBoxItem::PageBoxItem(QGraphicsItem * parent)
     setRect({-150, -300, 300, 600});
 
     document_ = new PageBoxDocItem(this);
+    QObject::connect(document_, &PageBoxDocItem::currentPageChanged, this, &PageBoxItem::documentPageChanged);
+    QObject::connect(document_, &PageBoxDocItem::sizeChanged, this, &PageBoxItem::documentSizeChanged);
 
+    pageNumber_ = new PageNumberWidget();
     QGraphicsProxyWidget * proxy = new QGraphicsProxyWidget(this);
     toolBar_ = new PageBoxToolBar;
-    toolBar_->setIsFull(true);
     proxy->setWidget(toolBar_);
-    QPointF pos = -proxy->boundingRect().center();
-    proxy->setTransform(QTransform::fromTranslate(pos.x(), pos.y()));
+    QObject::connect(toolBar_, &PageBoxToolBar::sizeChanged, proxy, [proxy](){
+        QPointF pos = -proxy->boundingRect().center();
+        proxy->setTransform(QTransform::fromTranslate(pos.x(), pos.y()));
+    });
     toolBarProxy_ = proxy;
+    QObject::connect(pageNumber_, &PageNumberWidget::pageNumberChanged, this, &PageBoxItem::documentPageChanged);
+    setToolsString(toolsStr);
+    toolBar_->attachProvider(this);
 
-    QObject::connect(toolBar_->scaleUpBtn, SIGNAL(clicked()), this, SLOT(toolButtonClicked()));
-    QObject::connect(toolBar_->scaleDownBtn, SIGNAL(clicked()), this, SLOT(toolButtonClicked()));
-    QObject::connect(toolBar_->preBtn, SIGNAL(clicked()), this, SLOT(toolButtonClicked()));
-    QObject::connect(toolBar_->nextBtn, SIGNAL(clicked()), this, SLOT(toolButtonClicked()));
-    QObject::connect(toolBar_->exitBtn, SIGNAL(clicked()), this, SLOT(toolButtonClicked()));
-    QObject::connect(toolBar_, SIGNAL(fullStateChanged(bool)), this, SLOT(scaleModelChanged(bool)));
-    QObject::connect(document_, SIGNAL(currentPageChanged(int)), this, SLOT(documentPageChanged(int)));
-    QObject::connect(document_, SIGNAL(sizeChanged(QSizeF)), this, SLOT(documentSizeChanged(QSizeF)));
+    QObject::connect(document_, &PageBoxDocItem::pageCountChanged, pageNumber_, &PageNumberWidget::setTotal);
+}
+
+PageBoxItem::~PageBoxItem()
+{
+    delete pageNumber_;
 }
 
 bool PageBoxItem::selectTest(QPointF const & point)
@@ -53,6 +68,7 @@ bool PageBoxItem::selectTest(QPointF const & point)
 void PageBoxItem::setSizeMode(PageBoxItem::SizeMode mode)
 {
     sizeMode_ = mode;
+    emit buttonsChanged();
 }
 
 void PageBoxItem::sizeChanged()
@@ -66,35 +82,82 @@ QRectF PageBoxItem::visibleRect() const
                                     : boundingRect();
 }
 
-void PageBoxItem::toolButtonClicked()
+void PageBoxItem::duplex()
 {
-    if (toolBar_->preBtn == sender()) {
-         document_->previousPage();
-    } else if(toolBar_->nextBtn == sender()){
-         document_->nextPage();
-    } else if(toolBar_->exitBtn == sender()){
-         Control::fromItem(this)->resource()->removeFromPage();
-    } else if(toolBar_->scaleUpBtn == sender()){
-         document_->stepScale(true);
-    } else if(toolBar_->scaleDownBtn == sender()){
-        document_->stepScale(false);
+    document_->setLayoutMode(PageBoxDocItem::Duplex);
+}
+
+void PageBoxItem::single()
+{
+    document_->setLayoutMode(PageBoxDocItem::Single);
+}
+
+void PageBoxItem::scaleUp()
+{
+    document_->stepScale(true);
+}
+
+void PageBoxItem::scaleDown()
+{
+    document_->stepScale(false);
+}
+
+void PageBoxItem::exit()
+{
+    PageBoxControl * control = qobject_cast<PageBoxControl*>(Control::fromItem(this));
+    if (control) {
+        control->resource()->removeFromPage();
     }
 }
 
-void PageBoxItem::scaleModelChanged(bool isfull)
+void PageBoxItem::getToolButtons(QList<ToolButton *> &buttons, const QList<ToolButton *> &parents)
 {
-   if(!isfull) {
-      document_->setScaleMode(PageBoxDocItem::WholePage);
-      //document_->setLayoutMode(PageBoxDocItem::Single);
-   } else {
-      document_->setScaleMode(PageBoxDocItem::FitLayout);
-      //document_->setLayoutMode(PageBoxDocItem::Duplex);
-   }
+    if (document_->plugin_)
+        document_->plugin_->getToolButtons(buttons, parents);
+    ToolButtonProvider::getToolButtons(buttons, parents);
+    for (ToolButton * & b : buttons) {
+        if (b->name == "pages")
+            b = pageNumber_->toolButton();
+        if (sizeMode_ == FixedSize) {
+            if (b->name == "scaleUp()"
+                    || b->name == "scaleDown()")
+                b = nullptr;
+        } else {
+            if (b->name == "duplex()"
+                    || b->name == "single()")
+                b = nullptr;
+        }
+    }
+    buttons.removeAll(nullptr);
+    if (buttons.endsWith(&ToolButton::SPLITER))
+        buttons.pop_back();
+}
+
+void PageBoxItem::handleToolButton(const QList<ToolButton *> &buttons)
+{
+    ToolButton * button = buttons.back();
+    if (button->name == "full") {
+        if (button->flags.testFlag(ToolButton::Checked)) {
+            button->flags.setFlag(ToolButton::Checked, false);
+            button->title = "全屏";
+            button->icon = ":/icon/icon/enter_full_screen_btn_icon.svg";
+        } else {
+            button->flags.setFlag(ToolButton::Checked, true);
+            button->title = "缩小";
+            button->icon = ":/icon/icon/exit_full_screen_btn_icon.svg";
+        }
+    }
+    if (document_->plugin_)
+        document_->plugin_->handleToolButton(buttons);
+    ToolButtonProvider::handleToolButton(buttons);
 }
 
 void PageBoxItem::documentPageChanged(int page)
 {
-    toolBar_->updateProgressText(QString::fromLocal8Bit("%1/%2").arg(page + 1).arg(document_->pageCount()));
+    if (sender() == document_)
+        pageNumber_->setNumber(page);
+    else
+        document_->goToPage(page);
 }
 
 void PageBoxItem::documentSizeChanged(const QSizeF &size)

@@ -26,6 +26,9 @@ PageBoxDocItem::PageBoxDocItem(QGraphicsItem * parent)
     , scaleMode_(FitLayout)
     , padding_(0)
     , curPage_(-1)
+    , scaleInterval_(1.2)
+    , scaleLevel_(0)
+    , maxScaleLevel_(0)
     , plugin_(nullptr)
     , pluginItem_(nullptr)
 {
@@ -175,8 +178,9 @@ void PageBoxDocItem::setItems(QAbstractItemModel * model)
         QObject::connect(model_, &QAbstractItemModel::rowsMoved,
                          this, &PageBoxDocItem::resourceMoved);
     }
-    if (pos_.isNull())
-        curPage_ = 0;
+    pos_ = QPointF();
+    curPage_ = 0;
+    emit pageCountChanged(model_ ? model_->rowCount() : 0);
     relayout();
     rescale();
     emit currentPageChanged(curPage_);
@@ -209,6 +213,7 @@ void PageBoxDocItem::relayout()
             itemBindings_->unbind(QVariant::fromValue(item));
         }
     }
+    int lastPage = curPage_;
     if (layoutMode_ == Single) {
         QVariant item0 = model_->data(model_->index(curPage_, 0), Qt::UserRole + 1);
         PageBoxPageItem * pageItem = new PageBoxPageItem(pageCanvas_);
@@ -252,6 +257,8 @@ void PageBoxDocItem::relayout()
         else
             plugin_->onPageChanged(-1, curPage_);
     }
+    if (lastPage != curPage_)
+        emit currentPageChanged(curPage_);
     if (direction_ == Vertical) {
         pos.setX(pageSize_.width());
     } else {
@@ -378,7 +385,7 @@ void PageBoxDocItem::goToPage(int page)
     if (page == curPage_)
         return;
     if (layoutMode_ == Duplex && page != 0 && page % 2 == 0)
-        --page;
+        page = page < curPage_ ? page - 1 : page + 1;
     if (page < 0 || page >= model_->rowCount())
         return;
     int lastPage = curPage_;

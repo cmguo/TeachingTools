@@ -1,16 +1,21 @@
 #ifndef PAGEBOXITEM_H
 #define PAGEBOXITEM_H
 
+#include <core/toolbuttonprovider.h>
+
 #include <QGraphicsRectItem>
 
 class PageBoxDocItem;
 class PageBoxToolBar;
+class PageNumberWidget;
 
-class PageBoxItem : public QObject, public QGraphicsRectItem
+class PageBoxItem : public ToolButtonProvider, public QGraphicsRectItem
 {
     Q_OBJECT
 public:
     PageBoxItem(QGraphicsItem * parent = nullptr);
+
+    virtual ~PageBoxItem() override;
 
 public:
     PageBoxDocItem * document()
@@ -38,11 +43,23 @@ public:
 
     QRectF visibleRect() const;
 
-private slots:
-    void toolButtonClicked();
+public slots:
+    void duplex();
 
-    void scaleModelChanged(bool isfull);
+    void single();
 
+    void scaleUp();
+
+    void scaleDown();
+
+    void exit();
+
+protected:
+    void getToolButtons(QList<ToolButton *> &buttons, const QList<ToolButton *> &parents = {}) override;
+
+    void handleToolButton(const QList<ToolButton *> &buttons) override;
+
+private:
     void documentPageChanged(int page);
 
     void documentSizeChanged(QSizeF const & size);
@@ -63,6 +80,9 @@ private:
     PageBoxDocItem * document_;
     PageBoxToolBar * toolBar_;
     QGraphicsItem * toolBarProxy_;
+    PageNumberWidget * pageNumber_;
+
+private:
     SizeMode sizeMode_;
     QPointF start_;
     QRectF direction_;

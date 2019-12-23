@@ -4,7 +4,7 @@
 #include <QGraphicsItem>
 
 PageBoxPlugin::PageBoxPlugin(QObject * parent)
-    : QObject(parent)
+    : ToolButtonProvider(parent)
     , item_(nullptr)
 {
 }

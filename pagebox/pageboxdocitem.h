@@ -127,6 +127,8 @@ public:
     void restorePosition();
 
 signals:
+    void pageCountChanged(int count);
+
     void currentPageChanged(int page);
 
     void sizeChanged(QSizeF const & size);

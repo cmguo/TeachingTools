@@ -6,6 +6,7 @@ HEADERS += \
     $$PWD/pageboxpageitem.h \
     $$PWD/pageboxplugin.h \
     $$PWD/pageboxtoolbar.h \
+    $$PWD/pagenumberwidget.h \
     $$PWD/qpropertybinding.h \
     $$PWD/qpropertybindings.h
 
@@ -17,5 +18,6 @@ SOURCES += \
     $$PWD/pageboxpageitem.cpp \
     $$PWD/pageboxplugin.cpp \
     $$PWD/pageboxtoolbar.cpp \
+    $$PWD/pagenumberwidget.cpp \
     $$PWD/qpropertybinding.cpp \
     $$PWD/qpropertybindings.cpp
