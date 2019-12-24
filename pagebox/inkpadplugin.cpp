@@ -14,7 +14,7 @@ static constexpr char const * toolsStr =
 InkPadPlugin::InkPadPlugin(QObject * parent)
     : PageBoxPlugin(parent)
 {
-    inkCanvas_ = InkStrokeControl::createInkCanvas(16);
+    inkCanvas_ = InkStrokeControl::createInkCanvas(4);
     inkCanvas_->AddHandler(InkCanvas::StrokeCollectedEvent, RoutedEventHandlerT<
                     InkPadPlugin, InkCanvasStrokeCollectedEventArgs, &InkPadPlugin::onStrokeCollected>(this));
     QGraphicsProxyWidget * proxy = new QGraphicsProxyWidget;
@@ -63,12 +63,10 @@ void InkPadPlugin::onSizeChanged(const QSizeF &docSize, const QSizeF &pageSize, 
     qreal sw = viewSize.width() / pageSize.width();
     qreal sh = viewSize.height() / pageSize.height();
     qreal s = qMin(sh, sw);
-    QSizeF size2 = viewSize / s;
-    QSizeF size3(docSize.width() / pageSize.width() * size2.width(),
-                 docSize.height() / pageSize.height() * size2.height());
-    static_cast<QGraphicsProxyWidget*>(item_)->resize(size3);
-    size2 = (size3 - docSize) / 2;
-    item_->setPos(-size2.width(), -size2.height());
+    item_->setScale(1 / s);
+    QSizeF size(docSize.width() / pageSize.width() * viewSize.width(),
+                 docSize.height() / pageSize.height() * viewSize.height());
+    static_cast<QGraphicsProxyWidget*>(item_)->resize(size);
 }
 
 bool InkPadPlugin::selectTest(const QPointF &pt)

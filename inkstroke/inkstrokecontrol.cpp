@@ -4,6 +4,8 @@
 #include <Windows/Controls/inkevents.h>
 #include <Windows/Ink/stroke.h>
 
+#include <QGraphicsItem>
+
 REGISTER_CONTROL(InkStrokeControl, "inkstroke");
 REGISTER_RESOURCE_VIEW(InkStrokes, "inkstroke");
 
@@ -16,6 +18,7 @@ InkStrokeControl::InkStrokeControl(ResourceView *res)
 InkCanvasEditingMode InkStrokeControl::editingMode()
 {
     InkCanvas * ink = static_cast<InkCanvas*>(widget_);
+    ink->DefaultDrawingAttributes()->SetColor(Qt::white);
     return ink->EditingMode();
 }
 
@@ -23,6 +26,7 @@ void InkStrokeControl::setEditingMode(InkCanvasEditingMode mode)
 {
     InkCanvas * ink = static_cast<InkCanvas*>(widget_);
     ink->SetEditingMode(mode);
+    item_->setAcceptHoverEvents(mode != InkCanvasEditingMode::None);
 }
 
 QWidget *InkStrokeControl::createWidget(ResourceView *res)
