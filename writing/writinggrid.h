@@ -1,5 +1,5 @@
-#ifndef WHITINGGRID_H
-#define WHITINGGRID_H
+#ifndef WRITINGGRID_H
+#define WRITINGGRID_H
 
 #include <QGraphicsItem>
 #include <Windows/Controls/inkcanvas.h>
@@ -7,17 +7,17 @@
 
 class InkCanvasStrokeCollectedEventArgs;
 
-enum WhitingGridType
+enum WritingGridType
 {
     TinWordFormat, // 田字格
     FourLinesAndThreeGrids, // 四线三格
     PinYinTinGrids // 拼音田字格
 };
-class TEACHINGTOOLS_EXPORT WhitingGrid : public QGraphicsItem
+class TEACHINGTOOLS_EXPORT WritingGrid : public QGraphicsItem
 {
 public:
-    WhitingGrid(QGraphicsItem *parent = nullptr);
-    WhitingGrid(int h,WhitingGridType type = WhitingGridType::TinWordFormat,QGraphicsItem *parent = nullptr);
+    WritingGrid(QGraphicsItem *parent = nullptr);
+    WritingGrid(int h,WritingGridType type = WritingGridType::TinWordFormat,QGraphicsItem *parent = nullptr);
     QRectF boundingRect()const override;
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) override;
 
@@ -44,9 +44,9 @@ public:
 
     QColor getRealLineColor() const;
 
-   WhitingGridType getType();
+   WritingGridType getType();
 
-   void setType(WhitingGridType type);
+   void setType(WritingGridType type);
 
 public:
    void addGrid();
@@ -67,7 +67,7 @@ private:
     int m_dotLineWidth;
     QColor m_realLineColor;
     int m_realLineWidth;
-    WhitingGridType type_;
+    WritingGridType type_;
     int gridCount_ = 1;
     int padding = 1;
     float tinWidthHeihtRatio = 1.0f;
@@ -79,4 +79,4 @@ private:
 
 };
 
-#endif // WHITINGGRID_H
+#endif // WRITINGGRID_H

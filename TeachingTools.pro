@@ -19,20 +19,16 @@ DEFINES += QT_DEPRECATED_WARNINGS
 QMAKE_CXXFLAGS += /utf-8
 
 SOURCES += \
-    buttonsheet.cpp \
     teachingtools.cpp \
-    whitinggrid.cpp
 
 HEADERS += \
     TeachingTools_global.h \
-    buttonsheet.h \
     teachingtools.h \
-    whitinggrid.h
 
 RESOURCES += \
     TeachingToosRes.qrc
 
-include(controls/controls.pri)
+include(writing/writing.pri)
 include(pagebox/pagebox.pri)
 include(inkstroke/inkstroke.pri)
 

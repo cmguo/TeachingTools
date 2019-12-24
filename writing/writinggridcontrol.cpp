@@ -1,9 +1,9 @@
-#include "whitinggridcontrol.h"
+#include "writinggridcontrol.h"
+#include "writinggrid.h"
 
 #include <QBrush>
 #include <QEvent>
 #include <QGraphicsSceneResizeEvent>
-#include <whitinggrid.h>
 #include <views/itemframe.h>
 #include <QPen>
 #include <QDebug>
@@ -14,51 +14,51 @@
 
 static char const * toolstr =
         "changeGridType()|转换|:/showboard/icons/icon_delete.png;";
-WhitingGridControl::WhitingGridControl(ResourceView * res)
+WritingGridControl::WritingGridControl(ResourceView * res)
     : Control(res, {KeepAspectRatio})
 {
 }
 
-QGraphicsItem *WhitingGridControl::create(ResourceView *res)
+QGraphicsItem *WritingGridControl::create(ResourceView *res)
 {   QString path = res->url().path();
     int type = res->url().path().split("/")[1].toInt(0);
-    QGraphicsItem *item =new WhitingGrid(300,WhitingGridType(type));
+    QGraphicsItem *item =new WritingGrid(300,WritingGridType(type));
     return item;
 }
 
-void WhitingGridControl::attaching()
+void WritingGridControl::attaching()
 {
     ItemFrame *frame = itemFrame();
     frame->setBrush(QBrush(Qt::white));
     frame->addDockItem(ItemFrame::Top, 22);
     frame->addDockItem(ItemFrame::Left, 35);
     frame->addDockItem(ItemFrame::Buttom, 22);
-    QGraphicsItem *item = static_cast<WhitingGrid*>(item_)->createControlBar();
+    QGraphicsItem *item = static_cast<WritingGrid*>(item_)->createControlBar();
     frame->addDockItem(ItemFrame::Right,item);
 }
 
-void WhitingGridControl::attached()
+void WritingGridControl::attached()
 {
     loadFinished(true);
 }
 
-QString WhitingGridControl::toolsString(QString const & parent) const
+QString WritingGridControl::toolsString(QString const & parent) const
 {
     return nullptr;
 }
 
-void WhitingGridControl::changeGridType()
+void WritingGridControl::changeGridType()
 {
-    WhitingGrid *item = static_cast<WhitingGrid*>(item_);
+    WritingGrid *item = static_cast<WritingGrid*>(item_);
     switch (item->getType()) {
-    case WhitingGridType::TinWordFormat:
-        item->setType(WhitingGridType::FourLinesAndThreeGrids);
+    case WritingGridType::TinWordFormat:
+        item->setType(WritingGridType::FourLinesAndThreeGrids);
         break;
-    case WhitingGridType::FourLinesAndThreeGrids:
-        item->setType(WhitingGridType::PinYinTinGrids);
+    case WritingGridType::FourLinesAndThreeGrids:
+        item->setType(WritingGridType::PinYinTinGrids);
         break;
-    case WhitingGridType::PinYinTinGrids:
-        item->setType(WhitingGridType::TinWordFormat);
+    case WritingGridType::PinYinTinGrids:
+        item->setType(WritingGridType::TinWordFormat);
         break;
     }
     sizeChanged();

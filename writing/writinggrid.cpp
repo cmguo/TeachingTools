@@ -1,5 +1,5 @@
-#include "whitinggrid.h"
-#include "controls/whitinggridcontrol.h"
+#include "writinggrid.h"
+#include "writinggridcontrol.h"
 #include "inkstroke/inkstrokecontrol.h"
 
 #include <QPainter>
@@ -11,12 +11,12 @@
 #include <Windows/Controls/inkcanvas.h>
 #include <Windows/Controls/inkevents.h>
 
-WhitingGrid::WhitingGrid(QGraphicsItem *parent)
+WritingGrid::WritingGrid(QGraphicsItem *parent)
 {
-    WhitingGrid(300,WhitingGridType::TinWordFormat,parent);
+    WritingGrid(300,WritingGridType::TinWordFormat,parent);
 }
 
-WhitingGrid::WhitingGrid(int h,WhitingGridType type,QGraphicsItem * parent):m_height(h),type_(type),QGraphicsItem(parent)
+WritingGrid::WritingGrid(int h,WritingGridType type,QGraphicsItem * parent):m_height(h),type_(type),QGraphicsItem(parent)
 {
     m_realLineColor = QColor(0xCACACA);
     m_dotLineColor = QColor(0xCACACA);
@@ -40,36 +40,36 @@ WhitingGrid::WhitingGrid(int h,WhitingGridType type,QGraphicsItem * parent):m_he
     adjustControlItemPos();
     ink = InkStrokeControl::createInkCanvas(8);
     ink->AddHandler(InkCanvas::StrokeCollectedEvent,
-                    RoutedEventHandlerT<WhitingGrid, InkCanvasStrokeCollectedEventArgs, &WhitingGrid::onStrokeCollected>(this));
+                    RoutedEventHandlerT<WritingGrid, InkCanvasStrokeCollectedEventArgs, &WritingGrid::onStrokeCollected>(this));
     QGraphicsProxyWidget * proxy = new QGraphicsProxyWidget(this);
     proxy->setWidget(ink);
     adjustInkCanvas();
 }
 
-QRectF WhitingGrid::boundingRect() const
+QRectF WritingGrid::boundingRect() const
 {
     return QRectF(0,0,m_width*gridCount_+2*padding,m_height+2*padding);
 }
 
-void WhitingGrid::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
+void WritingGrid::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
 {
     Q_UNUSED(option)
     Q_UNUSED(widget)
 
     switch (getType()) {
-    case WhitingGridType::TinWordFormat:
+    case WritingGridType::TinWordFormat:
         paintTinWordFormat(painter,option,widget);
         break;
-    case WhitingGridType::FourLinesAndThreeGrids:
+    case WritingGridType::FourLinesAndThreeGrids:
         paintFourLinesAndThreeGrids(painter,option,widget);
         break;
-    case WhitingGridType::PinYinTinGrids:
+    case WritingGridType::PinYinTinGrids:
         paintPinYinTinGrids(painter,option,widget);
         break;
     }
 }
 
-void WhitingGrid::paintTinWordFormat(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
+void WritingGrid::paintTinWordFormat(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
 {
     QPen p = QPen(m_realLineColor,m_realLineWidth);
     p.setJoinStyle(Qt::PenJoinStyle::MiterJoin);
@@ -91,7 +91,7 @@ void WhitingGrid::paintTinWordFormat(QPainter *painter, const QStyleOptionGraphi
 
 }
 
-void WhitingGrid::paintFourLinesAndThreeGrids(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
+void WritingGrid::paintFourLinesAndThreeGrids(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
 {
     QRectF rect = boundingRect().adjusted(padding,padding,-padding,-padding);
     QPen p = QPen(Qt::white,m_realLineWidth);
@@ -107,7 +107,7 @@ void WhitingGrid::paintFourLinesAndThreeGrids(QPainter *painter, const QStyleOpt
     painter->drawLine(rect.x(),rect.bottom(),rect.right(),rect.bottom());
 }
 
-void WhitingGrid::paintPinYinTinGrids(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
+void WritingGrid::paintPinYinTinGrids(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
 { // 绘制拼音田字格
     QPen p = QPen(m_realLineColor,m_realLineWidth);
     p.setJoinStyle(Qt::PenJoinStyle::MiterJoin);
@@ -135,7 +135,7 @@ void WhitingGrid::paintPinYinTinGrids(QPainter *painter, const QStyleOptionGraph
     }
 }
 
-bool WhitingGrid::sceneEventFilter(QGraphicsItem *watched, QEvent *event)
+bool WritingGrid::sceneEventFilter(QGraphicsItem *watched, QEvent *event)
 {
 
     if(event->type()==QEvent::GraphicsSceneMousePress){
@@ -143,7 +143,7 @@ bool WhitingGrid::sceneEventFilter(QGraphicsItem *watched, QEvent *event)
         double clickGap = addItem->boundingRect().height()/2;
         if(mouseEvent->pos().y()>(addItem->pos().y()-clickGap) && mouseEvent->pos().y()<(addItem->pos().y()+clickGap*3)){
             addGrid();
-            WhitingGridControl *control = qobject_cast<WhitingGridControl*>(WhitingGridControl::fromItem(this));
+            WritingGridControl *control = qobject_cast<WritingGridControl*>(WritingGridControl::fromItem(this));
             if(control != nullptr)
                 control->sizeChanged();
             adjustControlItemPos();
@@ -152,7 +152,7 @@ bool WhitingGrid::sceneEventFilter(QGraphicsItem *watched, QEvent *event)
         }
         if(decItem->isVisible()&&mouseEvent->pos().y()>(decItem->pos().y()-clickGap) && mouseEvent->pos().y()<(decItem->pos().y()+clickGap*3)){
             decGrid();
-            WhitingGridControl *control = qobject_cast<WhitingGridControl*>(WhitingGridControl::fromItem(this));
+            WritingGridControl *control = qobject_cast<WritingGridControl*>(WritingGridControl::fromItem(this));
             if(control != nullptr)
                 control->sizeChanged();
             adjustControlItemPos();
@@ -170,7 +170,7 @@ bool WhitingGrid::sceneEventFilter(QGraphicsItem *watched, QEvent *event)
     return false;
 }
 
-QVariant WhitingGrid::itemChange(QGraphicsItem::GraphicsItemChange change, const QVariant &value)
+QVariant WritingGrid::itemChange(QGraphicsItem::GraphicsItemChange change, const QVariant &value)
 {
     switch (change) {
     case ItemVisibleHasChanged:
@@ -180,53 +180,53 @@ QVariant WhitingGrid::itemChange(QGraphicsItem::GraphicsItemChange change, const
     return value;
 }
 
-QGraphicsItem* WhitingGrid::createControlBar()
+QGraphicsItem* WritingGrid::createControlBar()
 {
     return controlItem;
 }
 
-void WhitingGrid::setDotLineColor(QColor &color){
+void WritingGrid::setDotLineColor(QColor &color){
 
     this->m_dotLineColor = color;
     this->update(boundingRect());
 }
 
-void WhitingGrid::setDotLineWidth(int width){
+void WritingGrid::setDotLineWidth(int width){
     this->m_dotLineWidth =  width;
     this->update(boundingRect());
 }
 
-void WhitingGrid::setRealLineWidth(int width){
+void WritingGrid::setRealLineWidth(int width){
     this->m_realLineWidth = width;
     this->update(boundingRect());
 }
 
-void WhitingGrid::setRealLineColor(QColor &color){
+void WritingGrid::setRealLineColor(QColor &color){
     this->m_realLineColor = color;
     this->update(boundingRect());
 }
 
-int WhitingGrid::getDotLineWidth() const {
+int WritingGrid::getDotLineWidth() const {
     return this->m_dotLineWidth;
 }
 
-QColor WhitingGrid::getDotLineColor() const{
+QColor WritingGrid::getDotLineColor() const{
     return this->m_dotLineColor;
 }
 
-int WhitingGrid::getRealLineWidth() const{
+int WritingGrid::getRealLineWidth() const{
     return this->m_realLineWidth;
 }
 
-QColor WhitingGrid::getRealLineColor() const{
+QColor WritingGrid::getRealLineColor() const{
     return this->m_realLineColor;
 }
 
-WhitingGridType WhitingGrid::getType(){
+WritingGridType WritingGrid::getType(){
     return type_;
 }
 
-void WhitingGrid::setType(WhitingGridType type){
+void WritingGrid::setType(WritingGridType type){
     this->type_ = type;
     adjustWidth();
     adjustControlItemPos();
@@ -234,32 +234,32 @@ void WhitingGrid::setType(WhitingGridType type){
     update();
 }
 
-void WhitingGrid::addGrid(){
+void WritingGrid::addGrid(){
     gridCount_++;
     update();
 }
 
-void WhitingGrid::decGrid(){
+void WritingGrid::decGrid(){
     if(gridCount_>1)
         gridCount_--;
     update();
 }
 
-void WhitingGrid::adjustWidth(){
+void WritingGrid::adjustWidth(){
     switch (type_) {
-    case WhitingGridType::TinWordFormat:
+    case WritingGridType::TinWordFormat:
         m_width = m_height * tinWidthHeihtRatio;
         break;
-    case WhitingGridType::FourLinesAndThreeGrids:
+    case WritingGridType::FourLinesAndThreeGrids:
         m_width = m_height * fourLineThreeGridsWidthHeihtRatio;
         break;
-    case WhitingGridType::PinYinTinGrids:
+    case WritingGridType::PinYinTinGrids:
         m_width = m_height * pinYinTinWidthHeightRatio;
         break;
     }
 }
 
-void WhitingGrid::adjustControlItemPos()
+void WritingGrid::adjustControlItemPos()
 {
     controlItem->setRect(0,0,controlItemSize.width(),newScaleSize.height());
     if(gridCount_==1){
@@ -274,7 +274,7 @@ void WhitingGrid::adjustControlItemPos()
     decItem->setY(newScaleSize.height()*3/5);
 }
 
-void WhitingGrid::adjustInkCanvas()
+void WritingGrid::adjustInkCanvas()
 {
     ink->setFixedSize(boundingRect().width(),boundingRect().height());
     qDebug()<<"width:"<<boundingRect().width()<<"height:"<<boundingRect().height();
@@ -283,7 +283,7 @@ void WhitingGrid::adjustInkCanvas()
         proxy->resize(ink->minimumSize());
 }
 
-void WhitingGrid::onStrokeCollected(InkCanvasStrokeCollectedEventArgs& e)
+void WritingGrid::onStrokeCollected(InkCanvasStrokeCollectedEventArgs& e)
 {
     InkStrokeControl::applyPressure(e);
 }

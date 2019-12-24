@@ -1,5 +1,5 @@
-#ifndef WHITINGGRIDCONTROL_H
-#define WHITINGGRIDCONTROL_H
+#ifndef WRITINGGRIDCONTROL_H
+#define WRITINGGRIDCONTROL_H
 
 #include "TeachingTools_global.h"
 
@@ -7,12 +7,12 @@
 #include <QGraphicsPixmapItem>
 #include <qexport.h>
 
-class TEACHINGTOOLS_EXPORT WhitingGridControl: public Control
+class TEACHINGTOOLS_EXPORT WritingGridControl: public Control
 {
     Q_OBJECT
 
 public:
-    Q_INVOKABLE WhitingGridControl(ResourceView *res);
+    Q_INVOKABLE WritingGridControl(ResourceView *res);
 
     virtual QString toolsString(QString const & parent = QString()) const override;
 
@@ -28,4 +28,4 @@ protected:
     virtual void attached() override;
 };
 
-#endif // WHITINGGRIDCONTROL_H
+#endif // WRITINGGRIDCONTROL_H
