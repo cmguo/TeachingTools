@@ -29,6 +29,8 @@ public:
     virtual void onSizeChanged(QSizeF const & docSize, QSizeF const & pageSize,
                                QSizeF const & viewSize);
 
+    virtual bool selectTest(QPointF const & pt);
+
 protected:
     PageBoxDocItem *document();
 

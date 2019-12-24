@@ -81,14 +81,14 @@ void PageBoxControl::attached()
         QGraphicsItem* canvas = item_->parentItem()->parentItem();
         QGraphicsTransform * ct = Control::fromItem(canvas)->transform();
         ControlTransform * ct1 = new ControlTransform(static_cast<ControlTransform*>(ct), true, true, true);
-        QPointF pos(0, item_->scene()->sceneRect().bottom() - 60);
+        QPointF pos(0, item_->scene()->sceneRect().bottom() - 30);
         StaticTransform* ct2 = new StaticTransform(QTransform::fromTranslate(pos.x(), pos.y()), ct1);
         item->toolBar()->setTransformations({ct1, ct2});
         item->setSizeMode(PageBoxItem::LargeCanvas);
     } else {
         item->setSizeMode((flags_ & FullLayout) ? PageBoxItem::FixedSize : PageBoxItem::MatchContent);
         ControlTransform * ct1 = new ControlTransform(static_cast<ControlTransform*>(transform_), true, false, false);
-        QPointF pos(0, item->boundingRect().bottom() - 60);
+        QPointF pos(0, item->boundingRect().bottom() - 30);
         StaticTransform* ct2 = new StaticTransform(QTransform::fromTranslate(pos.x(), pos.y()), ct1);
         item->toolBar()->setTransformations({ct2, ct1});
     }
@@ -170,6 +170,18 @@ void PageBoxControl::enableInkPad()
         }
     }
     item->document()->setPlugin(new InkPadPlugin(res_));
+}
+
+int PageBoxControl::pageNumber()
+{
+    PageBoxItem * item = static_cast<PageBoxItem *>(item_);
+    return item->document()->curPage();
+}
+
+void PageBoxControl::setPageNumber(int n)
+{
+    PageBoxItem * item = static_cast<PageBoxItem *>(item_);
+    item->document()->goToPage(n);
 }
 
 QByteArray PageBoxControl::pageBoxState()

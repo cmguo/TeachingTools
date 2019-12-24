@@ -35,6 +35,12 @@ void PageBoxPlugin::onSizeChanged(const QSizeF &docSize, const QSizeF &pageSize,
     (void) viewSize;
 }
 
+bool PageBoxPlugin::selectTest(const QPointF &pt)
+{
+    (void) pt;
+    return false;
+}
+
 PageBoxDocItem *PageBoxPlugin::document()
 {
     return static_cast<PageBoxDocItem*>(item_->parentItem());

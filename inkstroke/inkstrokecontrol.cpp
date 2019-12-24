@@ -85,6 +85,12 @@ Control::SelectMode InkStrokeControl::selectTest(QPointF const & pt)
     } else if (editingMode() == InkCanvasEditingMode::Select && tempSelect_) {
         InkCanvasSelectionHitResult result = ink->HitTestSelection(pt);
         if (result == InkCanvasSelectionHitResult::None) {
+            QSharedPointer<StrokeCollection> hits = ink->Strokes()->HitTest(pt);
+            if (hits && !hits->empty()) {
+                ink->Select(hits);
+                return NotSelect;
+            }
+            tempSelect_ = false;
             ink->SetEditingMode(InkCanvasEditingMode::None);
             return PassSelect;
         } else {

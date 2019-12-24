@@ -61,7 +61,8 @@ PageBoxItem::~PageBoxItem()
 
 bool PageBoxItem::selectTest(QPointF const & point)
 {
-    return !document_->contains(mapToItem(document_, point))
+    return (document_->plugin_ == nullptr
+                || document_->plugin_->selectTest(document_->pluginItem_->mapFromItem(this, point)))
             && !toolBarProxy_->contains(mapToItem(toolBarProxy_, point));
 }
 
@@ -118,13 +119,14 @@ void PageBoxItem::getToolButtons(QList<ToolButton *> &buttons, const QList<ToolB
     for (ToolButton * & b : buttons) {
         if (b->name == "pages")
             b = pageNumber_->toolButton();
-        if (sizeMode_ == FixedSize) {
+        if (sizeMode_ != LargeCanvas) {
             if (b->name == "scaleUp()"
                     || b->name == "scaleDown()")
                 b = nullptr;
-        } else {
-            if (b->name == "duplex()"
-                    || b->name == "single()")
+        }
+        if (sizeMode_ != MatchContent) {
+            if (b && (b->name == "duplex()"
+                    || b->name == "single()"))
                 b = nullptr;
         }
     }

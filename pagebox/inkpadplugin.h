@@ -29,12 +29,15 @@ protected:
     virtual void onSizeChanged(const QSizeF &docSize, const QSizeF &pageSize,
                                const QSizeF &viewSize) override;
 
+    virtual bool selectTest(const QPointF &pt) override;
+
 private:
     void onStrokeCollected(InkCanvasStrokeCollectedEventArgs& e);
 
 private:
     InkCanvas * inkCanvas_;
     QVector<QSharedPointer<StrokeCollection>> pageStrokes_;
+    bool tempSelect_ = false;
 };
 
 #endif // INKPADPLUGIN_H

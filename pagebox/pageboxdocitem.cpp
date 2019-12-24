@@ -385,7 +385,7 @@ void PageBoxDocItem::goToPage(int page)
     if (page == curPage_)
         return;
     if (layoutMode_ == Duplex && page != 0 && page % 2 == 0)
-        page = page < curPage_ ? page - 1 : page + 1;
+        page = (page == curPage_ + 1) ? page + 1 : page - 1;
     if (page < 0 || page >= model_->rowCount())
         return;
     int lastPage = curPage_;
