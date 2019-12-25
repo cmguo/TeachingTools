@@ -13,7 +13,7 @@ Rectangle{
         width: parent.width
         border.width: 1
         border.color: "white"
-        radius: parent.radius
+        radius: parent.radius+border.width
 
         gradient: Gradient {
             GradientStop{ position: 0.0; color: "#F9F9F9";}

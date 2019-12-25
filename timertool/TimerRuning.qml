@@ -115,6 +115,7 @@ Rectangle {
         }
     }
 
+
     CustomButton { // 底部点击btn
         id:startTimerBtn
         font.pixelSize: 18

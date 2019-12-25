@@ -39,6 +39,7 @@ WritingGrid::WritingGrid(int h,WritingGridType type,QGraphicsItem * parent):m_he
     decItem->setX(2);
     adjustControlItemPos();
     ink = InkStrokeControl::createInkCanvas(8);
+    ink->SetEditingMode(InkCanvasEditingMode::Ink);
     QGraphicsProxyWidget * proxy = new QGraphicsProxyWidget(this);
     proxy->setWidget(ink);
     adjustInkCanvas();

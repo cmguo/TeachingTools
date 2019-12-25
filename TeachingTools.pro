@@ -1,4 +1,4 @@
-QT += widgets
+QT += widgets quick quickwidgets qml
 
 TEMPLATE = lib
 DEFINES += TEACHINGTOOLS_LIBRARY
