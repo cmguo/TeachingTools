@@ -1,6 +1,14 @@
 <RCC>
-    <qresource prefix="/icon">
+    <qresource prefix="/">
         <file>icon/add.svg</file>
         <file>icon/remove.svg</file>
+        <file>timertool/close.png</file>
+        <file>timertool/close_white.png</file>
+        <file>timertool/CustomButton.qml</file>
+        <file>timertool/CustomTabButton.qml</file>
+        <file>timertool/TimerNormal.qml</file>
+        <file>timertool/TimerRuning.qml</file>
+        <file>timertool/TimerTools.qml</file>
+        <file>timertool/NumberAdjustPanel.qml</file>
     </qresource>
 </RCC>

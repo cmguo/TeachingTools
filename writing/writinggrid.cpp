@@ -30,10 +30,10 @@ WritingGrid::WritingGrid(int h,WritingGridType type,QGraphicsItem * parent):m_he
     controlItem->setBrush(QBrush(Qt::transparent));
     controlItem->setPen(Qt::NoPen);
     addItem = new QGraphicsPixmapItem(controlItem);
-    addItem->setPixmap(QPixmap(":/icon/icon/add.svg"));
+    addItem->setPixmap(QPixmap(":/icon/add.svg"));
     addItem->setAcceptedMouseButtons(Qt::LeftButton);
     decItem = new QGraphicsPixmapItem(controlItem);
-    decItem->setPixmap(QPixmap(":/icon/icon/remove.svg"));
+    decItem->setPixmap(QPixmap(":/icon/remove.svg"));
     decItem->setAcceptedMouseButtons(Qt::LeftButton);
     addItem->setX(2); // icon不居中矫正
     decItem->setX(2);
