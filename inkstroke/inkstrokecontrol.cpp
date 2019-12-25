@@ -11,7 +11,6 @@ REGISTER_RESOURCE_VIEW(InkStrokes, "inkstroke");
 
 InkStrokeControl::InkStrokeControl(ResourceView *res)
     : WidgetControl(res, FullLayout, DefaultFlags)
-    , tempSelect_(false)
 {
 }
 
@@ -39,10 +38,6 @@ void InkStrokeControl::attached()
 {
     InkStrokes * strokes = qobject_cast<InkStrokes *>(res_);
     InkCanvas * ink = static_cast<InkCanvas*>(widget_);
-    if (!strokes->isClone()) {
-        ink->AddHandler(InkCanvas::StrokeCollectedEvent, RoutedEventHandlerT<
-                        InkStrokeControl, InkCanvasStrokeCollectedEventArgs, &InkStrokeControl::onStrokeCollected>(this));
-    }
     if (res_->flags() & ResourceView::Splittable) {
         QObject::connect(strokes, &InkStrokes::cloned, this, [ink, strokes](){
             ink->SetStrokes(strokes->strokes());
@@ -65,50 +60,55 @@ void InkStrokeControl::attached()
     });
 }
 
-void InkStrokeControl::detaching()
-{
-    InkCanvas * ink = static_cast<InkCanvas*>(widget_);
-    ink->RemoveHandler(InkCanvas::StrokeCollectedEvent, RoutedEventHandlerT<
-                    InkStrokeControl, InkCanvasStrokeCollectedEventArgs, &InkStrokeControl::onStrokeCollected>(this));
-}
-
 Control::SelectMode InkStrokeControl::selectTest(QPointF const & pt)
 {
-    InkCanvas * ink = static_cast<InkCanvas*>(widget_);
-    if (editingMode() == InkCanvasEditingMode::None) {
-        InkCanvasSelectionHitResult result = ink->HitTestSelection(pt);
-        if (result != InkCanvasSelectionHitResult::None)
-            return NotSelect;
-        QSharedPointer<StrokeCollection> hits = ink->Strokes()->HitTest(pt);
-        if (hits && !hits->empty()) {
-            ink->Select(hits);
-            tempSelect_ = true;
-            return NotSelect;
-        }
-        return PassSelect;
-    } else if (editingMode() == InkCanvasEditingMode::Select && tempSelect_) {
-        InkCanvasSelectionHitResult result = ink->HitTestSelection(pt);
-        if (result == InkCanvasSelectionHitResult::None) {
-            QSharedPointer<StrokeCollection> hits = ink->Strokes()->HitTest(pt);
-            if (hits && !hits->empty()) {
-                ink->Select(hits);
-                return NotSelect;
-            }
-            tempSelect_ = false;
-            ink->SetEditingMode(InkCanvasEditingMode::None);
-            return PassSelect;
-        } else {
-            return NotSelect;
-        }
-    } else {
-        return NotSelect;
-    }
+    return selectTest(qobject_cast<InkCanvas*>(widget_), pt, false);
 }
 
-void InkStrokeControl::onStrokeCollected(InkCanvasStrokeCollectedEventArgs &e)
+
+class PressureHelper : public QObject
 {
-    applyPressure(e);
-}
+public:
+    PressureHelper(InkCanvas* ink)
+        : QObject(ink)
+        , ink_(ink)
+    {
+        ink_->AddHandler(InkCanvas::StrokeCollectedEvent, RoutedEventHandlerT<
+                        PressureHelper, InkCanvasStrokeCollectedEventArgs, &PressureHelper::applyPressure>(this));
+    }
+
+    ~PressureHelper()
+    {
+        ink_->RemoveHandler(InkCanvas::StrokeCollectedEvent, RoutedEventHandlerT<
+                        PressureHelper, InkCanvasStrokeCollectedEventArgs, &PressureHelper::applyPressure>(this));
+    }
+
+private:
+    void applyPressure(InkCanvasStrokeCollectedEventArgs &e)
+    {
+        QSharedPointer<Stroke> stroke = e.GetStroke();
+        QSharedPointer<StylusPointCollection> stylusPoints = stroke->StylusPoints()->Clone();
+        int n = 16;
+        if (stylusPoints->size() > n) {
+            for (int i = 1; i < n; ++i) {
+                int m = stylusPoints->size() + i - n;
+                StylusPoint point = (*stylusPoints)[m];
+                float d = static_cast<float>(i) / static_cast<float>(n);
+                point.SetPressureFactor(point.PressureFactor() * (1.0f - d * d));
+                stylusPoints->SetItem(m, point);
+            }
+            --n;
+        } else {
+            n = 0;
+        }
+        //QUuid guid("52053C24-CBDD-4547-AAA1-DEFEBF7FD1E1");
+        //stroke->AddPropertyData(guid, 2.0);
+        stroke->SetStylusPoints(stylusPoints);
+    }
+
+private:
+    InkCanvas * ink_;
+};
 
 InkCanvas *InkStrokeControl::createInkCanvas(qreal lineWidth)
 {
@@ -120,28 +120,40 @@ InkCanvas *InkStrokeControl::createInkCanvas(qreal lineWidth)
     ink->DefaultDrawingAttributes()->SetHeight(lineWidth);
     ink->SetEditingMode(InkCanvasEditingMode::None);
     ink->setAttribute(Qt::WA_NoSystemBackground);
+    new PressureHelper(ink); // attached to InkCanvas
     return ink;
 }
 
-void InkStrokeControl::applyPressure(InkCanvasStrokeCollectedEventArgs &e)
+Control::SelectMode InkStrokeControl::selectTest(InkCanvas *ink, const QPointF &pt, bool eatUnselect)
 {
-    QSharedPointer<Stroke> stroke = e.GetStroke();
-    QSharedPointer<StylusPointCollection> stylusPoints = stroke->StylusPoints()->Clone();
-    int n = 16;
-    if (stylusPoints->size() > n) {
-        for (int i = 1; i < n; ++i) {
-            int m = stylusPoints->size() + i - n;
-            StylusPoint point = (*stylusPoints)[m];
-            float d = static_cast<float>(i) / static_cast<float>(n);
-            point.SetPressureFactor(point.PressureFactor() * (1.0f - d * d));
-            stylusPoints->SetItem(m, point);
+    if (ink->EditingMode() == InkCanvasEditingMode::None) {
+        InkCanvasSelectionHitResult result = ink->HitTestSelection(pt);
+        if (result != InkCanvasSelectionHitResult::None)
+            return NotSelect;
+        QSharedPointer<StrokeCollection> hits = ink->Strokes()->HitTest(pt);
+        if (hits && !hits->empty()) {
+            ink->Select(hits);
+            ink->setProperty("tempSelect", true);
+            return NotSelect;
         }
-        --n;
+        return PassSelect;
+    } else if (ink->EditingMode() == InkCanvasEditingMode::Select &&
+               ink->property("tempSelect").isValid()) {
+        InkCanvasSelectionHitResult result = ink->HitTestSelection(pt);
+        if (result == InkCanvasSelectionHitResult::None) {
+            QSharedPointer<StrokeCollection> hits = ink->Strokes()->HitTest(pt);
+            if (hits && !hits->empty()) {
+                ink->Select(hits);
+                return NotSelect;
+            }
+            ink->setProperty("tempSelect", QVariant());
+            ink->SetEditingMode(InkCanvasEditingMode::None);
+            return eatUnselect ? NotSelect : PassSelect;
+        } else {
+            return NotSelect;
+        }
     } else {
-        n = 0;
+        return NotSelect;
     }
-    //QUuid guid("52053C24-CBDD-4547-AAA1-DEFEBF7FD1E1");
-    //stroke->AddPropertyData(guid, 2.0);
-    stroke->SetStylusPoints(stylusPoints);
 }
 

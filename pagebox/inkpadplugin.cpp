@@ -15,8 +15,6 @@ InkPadPlugin::InkPadPlugin(QObject * parent)
     : PageBoxPlugin(parent)
 {
     inkCanvas_ = InkStrokeControl::createInkCanvas(4);
-    inkCanvas_->AddHandler(InkCanvas::StrokeCollectedEvent, RoutedEventHandlerT<
-                    InkPadPlugin, InkCanvasStrokeCollectedEventArgs, &InkPadPlugin::onStrokeCollected>(this));
     QGraphicsProxyWidget * proxy = new QGraphicsProxyWidget;
     proxy->setWidget(inkCanvas_);
     proxy->setAcceptTouchEvents(true);
@@ -71,36 +69,6 @@ void InkPadPlugin::onSizeChanged(const QSizeF &docSize, const QSizeF &pageSize, 
 
 bool InkPadPlugin::selectTest(const QPointF &pt)
 {
-    if (inkCanvas_->EditingMode() == InkCanvasEditingMode::None) {
-        InkCanvasSelectionHitResult result = inkCanvas_->HitTestSelection(pt);
-        if (result != InkCanvasSelectionHitResult::None)
-            return false;
-        QSharedPointer<StrokeCollection> hits = inkCanvas_->Strokes()->HitTest(pt);
-        if (hits && !hits->empty()) {
-            inkCanvas_->Select(hits);
-            tempSelect_ = true;
-            return false;
-        }
-        return true;
-    } else if (inkCanvas_->EditingMode() == InkCanvasEditingMode::Select && tempSelect_) {
-        InkCanvasSelectionHitResult result = inkCanvas_->HitTestSelection(pt);
-        if (result == InkCanvasSelectionHitResult::None) {
-            QSharedPointer<StrokeCollection> hits = inkCanvas_->Strokes()->HitTest(pt);
-            if (hits && !hits->empty()) {
-                inkCanvas_->Select(hits);
-            } else {
-                tempSelect_ = false;
-                inkCanvas_->SetEditingMode(InkCanvasEditingMode::None);
-            }
-        }
-        return false;
-    } else {
-        return false;
-    }
-}
-
-void InkPadPlugin::onStrokeCollected(InkCanvasStrokeCollectedEventArgs &e)
-{
-    InkStrokeControl::applyPressure(e);
+    return InkStrokeControl::selectTest(inkCanvas_, pt) != Control::NotSelect;
 }
 

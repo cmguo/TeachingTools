@@ -30,6 +30,7 @@ void WritingGridControl::attaching()
 {
     ItemFrame *frame = itemFrame();
     frame->setBrush(QBrush(Qt::white));
+    frame->addTopBar();
     frame->addDockItem(ItemFrame::Top, 22);
     frame->addDockItem(ItemFrame::Left, 35);
     frame->addDockItem(ItemFrame::Buttom, 22);

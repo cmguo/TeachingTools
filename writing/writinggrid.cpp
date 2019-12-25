@@ -39,8 +39,6 @@ WritingGrid::WritingGrid(int h,WritingGridType type,QGraphicsItem * parent):m_he
     decItem->setX(2);
     adjustControlItemPos();
     ink = InkStrokeControl::createInkCanvas(8);
-    ink->AddHandler(InkCanvas::StrokeCollectedEvent,
-                    RoutedEventHandlerT<WritingGrid, InkCanvasStrokeCollectedEventArgs, &WritingGrid::onStrokeCollected>(this));
     QGraphicsProxyWidget * proxy = new QGraphicsProxyWidget(this);
     proxy->setWidget(ink);
     adjustInkCanvas();
@@ -282,10 +280,4 @@ void WritingGrid::adjustInkCanvas()
     if (proxy)
         proxy->resize(ink->minimumSize());
 }
-
-void WritingGrid::onStrokeCollected(InkCanvasStrokeCollectedEventArgs& e)
-{
-    InkStrokeControl::applyPressure(e);
-}
-
 

@@ -18,7 +18,7 @@ class TEACHINGTOOLS_EXPORT InkStrokeControl : public WidgetControl
 public:
     static InkCanvas* createInkCanvas(qreal lineWidth = 4.0);
 
-    static void applyPressure(InkCanvasStrokeCollectedEventArgs& e);
+    static SelectMode selectTest(InkCanvas* ink, QPointF const & pt, bool eatUnselect = true);
 
 public:
     Q_INVOKABLE InkStrokeControl(ResourceView* res);
@@ -33,15 +33,7 @@ protected:
 
     virtual void attached() override;
 
-    virtual void detaching() override;
-
     virtual SelectMode selectTest(QPointF const & pt) override;
-
-private:
-    void onStrokeCollected(InkCanvasStrokeCollectedEventArgs& e);
-
-private:
-    bool tempSelect_;
 };
 
 #endif // INKSTROKECONTROL_H
