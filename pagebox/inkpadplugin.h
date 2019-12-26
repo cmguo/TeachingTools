@@ -19,6 +19,8 @@ public:
 public slots:
     void stroke();
 
+    void stroke(QString const & arg);
+
     void eraser();
 
 protected:
@@ -30,6 +32,12 @@ protected:
                                const QSizeF &viewSize) override;
 
     virtual bool selectTest(const QPointF &pt) override;
+
+protected:
+    virtual void updateToolButton(ToolButton * button) override;
+
+    virtual void getToolButtons(QList<ToolButton *> & buttons,
+                                ToolButton * parent) override;
 
 private:
     InkCanvas * inkCanvas_;

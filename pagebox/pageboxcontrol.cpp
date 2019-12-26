@@ -16,8 +16,6 @@
 #include <QUrl>
 #include <QDir>
 
-REGISTER_CONTROL(PageBoxControl, "pages")
-
 PageBoxControl::PageBoxControl(ResourceView * res)
     : Control(res, {KeepAspectRatio}, {CanRotate})
 {

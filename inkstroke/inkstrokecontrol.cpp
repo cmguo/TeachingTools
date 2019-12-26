@@ -6,9 +6,6 @@
 
 #include <QGraphicsItem>
 
-REGISTER_CONTROL(InkStrokeControl, "inkstroke");
-REGISTER_RESOURCE_VIEW(InkStrokes, "inkstroke");
-
 InkStrokeControl::InkStrokeControl(ResourceView *res)
     : WidgetControl(res, FullLayout, DefaultFlags)
 {

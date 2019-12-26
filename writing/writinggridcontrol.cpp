@@ -14,6 +14,7 @@
 
 static char const * toolstr =
         "changeGridType()|转换|:/showboard/icons/icon_delete.png;";
+
 WritingGridControl::WritingGridControl(ResourceView * res)
     : Control(res, {KeepAspectRatio})
 {

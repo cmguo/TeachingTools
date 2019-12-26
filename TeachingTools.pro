@@ -23,6 +23,7 @@ SOURCES += \
 
 HEADERS += \
     TeachingTools_global.h \
+    controls.h \
     teachingtools.h \
 
 RESOURCES += \
