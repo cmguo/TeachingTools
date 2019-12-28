@@ -7,34 +7,66 @@
 #include <QGraphicsItem>
 
 InkStrokeControl::InkStrokeControl(ResourceView *res)
-    : WidgetControl(res, FullLayout, DefaultFlags)
+    : Control(res, FullLayout, DefaultFlags)
 {
 }
 
 InkCanvasEditingMode InkStrokeControl::editingMode()
 {
-    InkCanvas * ink = static_cast<InkCanvas*>(widget_);
-    ink->DefaultDrawingAttributes()->SetColor(Qt::white);
+    InkCanvas * ink = static_cast<InkCanvas*>(item_);
     return ink->EditingMode();
+}
+
+QColor InkStrokeControl::color()
+{
+    InkCanvas * ink = static_cast<InkCanvas*>(item_);
+    return ink->DefaultDrawingAttributes()->Color();
+}
+
+qreal InkStrokeControl::width()
+{
+    InkCanvas * ink = static_cast<InkCanvas*>(item_);
+    return ink->DefaultDrawingAttributes()->Width();
 }
 
 void InkStrokeControl::setEditingMode(InkCanvasEditingMode mode)
 {
-    InkCanvas * ink = static_cast<InkCanvas*>(widget_);
+    InkCanvas * ink = static_cast<InkCanvas*>(item_);
     ink->SetEditingMode(mode);
     item_->setAcceptHoverEvents(mode != InkCanvasEditingMode::None);
 }
 
-QWidget *InkStrokeControl::createWidget(ResourceView *res)
+void InkStrokeControl::setColor(QColor c)
+{
+    InkCanvas * ink = static_cast<InkCanvas*>(item_);
+    ink->DefaultDrawingAttributes()->SetColor(c);
+}
+
+void InkStrokeControl::setWidth(qreal w)
+{
+    InkCanvas * ink = static_cast<InkCanvas*>(item_);
+    ink->DefaultDrawingAttributes()->SetWidth(w);
+    ink->DefaultDrawingAttributes()->SetHeight(w);
+}
+
+void InkStrokeControl::clear()
+{
+    InkCanvas * ink = static_cast<InkCanvas*>(item_);
+    ink->Strokes()->ClearItems();
+}
+
+QGraphicsItem * InkStrokeControl::create(ResourceView *res)
 {
     (void) res;
-    return createInkCanvas();
+    InkCanvas * ink = createInkCanvas();
+    ink->DefaultDrawingAttributes()->SetColor(Qt::white);
+    return ink;
 }
 
 void InkStrokeControl::attached()
 {
     InkStrokes * strokes = qobject_cast<InkStrokes *>(res_);
-    InkCanvas * ink = static_cast<InkCanvas*>(widget_);
+    InkCanvas * ink = static_cast<InkCanvas*>(item_);
     if (res_->flags() & ResourceView::Splittable) {
         QObject::connect(strokes, &InkStrokes::cloned, this, [ink, strokes](){
             ink->SetStrokes(strokes->strokes());
@@ -47,7 +79,7 @@ void InkStrokeControl::attached()
         loadFinished(true);
         return;
     }
-    strokes->load(widget_->size(), ink->DefaultDrawingAttributes()).then([life = life(), this, strokes, ink]() {
+    strokes->load(item_->boundingRect().size(), ink->DefaultDrawingAttributes()).then([life = life(), this, strokes, ink]() {
         if (life.isNull())
             return;
         if (strokes->strokes()) {
@@ -57,9 +89,15 @@ void InkStrokeControl::attached()
     });
 }
 
+void InkStrokeControl::resize(const QSizeF &size)
+{
+    InkCanvas * ink = static_cast<InkCanvas*>(item_);
+    ink->SetRenderSize(size);
+}
+
 Control::SelectMode InkStrokeControl::selectTest(QPointF const & pt)
 {
-    return selectTest(qobject_cast<InkCanvas*>(widget_), pt, false);
+    return selectTest(static_cast<InkCanvas*>(item_), pt, false);
 }
 
 
@@ -116,7 +154,6 @@ InkCanvas *InkStrokeControl::createInkCanvas(qreal lineWidth)
     ink->DefaultDrawingAttributes()->SetWidth(lineWidth);
     ink->DefaultDrawingAttributes()->SetHeight(lineWidth);
     ink->SetEditingMode(InkCanvasEditingMode::None);
-    ink->setAttribute(Qt::WA_NoSystemBackground);
     new PressureHelper(ink); // attached to InkCanvas
     return ink;
 }

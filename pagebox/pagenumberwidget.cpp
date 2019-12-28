@@ -15,7 +15,7 @@ PageNumberWidget::PageNumberWidget(QWidget *parent)
     preBtn->setText((" < "));
     progressLabel = new QLabel(this);
     progressLabel->setObjectName(("progressLabel"));
-    progressLabel->setText(("1/3"));
+    progressLabel->setText(("0/0"));
     nextBtn = new QPushButton(this);
     nextBtn->setObjectName(("nextBtn"));
     nextBtn->setText((" > "));

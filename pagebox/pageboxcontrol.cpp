@@ -228,6 +228,7 @@ void PageBoxControl::loadPages(PageBoxItem * item)
         //            item->rect().width() / item->document()->rect().width() / 1.3);
     }
     loadFinished(true);
+    item->toolBar()->show();
     //*
     if (res_->flags().testFlag(ResourceView::LargeCanvas)) {
         QGraphicsItem* canvas = item_->parentItem()->parentItem();

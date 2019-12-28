@@ -14,6 +14,7 @@ PageBoxToolBar::PageBoxToolBar(QWidget *parent)
     layout()->setMargin(0);
     layout()->setContentsMargins(5, 0, 5, 0);
     setPopupPosition(TopRight);
+    hide();
 }
 
 PageBoxToolBar::~PageBoxToolBar()

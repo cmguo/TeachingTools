@@ -45,11 +45,16 @@ msvc:CONFIG(release, debug|release) {
     INSTALLS += target2
 }
 
+includes.files = $$PWD/*.h
+win32 {
+    includes.path = $$[QT_INSTALL_HEADERS]/TeachingTools
+    target.path = $$[QT_INSTALL_LIBS]
+}
 # Default rules for deployment.
 unix {
     target.path = /usr/lib
 }
-!isEmpty(target.path): INSTALLS += target
+!isEmpty(target.path): INSTALLS += target includes
 
 
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../ShowBoard/release/ -lShowBoard

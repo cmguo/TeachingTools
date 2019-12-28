@@ -40,8 +40,9 @@ WritingGrid::WritingGrid(int h,WritingGridType type,QGraphicsItem * parent):m_he
     adjustControlItemPos();
     ink = InkStrokeControl::createInkCanvas(8);
     ink->SetEditingMode(InkCanvasEditingMode::Ink);
-    QGraphicsProxyWidget * proxy = new QGraphicsProxyWidget(this);
-    proxy->setWidget(ink);
+    //QGraphicsProxyWidget * proxy = new QGraphicsProxyWidget(this);
+    //proxy->setWidget(ink);
+    ink->setParentItem(this);
     adjustInkCanvas();
 }
 
@@ -275,10 +276,11 @@ void WritingGrid::adjustControlItemPos()
 
 void WritingGrid::adjustInkCanvas()
 {
-    ink->setFixedSize(boundingRect().width(),boundingRect().height());
+    //ink->setFixedSize(boundingRect().width(),boundingRect().height());
     qDebug()<<"width:"<<boundingRect().width()<<"height:"<<boundingRect().height();
-    QGraphicsProxyWidget * proxy = ink->graphicsProxyWidget();
-    if (proxy)
-        proxy->resize(ink->minimumSize());
+    ink->SetRenderSize(boundingRect().size());
+    //QGraphicsProxyWidget * proxy = ink->graphicsProxyWidget();
+    //if (proxy)
+    //    proxy->resize(ink->minimumSize());
 }
 

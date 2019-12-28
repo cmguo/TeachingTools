@@ -19,10 +19,10 @@ InkPadPlugin::InkPadPlugin(QObject * parent)
     : PageBoxPlugin(parent)
 {
     inkCanvas_ = InkStrokeControl::createInkCanvas(4);
-    QGraphicsProxyWidget * proxy = new QGraphicsProxyWidget;
-    proxy->setWidget(inkCanvas_);
-    proxy->setAcceptTouchEvents(true);
-    item_ = proxy;
+    //QGraphicsProxyWidget * proxy = new QGraphicsProxyWidget;
+    //proxy->setWidget(inkCanvas_);
+    //proxy->setAcceptTouchEvents(true);
+    item_ = inkCanvas_;
     setToolsString(toolsStr);
 }
 
@@ -81,7 +81,8 @@ void InkPadPlugin::onSizeChanged(const QSizeF &docSize, const QSizeF &pageSize, 
     item_->setScale(1 / s);
     QSizeF size(docSize.width() / pageSize.width() * viewSize.width(),
                  docSize.height() / pageSize.height() * viewSize.height());
-    static_cast<QGraphicsProxyWidget*>(item_)->resize(size);
+    inkCanvas_->SetRenderSize(size);
+    inkCanvas_->setPos(docSize.width() / 2, docSize.height() / 2);
 }
 
 bool InkPadPlugin::selectTest(const QPointF &pt)
