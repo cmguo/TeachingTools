@@ -37,8 +37,8 @@ Rectangle {
         State {
             name:"timeout"
             PropertyChanges {target: startTimerBtn;text:"知道了";visible:true}
-            PropertyChanges {target: showTimeText;text:"时间到"}
-            PropertyChanges {target: canvas;visible:false}
+            PropertyChanges {target: showTimeText;text:"时间到";}
+            PropertyChanges {target: canvas;visible:false;}
         }
     ]
 

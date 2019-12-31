@@ -5,15 +5,20 @@ import QtGraphicalEffects 1.12
 
 Rectangle {
     id:rootItem
-    width: 548
-    height: 556
+    width: 558
+    height: 566
     visible: true
     color: "#00000000"
     property var  timeRunningView: undefined
     signal timerClose()
+    Image{
+        anchors.fill: parent
+        source: "bg_icon.png"
+    }
+
     TimerNormal{
-        height: parent.height-10
-        width: parent.width-10
+        height: parent.height-40
+        width: parent.width-40
         radius: 10;
         anchors.centerIn: parent
         id:normal

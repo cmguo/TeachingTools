@@ -10,5 +10,7 @@
         <file>timertool/TimerRuning.qml</file>
         <file>timertool/TimerTools.qml</file>
         <file>timertool/NumberAdjustPanel.qml</file>
+        <file>timertool/outer_shadow.png</file>
+        <file>timertool/bg_icon.png</file>
     </qresource>
 </RCC>
