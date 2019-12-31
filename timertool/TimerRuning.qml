@@ -156,7 +156,7 @@ Rectangle {
         anchors.rightMargin :  20
         anchors.topMargin :  20
         background: Image{
-            source: "/timertool/close_white.png"
+            source: "./close_white.png"
             fillMode:Image.PreserveAspectFit
         }
         onClicked: {

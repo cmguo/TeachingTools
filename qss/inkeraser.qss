@@ -1,0 +1,35 @@
+QWidget {
+	background: white;
+	border-radius: 6px;
+}
+
+QLabel#pTipLabel {
+	border-right: none;
+	border-left: none;
+	border-top: none;
+	border-bottom: 1px solid #cccccc;
+	min-width: 190px;
+	max-width: 190px;
+	min-height: 30px;
+	max-height: 30px;
+	background: white;
+}
+
+QSlider { 
+	border: none;
+	height: 32px;
+	width: 132px;
+}
+
+QSlider::groove:horizontal {
+         height: 32px;
+         background: #cccccc;
+		 border-radius: 16px;
+}
+
+QSlider::handle:horizontal {
+         width: 32px;
+		 height: 32px;
+         border-image: url(":/teachingtools/icon/eraser.png");
+         border-radius: 16px;
+}

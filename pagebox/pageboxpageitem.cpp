@@ -1,4 +1,5 @@
 #include "pageboxpageitem.h"
+#include "pageboxdocitem.h"
 
 #include <core/resourceview.h>
 #include <core/resource.h>
@@ -32,6 +33,12 @@ void PageBoxPageItem::setImage(const QUrl &image)
         QPixmap pixmap;
         pixmap.loadFromData(data);
         setPixmap(pixmap);
+        QSizeF pageSize = static_cast<PageBoxDocItem*>(parentItem()->parentItem())->pageSize();
+        if (pageSize.toSize() != pixmap.size()) {
+            QSizeF imageSize(pixmap.size());
+            setTransform(QTransform::fromScale(
+                             pageSize.width() / imageSize.width(), pageSize.height() / imageSize.height()));
+        }
     }, [](std::exception & e) {
         qDebug() << e.what();
     });

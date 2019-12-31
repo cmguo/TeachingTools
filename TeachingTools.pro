@@ -27,7 +27,7 @@ HEADERS += \
     teachingtools.h \
 
 RESOURCES += \
-    TeachingToosRes.qrc
+    TeachingTools.qrc
 
 include(writing/writing.pri)
 include(pagebox/pagebox.pri)

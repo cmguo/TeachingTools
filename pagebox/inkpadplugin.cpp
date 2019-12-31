@@ -49,10 +49,12 @@ void InkPadPlugin::stroke(QString const & arg)
 
 void InkPadPlugin::eraser()
 {
-    if (inkCanvas_->EditingMode() == InkCanvasEditingMode::EraseByStroke)
-        inkCanvas_->SetEditingMode(InkCanvasEditingMode::None);
-    else
-        inkCanvas_->SetEditingMode(InkCanvasEditingMode::EraseByStroke);
+    inkCanvas_->SetEditingMode(InkCanvasEditingMode::EraseByStroke);
+}
+
+void InkPadPlugin::eraser(const QString &)
+{
+    inkCanvas_->Strokes()->ClearItems();
 }
 
 void InkPadPlugin::onRelayout(int pageCount, int curPage)
@@ -101,9 +103,13 @@ void InkPadPlugin::updateToolButton(ToolButton *button)
     if (checked) {
         if (button->name == "stroke()")
             button->name = "stroke(QString)";
+        if (button->name == "eraser()")
+            button->name = "eraser(QString)";
     } else {
         if (button->name == "stroke(QString)")
             button->name = "stroke()";
+        if (button->name == "eraser(QString)")
+            button->name = "eraser()";
     }
 }
 
@@ -170,6 +176,11 @@ void InkPadPlugin::getToolButtons(QList<ToolButton *> &buttons, ToolButton *pare
             }
         }
         buttons.append(strokeButtons);
+    } else if (parent->name == "eraser(QString)") {
+        if (eraseAllButton == nullptr) {
+            eraseAllButton = InkStrokeControl::createEraserButton();
+        }
+        buttons.append(eraseAllButton);
     }
 }
 

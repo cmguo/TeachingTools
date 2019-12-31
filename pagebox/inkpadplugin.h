@@ -23,6 +23,8 @@ public slots:
 
     void eraser();
 
+    void eraser(QString const & arg);
+
 protected:
     virtual void onRelayout(int pageCount, int curPage) override;
 
@@ -43,6 +45,7 @@ private:
     InkCanvas * inkCanvas_;
     QVector<QSharedPointer<StrokeCollection>> pageStrokes_;
     bool tempSelect_ = false;
+    ToolButton * eraseAllButton = nullptr;
 };
 
 #endif // INKPADPLUGIN_H

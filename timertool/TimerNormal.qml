@@ -185,7 +185,7 @@ Rectangle{
         anchors.rightMargin :  20
         anchors.topMargin :  20
         background: Image{
-            source: "/timertool/close.png"
+            source: "./close.png"
             fillMode:Image.PreserveAspectFit
         }
         onClicked: timeNomal.closeBtnClick()

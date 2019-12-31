@@ -49,7 +49,6 @@ PageBoxItem::PageBoxItem(QGraphicsItem * parent)
     toolBarProxy_ = proxy;
     QObject::connect(pageNumber_, &PageNumberWidget::pageNumberChanged, this, &PageBoxItem::documentPageChanged);
     setToolsString(toolsStr);
-    toolBar_->attachProvider(this);
 
     QObject::connect(document_, &PageBoxDocItem::pageCountChanged, pageNumber_, &PageNumberWidget::setTotal);
 }
@@ -69,7 +68,7 @@ bool PageBoxItem::selectTest(QPointF const & point)
 void PageBoxItem::setSizeMode(PageBoxItem::SizeMode mode)
 {
     sizeMode_ = mode;
-    emit buttonsChanged();
+    toolBar_->attachProvider(this);
 }
 
 void PageBoxItem::sizeChanged()
@@ -116,21 +115,23 @@ void PageBoxItem::getToolButtons(QList<ToolButton *> &buttons, const QList<ToolB
     if (document_->plugin_)
         document_->plugin_->getToolButtons(buttons, parents);
     ToolButtonProvider::getToolButtons(buttons, parents);
-    for (ToolButton * & b : buttons) {
-        if (b->name == "pages")
-            b = pageNumber_->toolButton();
-        if (sizeMode_ != LargeCanvas) {
-            if (b->name == "scaleUp()"
-                    || b->name == "scaleDown()")
-                b = nullptr;
+    if (parents.empty()) {
+        for (ToolButton * & b : buttons) {
+            if (b->name == "pages")
+                b = pageNumber_->toolButton();
+            if (sizeMode_ != LargeCanvas) {
+                if (b->name == "scaleUp()"
+                        || b->name == "scaleDown()")
+                    b = nullptr;
+            }
+            if (sizeMode_ != MatchContent) {
+                if (b && (b->name == "duplex()"
+                        || b->name == "single()"))
+                    b = nullptr;
+            }
         }
-        if (sizeMode_ != MatchContent) {
-            if (b && (b->name == "duplex()"
-                    || b->name == "single()"))
-                b = nullptr;
-        }
+        buttons.removeAll(nullptr);
     }
-    buttons.removeAll(nullptr);
     if (buttons.endsWith(&ToolButton::SPLITER))
         buttons.pop_back();
 }

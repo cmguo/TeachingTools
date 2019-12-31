@@ -90,6 +90,7 @@ void PageBoxControl::attached()
         StaticTransform* ct2 = new StaticTransform(QTransform::fromTranslate(pos.x(), pos.y()), ct1);
         item->toolBar()->setTransformations({ct2, ct1});
     }
+    item->toolBar()->hide();
     if (property("pageData").isValid()) {
         loadPages(item);
         return;

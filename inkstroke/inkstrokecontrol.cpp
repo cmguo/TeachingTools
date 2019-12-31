@@ -1,10 +1,16 @@
 #include "inkstrokecontrol.h"
 #include "inkstrokes.h"
+
+#include <core/toolbutton.h>
+
 #include <Windows/Controls/inkcanvas.h>
 #include <Windows/Controls/inkevents.h>
 #include <Windows/Ink/stroke.h>
 
 #include <QGraphicsItem>
+#include <QHBoxLayout>
+#include <QLabel>
+#include <QSlider>
 
 InkStrokeControl::InkStrokeControl(ResourceView *res)
     : Control(res, FullLayout, DefaultFlags)
@@ -100,6 +106,19 @@ Control::SelectMode InkStrokeControl::selectTest(QPointF const & pt)
     return selectTest(static_cast<InkCanvas*>(item_), pt, false);
 }
 
+static QString ReadAllText( const QString &path )
+{
+    QString ret;
+    QFile f(path);
+    if (f.open(QIODevice::ReadOnly)) {
+        ret = QString::fromUtf8(f.readAll());
+        f.close();
+    } else {
+        qDebug() << f.errorString();
+    }
+    return ret;
+}
+
 
 class PressureHelper : public QObject
 {
@@ -191,3 +210,54 @@ Control::SelectMode InkStrokeControl::selectTest(InkCanvas *ink, const QPointF &
     }
 }
 
+ToolButton *InkStrokeControl::createEraserButton()
+{
+    ToolButton * btn = new ToolButton({"eraseAll()", "", ToolButton::CustomWidget,
+         QVariant::fromValue(createEraserWidget())});
+    return btn;
+}
+
+QWidget *InkStrokeControl::createEraserWidget()
+{
+    QWidget* pWidget = new QWidget(nullptr, Qt::FramelessWindowHint);
+    pWidget->setFixedSize(160, 125);
+    QSlider* pSliter = new QSlider();
+    pSliter->setOrientation(Qt::Horizontal);
+    //设置滑动条控件的最小值
+    pSliter->setMinimum(0);
+    //设置滑动条控件的最大值
+    pSliter->setMaximum(100);
+
+    QLabel* pTextLabel = new QLabel;
+    QLabel* pTipLabel = new QLabel;
+    pTipLabel->setObjectName("pTipLabel");
+    pTipLabel->setContentsMargins(20,0,0,0);
+    pTextLabel->setText("滑动清除画布");
+    pTipLabel->setText("橡皮擦");
+    pTextLabel->setAlignment(Qt::AlignCenter);
+    QVBoxLayout* mainLayout = new QVBoxLayout(pWidget);
+    pWidget->setStyleSheet(ReadAllText(":/teachingtools/qss/inkeraser.qss"));
+    mainLayout->setContentsMargins(0,0,0,10);
+    mainLayout->setSpacing(20);
+    mainLayout->addWidget(pTipLabel);
+    QHBoxLayout* layout = new QHBoxLayout;
+    layout->setMargin(0);
+    layout->setSpacing(0);
+    layout->addStretch();
+    layout->addWidget(pSliter);
+    layout->addStretch();
+    mainLayout->addLayout(layout);
+    mainLayout->addWidget(pTextLabel);
+
+    connect(pSliter, &QSlider::sliderReleased, pWidget, [pWidget, pSliter] {
+        if (pSliter->sliderPosition() == pSliter->maximum()) {
+            QVariant action = pWidget->property(ToolButton::ACTION_PROPERTY);
+            if (action.isValid()) {
+                action.value<ToolButton::action_t>()();
+            }
+        }
+        pSliter->setSliderPosition(0);
+    });
+
+    return pWidget;
+}

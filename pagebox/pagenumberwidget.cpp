@@ -7,7 +7,7 @@
 #include <QHBoxLayout>
 
 PageNumberWidget::PageNumberWidget(QWidget *parent)
-    : QWidget(parent)
+    : QWidget(parent, Qt::FramelessWindowHint)
 {
     QHBoxLayout* layout = new QHBoxLayout(this);
     preBtn = new QPushButton(this);

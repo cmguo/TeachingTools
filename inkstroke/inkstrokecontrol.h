@@ -24,6 +24,8 @@ public:
 
     static SelectMode selectTest(InkCanvas* ink, QPointF const & pt, bool eatUnselect = true);
 
+    static ToolButton* createEraserButton();
+
 public:
     Q_INVOKABLE InkStrokeControl(ResourceView* res);
 
@@ -50,6 +52,9 @@ protected:
     virtual void resize(const QSizeF &size) override;
 
     virtual SelectMode selectTest(QPointF const & pt) override;
+
+private:
+    static QWidget * createEraserWidget();
 };
 
 #endif // INKSTROKECONTROL_H

@@ -1,5 +1,5 @@
 <RCC>
-    <qresource prefix="/">
+    <qresource prefix="/teachingtools">
         <file>icon/add.svg</file>
         <file>icon/remove.svg</file>
         <file>timertool/close.png</file>
@@ -12,5 +12,7 @@
         <file>timertool/NumberAdjustPanel.qml</file>
         <file>timertool/outer_shadow.png</file>
         <file>timertool/bg_icon.png</file>
+        <file>qss/inkeraser.qss</file>
+        <file>icon/eraser.png</file>
     </qresource>
 </RCC>
