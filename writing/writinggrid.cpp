@@ -1,6 +1,6 @@
 #include "writinggrid.h"
 #include "writinggridcontrol.h"
-#include "inkstroke/inkstrokecontrol.h"
+#include "inkstroke/inkstrokehelper.h"
 
 #include <QPainter>
 #include <QDebug>
@@ -38,7 +38,7 @@ WritingGrid::WritingGrid(int h,WritingGridType type,QGraphicsItem * parent):m_he
     addItem->setX(2); // icon不居中矫正
     decItem->setX(2);
     adjustControlItemPos();
-    ink = InkStrokeControl::createInkCanvas(8);
+    ink = InkStrokeHelper::createInkCanvas(8);
     ink->SetEditingMode(InkCanvasEditingMode::Ink);
     //QGraphicsProxyWidget * proxy = new QGraphicsProxyWidget(this);
     //proxy->setWidget(ink);

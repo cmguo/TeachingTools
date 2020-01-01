@@ -45,7 +45,6 @@ private:
     InkCanvas * inkCanvas_;
     QVector<QSharedPointer<StrokeCollection>> pageStrokes_;
     bool tempSelect_ = false;
-    ToolButton * eraseAllButton = nullptr;
 };
 
 #endif // INKPADPLUGIN_H

@@ -1,6 +1,6 @@
 #include "inkpadplugin.h"
 #include "pageboxdocitem.h"
-#include "inkstroke/inkstrokecontrol.h"
+#include "inkstroke/inkstrokehelper.h"
 
 #include <core/toolbutton.h>
 
@@ -11,19 +11,15 @@
 #include <QGraphicsProxyWidget>
 #include <QPen>
 
-static constexpr char const * toolsStr =
-        "stroke()|书写|Checkable,NeedUpdate,UnionUpdate|;"
-        "eraser()|擦除|Checkable,NeedUpdate,UnionUpdate|;";
-
 InkPadPlugin::InkPadPlugin(QObject * parent)
     : PageBoxPlugin(parent)
 {
-    inkCanvas_ = InkStrokeControl::createInkCanvas(4);
+    inkCanvas_ = InkStrokeHelper::createInkCanvas(4);
     //QGraphicsProxyWidget * proxy = new QGraphicsProxyWidget;
     //proxy->setWidget(inkCanvas_);
     //proxy->setAcceptTouchEvents(true);
     item_ = inkCanvas_;
-    setToolsString(toolsStr);
+    setToolsString(InkStrokeHelper::toolString());
 }
 
 void InkPadPlugin::stroke()
@@ -89,57 +85,12 @@ void InkPadPlugin::onSizeChanged(const QSizeF &docSize, const QSizeF &pageSize, 
 
 bool InkPadPlugin::selectTest(const QPointF &pt)
 {
-    return InkStrokeControl::selectTest(inkCanvas_, pt) != Control::NotSelect;
+    return InkStrokeHelper::selectTest(inkCanvas_, pt) != Control::NotSelect;
 }
 
 void InkPadPlugin::updateToolButton(ToolButton *button)
 {
-    bool checked = button->name.startsWith("stroke(")
-              ? inkCanvas_->EditingMode() == InkCanvasEditingMode::Ink
-              : inkCanvas_->EditingMode() == InkCanvasEditingMode::EraseByStroke;
-    button->flags.setFlag(ToolButton::Checked, checked);
-    button->flags.setFlag(ToolButton::Popup, checked);
-    button->flags.setFlag(ToolButton::OptionsGroup, checked);
-    if (checked) {
-        if (button->name == "stroke()")
-            button->name = "stroke(QString)";
-        if (button->name == "eraser()")
-            button->name = "eraser(QString)";
-    } else {
-        if (button->name == "stroke(QString)")
-            button->name = "stroke()";
-        if (button->name == "eraser(QString)")
-            button->name = "eraser()";
-    }
-}
-
-static QList<ToolButton *> strokeButtons;
-
-static QGraphicsItem* colorIcon(QColor color)
-{
-    QGraphicsRectItem * item = new QGraphicsRectItem;
-    item->setRect({1, 1, 30, 30});
-    item->setPen(QPen(QColor(color.red() / 2 + 128, // mix with white
-                        color.green() / 2 + 128, color.blue() / 2 + 128), 2.0));
-    item->setBrush(color);
-    return item;
-}
-
-static QGraphicsItem* widthIcon(qreal width)
-{
-    QPainterPath ph;
-    ph.addEllipse(QRectF(1, 1, 30, 30));
-    QGraphicsPathItem * border = new QGraphicsPathItem(ph);
-    border->setPen(QPen(Qt::blue, 2));
-    border->setBrush(QBrush());
-    QPainterPath ph2;
-    QRectF rect(0, 0, width * 3, width * 3);
-    rect.moveCenter(QPointF(16, 16));
-    ph2.addEllipse(rect);
-    QGraphicsPathItem * item = new QGraphicsPathItem(ph2, border);
-    item->setPen(Qt::NoPen);
-    item->setBrush(Qt::yellow);
-    return border;
+    InkStrokeHelper::updateToolButton(inkCanvas_, button);
 }
 
 void InkPadPlugin::getToolButtons(QList<ToolButton *> &buttons, ToolButton *parent)
@@ -148,39 +99,6 @@ void InkPadPlugin::getToolButtons(QList<ToolButton *> &buttons, ToolButton *pare
         PageBoxPlugin::getToolButtons(buttons, parent);
         return;
     }
-    if (parent->name == "stroke(QString)") {
-        if (strokeButtons.isEmpty()) {
-            for (QColor c : {
-                 Qt::black, Qt::white, Qt::gray, Qt::red, Qt::darkYellow,
-                 Qt::yellow, Qt::green, Qt::darkGreen, Qt::blue, Qt::darkBlue
-             }) {
-                QString name = QVariant::fromValue(c).toString();
-                ToolButton::Flags flags = nullptr;
-                QGraphicsItem * icon = colorIcon(c);
-                ToolButton * btn = new ToolButton({name, "", flags,
-                     QVariant::fromValue(icon)});
-                strokeButtons.append(btn);
-                if (strokeButtons.size() == 5)
-                    strokeButtons.append(&ToolButton::LINE_BREAK);
-            }
-            strokeButtons.append(&ToolButton::LINE_BREAK);
-            for (qreal w : {
-                 1.0, 3.0, 5.0,
-             }) {
-                QString name = QVariant::fromValue(w).toString();
-                ToolButton::Flags flags = nullptr;
-                QGraphicsItem * icon = widthIcon(w);
-                ToolButton * btn = new ToolButton({name, "", flags,
-                     QVariant::fromValue(icon)});
-                strokeButtons.append(btn);
-            }
-        }
-        buttons.append(strokeButtons);
-    } else if (parent->name == "eraser(QString)") {
-        if (eraseAllButton == nullptr) {
-            eraseAllButton = InkStrokeControl::createEraserButton();
-        }
-        buttons.append(eraseAllButton);
-    }
+    InkStrokeHelper::getToolButtons(inkCanvas_, buttons, parent);
 }
 

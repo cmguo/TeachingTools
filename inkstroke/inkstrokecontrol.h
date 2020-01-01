@@ -20,13 +20,6 @@ class TEACHINGTOOLS_EXPORT InkStrokeControl : public Control
     Q_PROPERTY(qreal width READ width WRITE setWidth)
 
 public:
-    static InkCanvas* createInkCanvas(qreal lineWidth = 4.0);
-
-    static SelectMode selectTest(InkCanvas* ink, QPointF const & pt, bool eatUnselect = true);
-
-    static ToolButton* createEraserButton();
-
-public:
     Q_INVOKABLE InkStrokeControl(ResourceView* res);
 
     InkCanvasEditingMode editingMode();
@@ -52,9 +45,6 @@ protected:
     virtual void resize(const QSizeF &size) override;
 
     virtual SelectMode selectTest(QPointF const & pt) override;
-
-private:
-    static QWidget * createEraserWidget();
 };
 
 #endif // INKSTROKECONTROL_H

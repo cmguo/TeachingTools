@@ -9,6 +9,9 @@ InkStrokes::InkStrokes(Resource *res)
     , next_(nullptr)
     , prev_(nullptr)
 {
+    if (url().path().isEmpty()) {
+        strokes_.reset(new StrokeCollection);
+    }
 }
 
 InkStrokes::InkStrokes(InkStrokes &o)
