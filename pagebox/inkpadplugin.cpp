@@ -80,7 +80,6 @@ void InkPadPlugin::onSizeChanged(const QSizeF &docSize, const QSizeF &pageSize, 
     QSizeF size(docSize.width() / pageSize.width() * viewSize.width(),
                  docSize.height() / pageSize.height() * viewSize.height());
     inkCanvas_->SetRenderSize(size);
-    inkCanvas_->setPos(docSize.width() / 2, docSize.height() / 2);
 }
 
 bool InkPadPlugin::selectTest(const QPointF &pt)

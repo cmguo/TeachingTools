@@ -382,7 +382,7 @@ void PageBoxDocItem::backPage()
 
 void PageBoxDocItem::goToPage(int page)
 {
-    if (page == curPage_)
+    if (!model_ || page == curPage_)
         return;
     if (layoutMode_ == Duplex && page != 0 && page % 2 == 0)
         page = (page == curPage_ + 1) ? page + 1 : page - 1;

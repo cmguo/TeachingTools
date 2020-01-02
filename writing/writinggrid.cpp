@@ -26,6 +26,7 @@ WritingGrid::WritingGrid(int h,WritingGridType type,QGraphicsItem * parent):m_he
     newScaleSize.setWidth(m_width);
     newScaleSize.setHeight(m_height);
     setFlag(QGraphicsItem::ItemIsFocusable, true);
+    setFlags(ItemClipsToShape | ItemClipsChildrenToShape);
     controlItem = new QGraphicsRectItem();
     controlItem->setBrush(QBrush(Qt::transparent));
     controlItem->setPen(Qt::NoPen);

@@ -163,12 +163,12 @@ void PageBoxItem::documentPageChanged(int page)
         document_->goToPage(page);
 }
 
-void PageBoxItem::documentSizeChanged(const QSizeF &size)
+void PageBoxItem::documentSizeChanged(const QSizeF &pageSize2)
 {
     if (sizeMode_ == FixedSize) {
         return;
     }
-    QSizeF size2 = calcSize(size);
+    QSizeF size2 = calcSize(pageSize2);
     QRectF rect(QPointF(0, 0), size2);
     rect.moveCenter(QPointF(0, 0));
     setRect(rect);
@@ -179,7 +179,7 @@ void PageBoxItem::documentSizeChanged(const QSizeF &size)
     }
 }
 
-QSizeF PageBoxItem::calcSize(QSizeF const &size)
+QSizeF PageBoxItem::calcSize(QSizeF const &pageSize2)
 {
     QRectF rect = this->rect();
     if (sizeMode_ == LargeCanvas) {
@@ -190,16 +190,16 @@ QSizeF PageBoxItem::calcSize(QSizeF const &size)
         document_->rescale();
         document_->transferToManualScale();
         if (document_->direction() == PageBoxDocItem::Horizontal) {
-            qreal s = size.width() / rect.width();
+            qreal s = pageSize2.width() / rect.width();
             return QSizeF(docSize.width() / s, rect.height());
         } else {
-            qreal s = size.height() / rect.height();
+            qreal s = pageSize2.height() / rect.height();
             return QSizeF(rect.width(), docSize.height() / s);
         }
     } else {
         qreal s = document_->direction() == PageBoxDocItem::Horizontal
-                ? rect.height() / size.height() : rect.width() / size.width();
-        return size * s;
+                ? rect.height() / pageSize2.height() : rect.width() / pageSize2.width();
+        return pageSize2 * s;
     }
 }
 

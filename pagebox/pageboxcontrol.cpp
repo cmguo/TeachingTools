@@ -80,14 +80,14 @@ void PageBoxControl::attached()
         QGraphicsTransform * ct = Control::fromItem(canvas)->transform();
         ControlTransform * ct1 = new ControlTransform(static_cast<ControlTransform*>(ct), true, true, true);
         QPointF pos(0, item_->scene()->sceneRect().bottom() - 30);
-        StaticTransform* ct2 = new StaticTransform(QTransform::fromTranslate(pos.x(), pos.y()), ct1);
+        StaticTransform* ct2 = new StaticTransform(QTransform::fromTranslate(pos.x(), pos.y()), ct);
         item->toolBar()->setTransformations({ct1, ct2});
         item->setSizeMode(PageBoxItem::LargeCanvas);
     } else {
         item->setSizeMode((flags_ & FullLayout) ? PageBoxItem::FixedSize : PageBoxItem::MatchContent);
         ControlTransform * ct1 = new ControlTransform(static_cast<ControlTransform*>(transform_), true, false, false);
         QPointF pos(0, item->boundingRect().bottom() - 30);
-        StaticTransform* ct2 = new StaticTransform(QTransform::fromTranslate(pos.x(), pos.y()), ct1);
+        StaticTransform* ct2 = new StaticTransform(QTransform::fromTranslate(pos.x(), pos.y()), transform_);
         item->toolBar()->setTransformations({ct2, ct1});
     }
     item->toolBar()->hide();
@@ -106,6 +106,10 @@ void PageBoxControl::detaching()
 {
     PageBoxItem * item = static_cast<PageBoxItem *>(item_);
     item->document()->setPlugin(nullptr);
+    QList<QGraphicsTransform*> tfs(item->toolBar()->transformations());
+    item->toolBar()->setTransformations({});
+    for (QGraphicsTransform* tf : tfs) // must delete before item
+        delete tf;
 }
 
 void PageBoxControl::resize(QSizeF const & size)
@@ -115,7 +119,6 @@ void PageBoxControl::resize(QSizeF const & size)
     rect.moveCenter(QPointF(0, 0));
     item->setRect(rect);
     item->sizeChanged();
-    Control::resize(size);
     if (!(res_->flags().testFlag(ResourceView::LargeCanvas)) && !transform_->children().empty()) { // maybe before attached
         QPointF pos(0, rect.bottom() - 60);
         StaticTransform* ct2 = static_cast<StaticTransform*>(transform_->children().back()->children().first());
