@@ -74,23 +74,25 @@ void PageBoxControl::attaching()
 void PageBoxControl::attached()
 {
     PageBoxItem * item = static_cast<PageBoxItem *>(item_);
-    if (res_->flags().testFlag(ResourceView::LargeCanvas)) {
-        // attach to canvas transform
-        QGraphicsItem* canvas = item_->parentItem()->parentItem();
-        QGraphicsTransform * ct = Control::fromItem(canvas)->transform();
-        ControlTransform * ct1 = new ControlTransform(static_cast<ControlTransform*>(ct), true, true, true);
-        QPointF pos(0, item_->scene()->sceneRect().bottom() - 30);
-        StaticTransform* ct2 = new StaticTransform(QTransform::fromTranslate(pos.x(), pos.y()), ct);
-        item->toolBar()->setTransformations({ct1, ct2});
-        item->setSizeMode(PageBoxItem::LargeCanvas);
-    } else {
-        item->setSizeMode((flags_ & FullLayout) ? PageBoxItem::FixedSize : PageBoxItem::MatchContent);
-        ControlTransform * ct1 = new ControlTransform(static_cast<ControlTransform*>(transform_), true, false, false);
-        QPointF pos(0, item->boundingRect().bottom() - 30);
-        StaticTransform* ct2 = new StaticTransform(QTransform::fromTranslate(pos.x(), pos.y()), transform_);
-        item->toolBar()->setTransformations({ct2, ct1});
+    if (item->toolBar()->transformations().empty()) { // maybe reload
+        if (res_->flags().testFlag(ResourceView::LargeCanvas)) {
+            // attach to canvas transform
+            QGraphicsItem* canvas = item_->parentItem()->parentItem();
+            QGraphicsTransform * ct = Control::fromItem(canvas)->transform();
+            ControlTransform * ct1 = new ControlTransform(static_cast<ControlTransform*>(ct), true, true, true);
+            QPointF pos(0, item_->scene()->sceneRect().bottom() - 30);
+            StaticTransform* ct2 = new StaticTransform(QTransform::fromTranslate(pos.x(), pos.y()), ct);
+            item->toolBar()->setTransformations({ct1, ct2});
+            item->setSizeMode(PageBoxItem::LargeCanvas);
+        } else {
+            item->setSizeMode((flags_ & FullLayout) ? PageBoxItem::FixedSize : PageBoxItem::MatchContent);
+            ControlTransform * ct1 = new ControlTransform(static_cast<ControlTransform*>(transform_), true, false, false);
+            QPointF pos(0, item->boundingRect().bottom() - 30);
+            StaticTransform* ct2 = new StaticTransform(QTransform::fromTranslate(pos.x(), pos.y()), transform_);
+            item->toolBar()->setTransformations({ct2, ct1});
+        }
+        item->toolBar()->hide();
     }
-    item->toolBar()->hide();
     if (property("pageData").isValid()) {
         loadPages(item);
         return;
