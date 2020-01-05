@@ -203,7 +203,7 @@ void PageBoxItem::documentSizeChanged(const QSizeF &pageSize2)
     rect.moveCenter(QPointF(0, 0));
     setRect(rect);
     qDebug() << "PageBoxItem documentSizeChanged" << rect;
-    PageBoxItem * control = qobject_cast<PageBoxItem*>(Control::fromItem(this));
+    PageBoxControl * control = qobject_cast<PageBoxControl*>(Control::fromItem(this));
     if (control) {
         control->sizeChanged();
     }
@@ -213,7 +213,7 @@ QSizeF PageBoxItem::calcSize(QSizeF const &pageSize2)
 {
     QRectF rect = this->rect();
     if (sizeMode_ == LargeCanvas) {
-        PageBoxItem * control = qobject_cast<PageBoxItem*>(Control::fromItem(this));
+        PageBoxControl * control = qobject_cast<PageBoxControl*>(Control::fromItem(this));
         if (control->flags() & Control::RestoreSession)
             return rect.size();
         QSizeF docSize = document_->documentSize();
