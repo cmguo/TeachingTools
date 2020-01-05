@@ -10,11 +10,6 @@ class PageBoxItem;
 class TEACHINGTOOLS_EXPORT PageBoxControl : public Control
 {
     Q_OBJECT
-
-    Q_PROPERTY(int pageNumber READ pageNumber  WRITE setPageNumber)
-
-    Q_PROPERTY(QByteArray pageBoxState READ pageBoxState  WRITE setPageBoxState)
-
 public:
     Q_INVOKABLE PageBoxControl(ResourceView * res);
 
@@ -41,18 +36,13 @@ protected:
     void enableInkPad();
 
 protected:
-    int pageNumber();
-
-    void setPageNumber(int n);
-
-    QByteArray pageBoxState();
-
-    void setPageBoxState(QByteArray state);
-
     void loadPages();
 
 private:
     void loadPages(PageBoxItem * item);
+
+private:
+    QGraphicsTransform * bottomTransform_;
 };
 
 #endif // PAGEBOXCONTROL_H

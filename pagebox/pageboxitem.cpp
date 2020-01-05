@@ -17,9 +17,9 @@
 #include <QDebug>
 
 static constexpr char const * toolsStr =
-        "-full|全屏|NeedUpdate|:/icon/icon/enter_full_screen_btn_icon.svg;"
-        "duplex()|双页|;"
-        "single()|单页|;"
+        "-full|全屏|NeedUpdate|:/teachingtools/icon/enter_full.svg;"
+        "duplex()|双页|Checkable,UnionUpdate|;"
+        "single()|单页|Checkable,UnionUpdate|;"
         "scaleUp()|+|;"
         "scaleDown()|-|;"
         "pages||;";
@@ -55,7 +55,28 @@ PageBoxItem::PageBoxItem(QGraphicsItem * parent)
 
 PageBoxItem::~PageBoxItem()
 {
+    toolBar_->clear();
     delete pageNumber_;
+}
+
+int PageBoxItem::pageNumber()
+{
+    return document_->curPage();
+}
+
+void PageBoxItem::setPageNumber(int n)
+{
+    document_->goToPage(n);
+}
+
+QByteArray PageBoxItem::pageBoxState()
+{
+    return document_->saveState();
+}
+
+void PageBoxItem::setPageBoxState(QByteArray state)
+{
+    document_->restoreState(state);
 }
 
 bool PageBoxItem::selectTest(QPointF const & point)
@@ -136,6 +157,15 @@ void PageBoxItem::getToolButtons(QList<ToolButton *> &buttons, const QList<ToolB
         buttons.pop_back();
 }
 
+void PageBoxItem::updateToolButton(ToolButton *button)
+{
+    if (button->name == "duplex()") {
+        button->flags.setFlag(ToolButton::Checked, document_->layoutMode() == PageBoxDocItem::Duplex);
+    } else if (button->name == "single()") {
+        button->flags.setFlag(ToolButton::Checked, document_->layoutMode() == PageBoxDocItem::Single);
+    }
+}
+
 void PageBoxItem::handleToolButton(const QList<ToolButton *> &buttons)
 {
     ToolButton * button = buttons.back();
@@ -143,11 +173,11 @@ void PageBoxItem::handleToolButton(const QList<ToolButton *> &buttons)
         if (button->flags.testFlag(ToolButton::Checked)) {
             button->flags.setFlag(ToolButton::Checked, false);
             button->title = "全屏";
-            button->icon = ":/icon/icon/enter_full_screen_btn_icon.svg";
+            button->icon = ":/teachingtools/icon/enter_full.svg";
         } else {
             button->flags.setFlag(ToolButton::Checked, true);
             button->title = "缩小";
-            button->icon = ":/icon/icon/exit_full_screen_btn_icon.svg";
+            button->icon = ":/teachingtools/icon/exit_full.svg";
         }
     }
     if (document_->plugin_)
@@ -173,7 +203,7 @@ void PageBoxItem::documentSizeChanged(const QSizeF &pageSize2)
     rect.moveCenter(QPointF(0, 0));
     setRect(rect);
     qDebug() << "PageBoxItem documentSizeChanged" << rect;
-    PageBoxControl * control = qobject_cast<PageBoxControl*>(Control::fromItem(this));
+    PageBoxItem * control = qobject_cast<PageBoxItem*>(Control::fromItem(this));
     if (control) {
         control->sizeChanged();
     }
@@ -183,7 +213,7 @@ QSizeF PageBoxItem::calcSize(QSizeF const &pageSize2)
 {
     QRectF rect = this->rect();
     if (sizeMode_ == LargeCanvas) {
-        PageBoxControl * control = qobject_cast<PageBoxControl*>(Control::fromItem(this));
+        PageBoxItem * control = qobject_cast<PageBoxItem*>(Control::fromItem(this));
         if (control->flags() & Control::RestoreSession)
             return rect.size();
         QSizeF docSize = document_->documentSize();

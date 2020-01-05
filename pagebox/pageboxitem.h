@@ -12,6 +12,10 @@ class PageNumberWidget;
 class PageBoxItem : public ToolButtonProvider, public QGraphicsRectItem
 {
     Q_OBJECT
+
+    Q_PROPERTY(int pageNumber READ pageNumber  WRITE setPageNumber)
+    Q_PROPERTY(QByteArray pageBoxState READ pageBoxState  WRITE setPageBoxState)
+
 public:
     PageBoxItem(QGraphicsItem * parent = nullptr);
 
@@ -55,9 +59,20 @@ public slots:
     void exit();
 
 protected:
-    void getToolButtons(QList<ToolButton *> &buttons, const QList<ToolButton *> &parents = {}) override;
+    int pageNumber();
 
-    void handleToolButton(const QList<ToolButton *> &buttons) override;
+    void setPageNumber(int n);
+
+    QByteArray pageBoxState();
+
+    void setPageBoxState(QByteArray state);
+
+protected:
+    virtual void getToolButtons(QList<ToolButton *> &buttons, const QList<ToolButton *> &parents = {}) override;
+
+    virtual void updateToolButton(ToolButton *button) override;
+
+    virtual void handleToolButton(const QList<ToolButton *> &buttons) override;
 
 private:
     void documentPageChanged(int page);

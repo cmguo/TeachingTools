@@ -178,8 +178,8 @@ void PageBoxDocItem::setItems(QAbstractItemModel * model)
         QObject::connect(model_, &QAbstractItemModel::rowsMoved,
                          this, &PageBoxDocItem::resourceMoved);
     }
-    pos_ = QPointF();
-    curPage_ = 0;
+    if (pos_.isNull())
+        curPage_ = 0;
     emit pageCountChanged(model_ ? model_->rowCount() : 0);
     relayout();
     rescale();

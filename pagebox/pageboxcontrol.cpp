@@ -18,6 +18,7 @@
 
 PageBoxControl::PageBoxControl(ResourceView * res)
     : Control(res, {KeepAspectRatio}, {CanRotate})
+    , bottomTransform_(nullptr)
 {
 }
 
@@ -54,9 +55,10 @@ private:
 
 void PageBoxControl::attaching()
 {
+    PageBoxItem * item = static_cast<PageBoxItem *>(item_);
+    itemObj_ = item;
     if (flags_ & RestoreSession)
         return;
-    PageBoxItem * item = static_cast<PageBoxItem *>(item_);
     PageBoxDocItem * doc = item->document();
     if (res_->flags().testFlag(ResourceView::LargeCanvas)) {
         doc->setLayoutMode(PageBoxDocItem::Continuous);
@@ -90,6 +92,7 @@ void PageBoxControl::attached()
             QPointF pos(0, item->boundingRect().bottom() - 30);
             StaticTransform* ct2 = new StaticTransform(QTransform::fromTranslate(pos.x(), pos.y()), transform_);
             item->toolBar()->setTransformations({ct2, ct1});
+            bottomTransform_ = ct2;
         }
         item->toolBar()->hide();
     }
@@ -121,9 +124,9 @@ void PageBoxControl::resize(QSizeF const & size)
     rect.moveCenter(QPointF(0, 0));
     item->setRect(rect);
     item->sizeChanged();
-    if (!(res_->flags().testFlag(ResourceView::LargeCanvas)) && !transform_->children().empty()) { // maybe before attached
+    if (bottomTransform_) { // maybe before attached
         QPointF pos(0, rect.bottom() - 60);
-        StaticTransform* ct2 = static_cast<StaticTransform*>(transform_->children().back()->children().first());
+        StaticTransform* ct2 = static_cast<StaticTransform*>(bottomTransform_);
         ct2->setTransform(QTransform::fromTranslate(pos.x(), pos.y()));
     }
 }
@@ -174,30 +177,6 @@ void PageBoxControl::enableInkPad()
         }
     }
     item->document()->setPlugin(new InkPadPlugin(res_));
-}
-
-int PageBoxControl::pageNumber()
-{
-    PageBoxItem * item = static_cast<PageBoxItem *>(item_);
-    return item->document()->curPage();
-}
-
-void PageBoxControl::setPageNumber(int n)
-{
-    PageBoxItem * item = static_cast<PageBoxItem *>(item_);
-    item->document()->goToPage(n);
-}
-
-QByteArray PageBoxControl::pageBoxState()
-{
-    PageBoxItem * item = static_cast<PageBoxItem *>(item_);
-    return item->document()->saveState();
-}
-
-void PageBoxControl::setPageBoxState(QByteArray state)
-{
-    PageBoxItem * item = static_cast<PageBoxItem *>(item_);
-    item->document()->restoreState(state);
 }
 
 void PageBoxControl::loadPages()

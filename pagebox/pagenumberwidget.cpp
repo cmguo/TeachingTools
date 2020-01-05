@@ -45,7 +45,6 @@ void PageNumberWidget::setNumber(int n)
         return;
     no_ = n;
     progressLabel->setText(QString("%1/%2").arg(no_ + 1).arg(total_));
-    emit pageNumberChanged(no_);
 }
 
 ToolButton *PageNumberWidget::toolButton()
@@ -67,4 +66,5 @@ void PageNumberWidget::buttonClicked()
             setNumber(no_ + 1);
         }
     }
+    emit pageNumberChanged(no_);
 }

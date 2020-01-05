@@ -4,19 +4,23 @@
 #include "TeachingTools_global.h"
 
 #include <core/control.h>
-#include <QGraphicsPixmapItem>
 #include <qexport.h>
+
+#include <QGraphicsPixmapItem>
+#include <QSharedPointer>
+
+class StrokeCollection;
 
 class TEACHINGTOOLS_EXPORT WritingGridControl: public Control
 {
     Q_OBJECT
-
 public:
     Q_INVOKABLE WritingGridControl(ResourceView *res);
 
     virtual QString toolsString(QString const & parent = QString()) const override;
 
     using :: Control::sizeChanged;
+
 private slots:
     void changeGridType();
 

@@ -12,5 +12,6 @@ REGISTER_CONTROL(InkStrokeControl, "inkstroke");
 #include "inkstroke/inkstrokes.h"
 
 REGISTER_RESOURCE_VIEW(InkStrokes, "inkstroke");
+REGISTER_COMMON_RESOURCE_TYPES(writinggrid, "writinggrid", {}, {})
 
 #endif // CONTROLS_H

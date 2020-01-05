@@ -16,8 +16,8 @@
 #include <QPen>
 
 static constexpr char const * toolsStr =
-        "stroke()|书写|Checkable,NeedUpdate,UnionUpdate|;"
-        "eraser()|擦除|Checkable,NeedUpdate,UnionUpdate|;";
+        "stroke()|书写|Checkable,UnionUpdate|;"
+        "eraser()|擦除|Checkable,UnionUpdate|;";
 
 
 static QString ReadAllText( const QString &path )
@@ -218,15 +218,16 @@ void InkStrokeHelper::getToolButtons(InkCanvas* ink, QList<ToolButton *> &button
         QVariant eraseAllButton = ink->property("eraseAllButton");
         if (!eraseAllButton.isValid()) {
             QWidget * w = createEraserWidget();
-            eraseAllButton = QVariant::fromValue(
-                        ToolButton({"eraseAll()", "", ToolButton::CustomWidget,
-                                    QVariant::fromValue(w)}));
+            ToolButton* b = new ToolButton({"eraseAll()", "", ToolButton::CustomWidget,
+                        QVariant::fromValue(w)});
+            eraseAllButton.setValue(b);
             ink->setProperty("eraseAllButton", eraseAllButton);
-            QObject::connect(ink, &QObject::destroyed, [w]() {
+            QObject::connect(ink, &QObject::destroyed, [b, w]() {
+                delete b;
                 delete w;
             });
         }
-        buttons.append(reinterpret_cast<ToolButton*>(eraseAllButton.data()));
+        buttons.append(reinterpret_cast<ToolButton*>(eraseAllButton.value<ToolButton*>()));
     }
 }
 

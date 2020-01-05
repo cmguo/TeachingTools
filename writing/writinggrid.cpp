@@ -12,11 +12,14 @@
 #include <Windows/Controls/inkevents.h>
 
 WritingGrid::WritingGrid(QGraphicsItem *parent)
+    : WritingGrid(300,WritingGridType::TinWordFormat,parent)
 {
-    WritingGrid(300,WritingGridType::TinWordFormat,parent);
 }
 
-WritingGrid::WritingGrid(int h,WritingGridType type,QGraphicsItem * parent):m_height(h),type_(type),QGraphicsItem(parent)
+WritingGrid::WritingGrid(int h,WritingGridType type,QGraphicsItem * parent)
+    : QGraphicsObject(parent)
+    , m_height(h)
+    , type_(type)
 {
     m_realLineColor = QColor(0xCACACA);
     m_dotLineColor = QColor(0xCACACA);
@@ -31,10 +34,10 @@ WritingGrid::WritingGrid(int h,WritingGridType type,QGraphicsItem * parent):m_he
     controlItem->setBrush(QBrush(Qt::transparent));
     controlItem->setPen(Qt::NoPen);
     addItem = new QGraphicsPixmapItem(controlItem);
-    addItem->setPixmap(QPixmap(":/icon/add.svg"));
+    addItem->setPixmap(QPixmap(":/teachingtools/icon/add.svg"));
     addItem->setAcceptedMouseButtons(Qt::LeftButton);
     decItem = new QGraphicsPixmapItem(controlItem);
-    decItem->setPixmap(QPixmap(":/icon/remove.svg"));
+    decItem->setPixmap(QPixmap(":/teachingtools/icon/remove.svg"));
     decItem->setAcceptedMouseButtons(Qt::LeftButton);
     addItem->setX(2); // icon不居中矫正
     decItem->setX(2);
@@ -235,15 +238,36 @@ void WritingGrid::setType(WritingGridType type){
     update();
 }
 
+QSharedPointer<StrokeCollection> WritingGrid::strokes()
+{
+    return ink->Strokes();
+}
+
+void WritingGrid::setStrokes(QSharedPointer<StrokeCollection> strokes)
+{
+    ink->SetStrokes(strokes);
+}
+
+int WritingGrid::gridCount() const
+{
+    return gridCount_;
+}
+
+void WritingGrid::setGridCount(int n)
+{
+    prepareGeometryChange();
+    gridCount_ = n;
+}
+
 void WritingGrid::addGrid(){
     gridCount_++;
-    update();
 }
 
 void WritingGrid::decGrid(){
-    if(gridCount_>1)
+    if(gridCount_>1) {
+        prepareGeometryChange();
         gridCount_--;
-    update();
+    }
 }
 
 void WritingGrid::adjustWidth(){

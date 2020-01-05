@@ -1,9 +1,11 @@
 #ifndef WRITINGGRID_H
 #define WRITINGGRID_H
 
-#include <QGraphicsItem>
-#include <Windows/Controls/inkcanvas.h>
 #include "TeachingTools_global.h"
+
+#include <Windows/Controls/inkcanvas.h>
+
+#include <QGraphicsObject>
 
 class InkCanvasStrokeCollectedEventArgs;
 
@@ -13,8 +15,13 @@ enum WritingGridType
     FourLinesAndThreeGrids, // 四线三格
     PinYinTinGrids // 拼音田字格
 };
-class TEACHINGTOOLS_EXPORT WritingGrid : public QGraphicsItem
+class TEACHINGTOOLS_EXPORT WritingGrid : public QGraphicsObject
 {
+    Q_OBJECT
+
+    Q_PROPERTY(QSharedPointer<StrokeCollection> strokes READ strokes WRITE setStrokes)
+    Q_PROPERTY(int gridCount READ gridCount WRITE setGridCount)
+
 public:
     WritingGrid(QGraphicsItem *parent = nullptr);
     WritingGrid(int h,WritingGridType type = WritingGridType::TinWordFormat,QGraphicsItem *parent = nullptr);
@@ -48,10 +55,19 @@ public:
 
    void setType(WritingGridType type);
 
+   QSharedPointer<StrokeCollection> strokes();
+
+   void setStrokes(QSharedPointer<StrokeCollection> strokes);
+
+   int gridCount() const;
+
+   void setGridCount(int n);
+
 public:
    void addGrid();
 
    void decGrid();
+
 private:
    void adjustWidth();
    void adjustControlItemPos();

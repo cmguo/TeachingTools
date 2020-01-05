@@ -14,5 +14,7 @@
         <file>timertool/bg_icon.png</file>
         <file>qss/inkeraser.qss</file>
         <file>icon/eraser.png</file>
+        <file>icon/enter_full.svg</file>
+        <file>icon/exit_full.svg</file>
     </qresource>
 </RCC>
