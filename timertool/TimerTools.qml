@@ -1,7 +1,6 @@
 import QtQuick 2.7
 import QtQuick.Controls 2.0
 import QtQuick.Layouts 1.12
-import QtGraphicalEffects 1.12
 
 Rectangle {
     id:rootItem
@@ -13,7 +12,6 @@ Rectangle {
     signal timerClose()
     Image{
         anchors.fill: parent
-        source: "bg_icon.png"
     }
 
     TimerNormal{
