@@ -21,9 +21,9 @@ WritingGrid::WritingGrid(int h,WritingGridType type,QGraphicsItem * parent)
     , m_height(h)
     , type_(type)
 {
-    m_realLineColor = QColor(0xCACACA);
-    m_dotLineColor = QColor(0xCACACA);
-    m_dotLineWidth = 2;
+    m_realLineColor = QColor(0xC3A4A4);
+    m_dotLineColor = QColor(0xC3A4A4);
+    m_dotLineWidth = 1;
     m_realLineWidth = 3;
     adjustWidth();
     newScaleSize.setWidth(m_width);
@@ -34,13 +34,19 @@ WritingGrid::WritingGrid(int h,WritingGridType type,QGraphicsItem * parent)
     controlItem->setBrush(QBrush(Qt::transparent));
     controlItem->setPen(Qt::NoPen);
     addItem = new QGraphicsPixmapItem(controlItem);
-    addItem->setPixmap(QPixmap(":/teachingtools/icon/add.svg"));
+    addItem->setPixmap(QPixmap(":/teachingtools/icon/icon_plus.png"));
     addItem->setAcceptedMouseButtons(Qt::LeftButton);
     decItem = new QGraphicsPixmapItem(controlItem);
-    decItem->setPixmap(QPixmap(":/teachingtools/icon/remove.svg"));
+    decItem->setPixmap(QPixmap(":/teachingtools/icon/icon_minus.png"));
     decItem->setAcceptedMouseButtons(Qt::LeftButton);
-    addItem->setX(2); // icon不居中矫正
-    decItem->setX(2);
+    addItem->setX((controlItemSize.width()-itemSize.width())/2);
+    decItem->setX((controlItemSize.width()-itemSize.width())/2);
+
+    inkItem = new QGraphicsPixmapItem(controlItem);
+    inkItem->setPixmap(QPixmap(":/teachingtools/icon/icon_eraser_normal.png"));
+    inkItem->setAcceptedMouseButtons(Qt::LeftButton);
+    inkItem->setX((controlItemSize.width()-itemSize.width())/2);
+
     adjustControlItemPos();
     ink = InkStrokeHelper::createInkCanvas(8);
     ink->SetEditingMode(InkCanvasEditingMode::Ink);
@@ -86,7 +92,7 @@ void WritingGrid::paintTinWordFormat(QPainter *painter, const QStyleOptionGraphi
     }
     p.setColor(m_dotLineColor);
     p.setWidth(m_dotLineWidth);
-    p.setStyle(Qt::DotLine);
+    p.setStyle(Qt::DashLine);
     painter->setPen(p);
     painter->drawLine(rect.x(),rect.y()+rect.height()/2,rect.right(),rect.y()+rect.height()/2);
     for(int i = 0; i<gridCount_;i++){
@@ -161,6 +167,19 @@ bool WritingGrid::sceneEventFilter(QGraphicsItem *watched, QEvent *event)
                 control->sizeChanged();
             adjustControlItemPos();
             adjustInkCanvas();
+            return true;
+        }
+
+        if(mouseEvent->pos().y()>(inkItem->pos().y()-clickGap) && mouseEvent->pos().y()<(inkItem->pos().y()+clickGap*3)){
+            // 改变状态，改变笔迹
+            if(m_inkEraser){
+               inkItem->setPixmap(QPixmap(":/teachingtools/icon/icon_eraser_normal.png"));
+               ink->SetEditingMode(InkCanvasEditingMode::Ink);
+            }else{
+               inkItem->setPixmap(QPixmap(":/teachingtools/icon/icon_eraser_checked.png"));
+               ink->SetEditingMode(InkCanvasEditingMode::EraseByStroke);
+            }
+            m_inkEraser = !m_inkEraser;
             return true;
         }
 
@@ -290,13 +309,16 @@ void WritingGrid::adjustControlItemPos()
     if(gridCount_==1){
         // 只展示增加
         decItem->setVisible(false);
-        addItem->setY(newScaleSize.height()/2-controlItemSize.height()/2);
+        inkItem->setY(newScaleSize.height()*2/5-itemSize.height());
+        addItem->setY(newScaleSize.height()*3/5);
         return;
     }
+
+    inkItem->setY(newScaleSize.height()/4-itemSize.height()/2);
     // 增加 减少都保留
-    addItem->setY(newScaleSize.height()*2/5-controlItemSize.height());
+    addItem->setY(newScaleSize.height()/2-itemSize.height()/4);
     decItem->setVisible(true);
-    decItem->setY(newScaleSize.height()*3/5);
+    decItem->setY(newScaleSize.height()*3/4-itemSize.height()/2);
 }
 
 void WritingGrid::adjustInkCanvas()

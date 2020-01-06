@@ -75,6 +75,7 @@ private:
 private:
     QGraphicsPixmapItem *addItem;
     QGraphicsPixmapItem *decItem;
+    QGraphicsPixmapItem *inkItem;
     QGraphicsRectItem *controlItem;
     qreal m_width;
     qreal m_height;
@@ -89,7 +90,9 @@ private:
     float fourLineThreeGridsWidthHeihtRatio = 310.0f/152.0f;
     float pinYinTinWidthHeightRatio = 240.0f/369.0f;
     QSizeF newScaleSize;
-    QSizeF controlItemSize=QSizeF(35,35);
+    QSizeF controlItemSize=QSizeF(72,72);
+    QSizeF itemSize=QSizeF(40,40);
+    bool m_inkEraser = false;
     InkCanvas * ink ;
 
 };

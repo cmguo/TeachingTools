@@ -30,11 +30,11 @@ QGraphicsItem *WritingGridControl::create(ResourceView *res)
 void WritingGridControl::attaching()
 {
     ItemFrame *frame = itemFrame();
-    frame->setBrush(QBrush(Qt::white));
+    frame->setBrush(QBrush(0xF4F4F4));
     frame->addTopBar();
-    frame->addDockItem(ItemFrame::Top, 22);
-    frame->addDockItem(ItemFrame::Left, 35);
-    frame->addDockItem(ItemFrame::Buttom, 22);
+    //frame->addDockItem(ItemFrame::Top, 0);
+    frame->addDockItem(ItemFrame::Left, 72);
+    frame->addDockItem(ItemFrame::Buttom, 16);
     QGraphicsItem *item = static_cast<WritingGrid*>(item_)->createControlBar();
     frame->addDockItem(ItemFrame::Right,item);
 }

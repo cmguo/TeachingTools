@@ -16,5 +16,9 @@
         <file>icon/eraser.png</file>
         <file>icon/enter_full.svg</file>
         <file>icon/exit_full.svg</file>
+        <file>icon/icon_minus.png</file>
+        <file>icon/icon_plus.png</file>
+        <file>icon/icon_eraser_checked.png</file>
+        <file>icon/icon_eraser_normal.png</file>
     </qresource>
 </RCC>
