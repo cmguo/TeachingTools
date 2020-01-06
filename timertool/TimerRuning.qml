@@ -48,7 +48,7 @@ Rectangle {
         height: timeRuningItem.height/2
         anchors.centerIn: timeRuningItem
         visible: !positiveTime
-        property real angle: 0
+        property int angle: 0
         onPaint: {
             var ctx = getContext("2d");
             ctx.clearRect(0,0,width,height)
@@ -56,18 +56,19 @@ Rectangle {
             ctx.lineWidth=2;
             ctx.translate(canvas.width/2,canvas.height/2)
             ctx.beginPath();
-            var strokeDone = false
-            for(var i =0;i<90;i++){
-                ctx.rotate(4* Math.PI / 180)
+            for(var i = 1;i<angle;i++){
+                ctx.rotate(-4* Math.PI / 180)
                 ctx.moveTo(0, -canvas.height/2+10)
                 ctx.lineTo(0, -canvas.height/2)
-
-                if(!strokeDone&&i>angle){
-                    ctx.strokeStyle = 'rgba(255, 255, 255, 1)'
-                    ctx.stroke()
-                    ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)'
-                    strokeDone = true
-                }
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)'
+            }
+            ctx.stroke()
+            ctx.beginPath();
+            for(var i = angle;i<=90;i++){
+                ctx.rotate(-4* Math.PI / 180)
+                ctx.moveTo(0, -canvas.height/2+10)
+                ctx.lineTo(0, -canvas.height/2)
+                ctx.strokeStyle = 'rgba(255, 255, 255, 1)'
             }
             ctx.stroke()
             ctx.restore()

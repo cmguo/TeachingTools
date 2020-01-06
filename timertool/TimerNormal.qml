@@ -172,7 +172,8 @@ Rectangle{
         backgroudColor:"#008FFF"
         onClicked: {
             setTotalTime();
-            timeNomal.runingClick();
+            if(totalTime !=0||swipeView.currentIndex==1)
+                timeNomal.runingClick();
         }
     }
 
