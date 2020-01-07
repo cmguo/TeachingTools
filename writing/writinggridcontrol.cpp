@@ -12,9 +12,6 @@
 #include <QUrl>
 #include <Windows/Controls/inkcanvas.h>
 
-static char const * toolstr =
-        "changeGridType()|转换|:/showboard/icons/icon_delete.png;";
-
 WritingGridControl::WritingGridControl(ResourceView * res)
     : Control(res, {KeepAspectRatio})
 {
@@ -31,8 +28,16 @@ void WritingGridControl::attaching()
 {
     ItemFrame *frame = itemFrame();
     frame->setBrush(QBrush(0xF4F4F4));
-    frame->addTopBar();
-    //frame->addDockItem(ItemFrame::Top, 0);
+    //frame->addTopBar();
+    QGraphicsRectItem *topItem =  new QGraphicsRectItem();
+    topItem->setBrush(QBrush(Qt::transparent));
+    topItem->setPen(Qt::NoPen);
+    topItem->setRect(0,0,frame->boundingRect().width(),40);
+    QSize pixItemSize = QSize(40,40);
+    QGraphicsPixmapItem* pixItem = new QGraphicsPixmapItem(QPixmap(":/teachingtools/icon/icon_drag.png"),topItem);
+    pixItem->setX(topItem->boundingRect().width()/2-pixItemSize.width()/2);
+    pixItem->setY(topItem->boundingRect().height()/2-pixItemSize.height()/2);
+    frame->addDockItem(ItemFrame::Top, topItem);
     frame->addDockItem(ItemFrame::Left, 72);
     frame->addDockItem(ItemFrame::Buttom, 16);
     QGraphicsItem *item = static_cast<WritingGrid*>(item_)->createControlBar();

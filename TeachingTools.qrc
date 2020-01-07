@@ -20,5 +20,6 @@
         <file>icon/icon_plus.png</file>
         <file>icon/icon_eraser_checked.png</file>
         <file>icon/icon_eraser_normal.png</file>
+        <file>icon/icon_drag.png</file>
     </qresource>
 </RCC>
