@@ -2,6 +2,8 @@
 #include "inkstrokes.h"
 #include "inkstrokehelper.h"
 
+#include <views/whitecanvas.h>
+
 #include <Windows/Controls/inkcanvas.h>
 #include <Windows/Controls/inkevents.h>
 #include <Windows/Ink/stroke.h>
@@ -34,6 +36,7 @@ void InkStrokeControl::setEditingMode(InkCanvasEditingMode mode)
     InkCanvas * ink = static_cast<InkCanvas*>(item_);
     ink->SetEditingMode(mode);
     item_->setAcceptHoverEvents(mode != InkCanvasEditingMode::None);
+    whiteCanvas()->enableSelector(mode == InkCanvasEditingMode::None);
 }
 
 void InkStrokeControl::setColor(QColor c)

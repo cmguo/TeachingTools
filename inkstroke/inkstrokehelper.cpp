@@ -47,8 +47,9 @@ public:
 
     ~PressureHelper()
     {
-        ink_->RemoveHandler(InkCanvas::StrokeCollectedEvent, RoutedEventHandlerT<
-                        PressureHelper, InkCanvasStrokeCollectedEventArgs, &PressureHelper::applyPressure>(this));
+        // InkCanvas already destoryed
+        //ink_->RemoveHandler(InkCanvas::StrokeCollectedEvent, RoutedEventHandlerT<
+        //                PressureHelper, InkCanvasStrokeCollectedEventArgs, &PressureHelper::applyPressure>(this));
     }
 
 private:
