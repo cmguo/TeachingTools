@@ -21,5 +21,13 @@
         <file>icon/icon_eraser_checked.png</file>
         <file>icon/icon_eraser_normal.png</file>
         <file>icon/icon_drag.png</file>
+        <file>icon/arrow_left.png</file>
+        <file>icon/arrow_right.png</file>
+        <file>icon/double_page.png</file>
+        <file>icon/single_page.png</file>
+        <file>icon/zoom_in.png</file>
+        <file>icon/zoom_out.png</file>
+        <file>icon/brush.png</file>
+        <file>icon/eraser2.png</file>
     </qresource>
 </RCC>

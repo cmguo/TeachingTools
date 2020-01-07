@@ -12,13 +12,13 @@ PageNumberWidget::PageNumberWidget(QWidget *parent)
     QHBoxLayout* layout = new QHBoxLayout(this);
     preBtn = new QPushButton(this);
     preBtn->setObjectName(("preBtn"));
-    preBtn->setText((" < "));
+    preBtn->setIcon(QIcon(":/teachingtools/icon/arrow_left.png"));
     progressLabel = new QLabel(this);
     progressLabel->setObjectName(("progressLabel"));
     progressLabel->setText(("0/0"));
     nextBtn = new QPushButton(this);
     nextBtn->setObjectName(("nextBtn"));
-    nextBtn->setText((" > "));
+    nextBtn->setIcon(QIcon(":/teachingtools/icon/arrow_right.png"));
     layout->addWidget(preBtn);
     layout->addWidget(progressLabel);
     layout->addWidget(nextBtn);

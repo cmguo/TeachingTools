@@ -18,10 +18,10 @@
 
 static constexpr char const * toolsStr =
         "-full|全屏|NeedUpdate|:/teachingtools/icon/enter_full.svg;"
-        "duplex()|双页|Checkable,UnionUpdate|;"
-        "single()|单页|Checkable,UnionUpdate|;"
-        "scaleUp()|+|;"
-        "scaleDown()|-|;"
+        "duplex()|双页|Checkable,UnionUpdate|:/teachingtools/icon/double_page.png;"
+        "single()|单页|Checkable,UnionUpdate|:/teachingtools/icon/single_page.png;"
+        "scaleUp()||:/teachingtools/icon/zoom_in.png;"
+        "scaleDown()||:/teachingtools/icon/zoom_out.png;"
         "pages||;";
 
 PageBoxItem::PageBoxItem(QGraphicsItem * parent)
@@ -30,8 +30,7 @@ PageBoxItem::PageBoxItem(QGraphicsItem * parent)
 {
     setFlags(ItemClipsToShape | ItemClipsChildrenToShape);
     setPen(QPen(Qt::NoPen));
-    //setBrush(QColor(240, 240, 240));
-    //setBrush(QColor(128, 128, 128));
+    setBrush(QColor("#FF1E3232"));
     setRect({-150, -300, 300, 600});
 
     document_ = new PageBoxDocItem(this);

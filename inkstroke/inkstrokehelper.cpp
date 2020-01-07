@@ -16,8 +16,8 @@
 #include <QPen>
 
 static constexpr char const * toolsStr =
-        "stroke()|书写|Checkable,UnionUpdate|;"
-        "eraser()|擦除|Checkable,UnionUpdate|;";
+        "stroke()||Checkable,UnionUpdate|:/teachingtools/icon/brush.png;"
+        "eraser()||Checkable,UnionUpdate|:/teachingtools/icon/eraser2.png;";
 
 
 static QString ReadAllText( const QString &path )
@@ -132,6 +132,8 @@ QString InkStrokeHelper::toolString()
 
 void InkStrokeHelper::updateToolButton(InkCanvas* ink, ToolButton *button)
 {
+    if (!button->name.startsWith("stroke(") && !button->name.startsWith("eraser("))
+            return;
     bool checked = button->name.startsWith("stroke(")
               ? ink->EditingMode() == InkCanvasEditingMode::Ink
               : ink->EditingMode() == InkCanvasEditingMode::EraseByStroke;
