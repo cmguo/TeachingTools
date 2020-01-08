@@ -6,6 +6,7 @@
 #include <Windows/Controls/inkevents.h>
 #include <Windows/Ink/stroke.h>
 #include <Windows/Ink/strokecollection.h>
+#include <Windows/Ink/stylusshape.h>
 
 #include <QFile>
 #include <QDebug>
@@ -88,6 +89,9 @@ InkCanvas *InkStrokeHelper::createInkCanvas(qreal lineWidth)
     ink->DefaultDrawingAttributes()->SetWidth(lineWidth);
     ink->DefaultDrawingAttributes()->SetHeight(lineWidth);
     ink->SetEditingMode(InkCanvasEditingMode::None);
+    StylusShape * shape = new StylusShape(StylusTip::Rectangle, 60, 80, 0);
+    shape->setParent(ink);
+    ink->SetEraserShape(shape);
     new PressureHelper(ink); // attached to InkCanvas
     return ink;
 }
