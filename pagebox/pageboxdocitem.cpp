@@ -157,7 +157,7 @@ QPointF PageBoxDocItem::offset() const
     return QPointF(transform_->translate().dx(), transform_->translate().dy());
 }
 
-int PageBoxDocItem::pageCount()
+int PageBoxDocItem::pageCount() const
 {
     return model_ != nullptr ? model_->rowCount() : 0;
 }

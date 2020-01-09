@@ -15,11 +15,17 @@ InkPadPlugin::InkPadPlugin(QObject * parent)
     : PageBoxPlugin(parent)
 {
     inkCanvas_ = InkStrokeHelper::createInkCanvas(4);
-    //QGraphicsProxyWidget * proxy = new QGraphicsProxyWidget;
-    //proxy->setWidget(inkCanvas_);
-    //proxy->setAcceptTouchEvents(true);
     item_ = inkCanvas_;
     setToolsString(InkStrokeHelper::toolString());
+}
+
+InkPadPlugin::InkPadPlugin(const InkPadPlugin &o)
+{
+    inkCanvas_ = InkStrokeHelper::createInkCanvas(4);
+    item_ = inkCanvas_;
+    pageStrokes_ = o.pageStrokes_;
+    for (QSharedPointer<StrokeCollection> & s : pageStrokes_)
+        s = s->Clone();
 }
 
 void InkPadPlugin::stroke()

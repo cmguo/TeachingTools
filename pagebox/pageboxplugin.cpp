@@ -41,6 +41,17 @@ bool PageBoxPlugin::selectTest(const QPointF &pt)
     return false;
 }
 
+PageBoxPlugin * PageBoxPlugin::clone() const
+{
+
+    QObject * clone = metaObject()->newInstance(
+                QGenericArgument(metaObject()->className(), this));
+    if (clone)
+        return qobject_cast<PageBoxPlugin*>(clone);
+    return new PageBoxPlugin;
+}
+
+
 PageBoxDocItem *PageBoxPlugin::document()
 {
     return static_cast<PageBoxDocItem*>(item_->parentItem());

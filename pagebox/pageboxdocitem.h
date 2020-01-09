@@ -91,11 +91,16 @@ public:
 
     QPointF offset() const;
 
-    int pageCount();
+    int pageCount() const;
 
     int curPage() const
     {
         return curPage_;
+    }
+
+    PageBoxPlugin * plugin() const
+    {
+        return plugin_;
     }
 
 public:

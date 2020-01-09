@@ -31,6 +31,8 @@ public:
 
     virtual bool selectTest(QPointF const & pt);
 
+    virtual PageBoxPlugin * clone() const ;
+
 protected:
     PageBoxDocItem *document();
 

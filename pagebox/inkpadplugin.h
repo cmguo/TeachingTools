@@ -16,6 +16,8 @@ class InkPadPlugin : public PageBoxPlugin
 public:
     InkPadPlugin(QObject * parent = nullptr);
 
+    Q_INVOKABLE InkPadPlugin(InkPadPlugin const & o);
+
 public slots:
     void stroke();
 
