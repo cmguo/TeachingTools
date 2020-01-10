@@ -23,6 +23,7 @@ PageNumberWidget::PageNumberWidget(QWidget *parent)
     layout->addWidget(progressLabel);
     layout->addWidget(nextBtn);
     setLayout(layout);
+    hide();
     QObject::connect(preBtn, &QPushButton::clicked, this, &PageNumberWidget::buttonClicked);
     QObject::connect(nextBtn, &QPushButton::clicked, this, &PageNumberWidget::buttonClicked);
 }

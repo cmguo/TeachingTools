@@ -279,6 +279,6 @@ QWidget *InkStrokeHelper::createEraserWidget()
         }
         pSliter->setSliderPosition(0);
     });
-
+    pWidget->hide();
     return pWidget;
 }
