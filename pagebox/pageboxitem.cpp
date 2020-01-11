@@ -30,7 +30,7 @@ PageBoxItem::PageBoxItem(QGraphicsItem * parent)
 {
     setFlags(ItemClipsToShape | ItemClipsChildrenToShape);
     setPen(QPen(Qt::NoPen));
-    setBrush(QColor("#FF1E3232"));
+    setBrush(QColor("#FFE2E3E4"));
     setRect({-150, -300, 300, 600});
 
     document_ = new PageBoxDocItem(this);
