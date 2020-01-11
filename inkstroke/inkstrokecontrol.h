@@ -7,9 +7,11 @@
 #include <Windows/Controls/editingmode.h>
 
 #include <QColor>
+#include <QPolygonF>
 
 class InkCanvas;
 class InkCanvasStrokeCollectedEventArgs;
+class InkCanvasStrokeErasingEventArgs;
 
 class TEACHINGTOOLS_EXPORT InkStrokeControl : public Control
 {
@@ -45,6 +47,13 @@ protected:
     virtual void resize(const QSizeF &size) override;
 
     virtual SelectMode selectTest(QPointF const & pt) override;
+
+    virtual void detaching() override;
+
+private:
+    void setupErasing();
+
+    void teardownErasing();
 };
 
 #endif // INKSTROKECONTROL_H
