@@ -8,6 +8,8 @@ PageBoxPageItem::PageBoxPageItem(QGraphicsItem * parent)
     : QGraphicsPixmapItem(parent)
     , lifeToken_(nullptr)
 {
+    setTransformationMode(Qt::SmoothTransformation);
+    /*
     int N = 4;
     QRectF rect = {0, 0, 1.0 / N, 1.0 / N};
     for (int i = 0; i < N; ++i) {
@@ -15,7 +17,7 @@ PageBoxPageItem::PageBoxPageItem(QGraphicsItem * parent)
             rect.moveTo(qreal(i) / N, qreal(j) / N);
             rects_.append(rect);
         }
-    }
+    }*/
 }
 
 static void del_res(int * p) {
