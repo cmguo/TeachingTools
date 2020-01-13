@@ -219,16 +219,20 @@ void PageBoxControl::loadPages(PageBoxItem * item)
         QGraphicsItem* canvas = item_->parentItem()->parentItem();
         ResourceTransform& tr = *item->document()->detachTransform();
         ResourceTransform& tc = Control::fromItem(canvas)->resource()->transform();
-        if (!qFuzzyIsNull(tc.scale().m11() - 1)) {
-            // canvas transform must attached with scale 1.0
-            //   or will enlarge canvas to document translate scale
-            //   not known why, but i adjust it to 1.0 here
-            QTransform t = tc.transform();
-            tc.scaleTo(1);
-            tr = ResourceTransform(tr * tc.transform() * t.inverted());
+        QVariant attachedCanvasTransform = property("attachedCanvasTransform");
+        QVariant attachedPageTransform = property("attachedPageTransform");
+        if (attachedCanvasTransform.isValid()) {
+            // must attach with original tranform, not known why?
+            ResourceTransform t = tc;
+            tc = ResourceTransform(attachedCanvasTransform.value<QTransform>());
+            tr = ResourceTransform(attachedPageTransform.value<QTransform>());
             tc.attachTransform(&tr);
-            tc = ResourceTransform(t);
+            tc = t;
         } else {
+            attachedCanvasTransform.setValue(tc.transform());
+            attachedPageTransform.setValue(tr.transform());
+            setProperty("attachedCanvasTransform", attachedCanvasTransform);
+            setProperty("attachedPageTransform", attachedPageTransform);
             tc.attachTransform(&tr);
         }
     }
