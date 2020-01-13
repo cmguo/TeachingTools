@@ -12,14 +12,15 @@ class InkCanvasStrokeCollectedEventArgs;
 enum WritingGridType
 {
     TinWordFormat, // 田字格
-    FourLinesAndThreeGrids, // 四线三格
-    PinYinTinGrids // 拼音田字格
+    PinYin, //拼音格
+    PinYinTinGrids, // 拼音田字格
+    FourLinesAndThreeGrids // 四线三格
 };
 class TEACHINGTOOLS_EXPORT WritingGrid : public QGraphicsObject
 {
     Q_OBJECT
 
-    Q_PROPERTY(QSharedPointer<StrokeCollection> strokes READ strokes WRITE setStrokes)
+  //  Q_PROPERTY(QSharedPointer<StrokeCollection> strokes READ strokes WRITE setStrokes)
     Q_PROPERTY(int gridCount READ gridCount WRITE setGridCount)
 
 public:

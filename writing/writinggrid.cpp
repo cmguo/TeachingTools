@@ -71,6 +71,7 @@ void WritingGrid::paint(QPainter *painter, const QStyleOptionGraphicsItem *optio
         paintTinWordFormat(painter,option,widget);
         break;
     case WritingGridType::FourLinesAndThreeGrids:
+    case WritingGridType::PinYin:
         paintFourLinesAndThreeGrids(painter,option,widget);
         break;
     case WritingGridType::PinYinTinGrids:
@@ -113,8 +114,13 @@ void WritingGrid::paintFourLinesAndThreeGrids(QPainter *painter, const QStyleOpt
     painter->setPen(p);
     painter->drawLine(rect.x(),rect.y(),rect.right(),rect.y());
     painter->drawLine(rect.x(),rect.y()+rect.height()/3,rect.right(),rect.y()+rect.height()/3);
-    painter->drawLine(rect.x(),rect.y()+rect.height()*2/3,rect.right(),rect.y()+rect.height()*2/3);
     painter->drawLine(rect.x(),rect.bottom(),rect.right(),rect.bottom());
+    if(getType()==WritingGridType::FourLinesAndThreeGrids){
+        p.setWidth(m_realLineWidth*2);
+        painter->setPen(p);
+    }
+    painter->drawLine(rect.x(),rect.y()+rect.height()*2/3,rect.right(),rect.y()+rect.height()*2/3);
+
 }
 
 void WritingGrid::paintPinYinTinGrids(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
@@ -173,11 +179,11 @@ bool WritingGrid::sceneEventFilter(QGraphicsItem *watched, QEvent *event)
         if(mouseEvent->pos().y()>(inkItem->pos().y()-clickGap) && mouseEvent->pos().y()<(inkItem->pos().y()+clickGap*3)){
             // 改变状态，改变笔迹
             if(m_inkEraser){
-               inkItem->setPixmap(QPixmap(":/teachingtools/icon/icon_eraser_normal.png"));
-               ink->SetEditingMode(InkCanvasEditingMode::Ink);
+                inkItem->setPixmap(QPixmap(":/teachingtools/icon/icon_eraser_normal.png"));
+                ink->SetEditingMode(InkCanvasEditingMode::Ink);
             }else{
-               inkItem->setPixmap(QPixmap(":/teachingtools/icon/icon_eraser_checked.png"));
-               ink->SetEditingMode(InkCanvasEditingMode::EraseByStroke);
+                inkItem->setPixmap(QPixmap(":/teachingtools/icon/icon_eraser_checked.png"));
+                ink->SetEditingMode(InkCanvasEditingMode::EraseByStroke);
             }
             m_inkEraser = !m_inkEraser;
             return true;
@@ -295,6 +301,7 @@ void WritingGrid::adjustWidth(){
         m_width = m_height * tinWidthHeihtRatio;
         break;
     case WritingGridType::FourLinesAndThreeGrids:
+    case WritingGridType::PinYin:
         m_width = m_height * fourLineThreeGridsWidthHeihtRatio;
         break;
     case WritingGridType::PinYinTinGrids:
