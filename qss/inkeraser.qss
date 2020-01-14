@@ -1,6 +1,5 @@
 QWidget {
-	background: white;
-	border-radius: 6px;
+        border-radius: 6px;
 }
 
 QLabel#pTipLabel {
@@ -12,7 +11,7 @@ QLabel#pTipLabel {
 	max-width: 190px;
 	min-height: 30px;
 	max-height: 30px;
-	background: white;
+        background:transparent;
 }
 
 QSlider { 

@@ -251,16 +251,16 @@ QWidget *InkStrokeHelper::createEraserWidget()
 
     QLabel* pTextLabel = new QLabel;
     QLabel* pTipLabel = new QLabel;
-    pTipLabel->setObjectName("pTipLabel");
     pTipLabel->setContentsMargins(20,0,0,0);
-    pTextLabel->setText("滑动清除画布");
+    pTextLabel->setText("滑动清空笔迹");
     pTipLabel->setText("橡皮擦");
     pTextLabel->setAlignment(Qt::AlignCenter);
     QVBoxLayout* mainLayout = new QVBoxLayout(pWidget);
     pWidget->setStyleSheet(ReadAllText(":/teachingtools/qss/inkeraser.qss"));
     mainLayout->setContentsMargins(0,0,0,10);
-    mainLayout->setSpacing(20);
-    mainLayout->addWidget(pTipLabel);
+    mainLayout->addStretch();
+    mainLayout->addWidget(pTextLabel);
+    mainLayout->addStretch();
     QHBoxLayout* layout = new QHBoxLayout;
     layout->setMargin(0);
     layout->setSpacing(0);
@@ -268,7 +268,8 @@ QWidget *InkStrokeHelper::createEraserWidget()
     layout->addWidget(pSliter);
     layout->addStretch();
     mainLayout->addLayout(layout);
-    mainLayout->addWidget(pTextLabel);
+    mainLayout->addStretch();
+   // mainLayout->addWidget(pTextLabel);
 
     QObject::connect(pSliter, &QSlider::sliderReleased, pWidget, [pWidget, pSliter] {
         if (pSliter->sliderPosition() == pSliter->maximum()) {
