@@ -65,8 +65,8 @@ void InkStrokeControl::setWidth(qreal w)
 
 void InkStrokeControl::clear()
 {
-    InkCanvas * ink = static_cast<InkCanvas*>(item_);
-    ink->Strokes()->ClearItems();
+    InkStrokes * strokes = qobject_cast<InkStrokes *>(res_);
+    strokes->clear();
 }
 
 QGraphicsItem * InkStrokeControl::create(ResourceView *res)

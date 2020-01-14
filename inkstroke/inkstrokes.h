@@ -36,6 +36,8 @@ public:
         return prev_;
     }
 
+    void clear();
+
 protected:
     virtual InkStrokes* clone() const override;
 

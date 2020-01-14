@@ -76,6 +76,13 @@ QtPromise::QPromise<void> InkStrokes::load(QSizeF const & size, QSharedPointer<D
     });
 }
 
+void InkStrokes::clear()
+{
+    strokes_->ClearItems();
+    if (next_)
+        next_->clear();
+}
+
 InkStrokes *InkStrokes::clone() const
 {
     if (strokes_->empty())

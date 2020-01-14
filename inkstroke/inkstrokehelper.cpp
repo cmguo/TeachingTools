@@ -137,7 +137,7 @@ QString InkStrokeHelper::toolString()
 void InkStrokeHelper::updateToolButton(InkCanvas* ink, ToolButton *button)
 {
     if (!button->name.startsWith("stroke(") && !button->name.startsWith("eraser("))
-            return;
+        return;
     bool checked = button->name.startsWith("stroke(")
               ? ink->EditingMode() == InkCanvasEditingMode::Ink
               : ink->EditingMode() == InkCanvasEditingMode::EraseByStroke;
