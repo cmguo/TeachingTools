@@ -211,6 +211,7 @@ void PageBoxDocItem::relayout()
         if (pluginItem_ != item) {
             scene()->removeItem(item);
             itemBindings_->unbind(QVariant::fromValue(item));
+            delete item;
         }
     }
     int lastPage = curPage_;
