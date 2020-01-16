@@ -48,7 +48,7 @@ WritingGrid::WritingGrid(int h,WritingGridType type,QGraphicsItem * parent)
     inkItem->setX((controlItemSize.width()-itemSize.width())/2);
 
     adjustControlItemPos();
-    ink = InkStrokeHelper::createInkCanvas(8);
+    ink = InkStrokeHelper::createInkCanvas(Qt::black, 8, {30, 40});
     ink->SetEditingMode(InkCanvasEditingMode::Ink);
     //QGraphicsProxyWidget * proxy = new QGraphicsProxyWidget(this);
     //proxy->setWidget(ink);
@@ -183,7 +183,7 @@ bool WritingGrid::sceneEventFilter(QGraphicsItem *watched, QEvent *event)
                 ink->SetEditingMode(InkCanvasEditingMode::Ink);
             }else{
                 inkItem->setPixmap(QPixmap(":/teachingtools/icon/icon_eraser_checked.png"));
-                ink->SetEditingMode(InkCanvasEditingMode::EraseByStroke);
+                ink->SetEditingMode(InkCanvasEditingMode::EraseByPoint);
             }
             m_inkEraser = !m_inkEraser;
             return true;

@@ -82,7 +82,7 @@ private:
     InkCanvas * ink_;
 };
 
-InkCanvas *InkStrokeHelper::createInkCanvas(QColor color, qreal lineWidth)
+InkCanvas *InkStrokeHelper::createInkCanvas(QColor color, qreal lineWidth, QSizeF eraserSize)
 {
     InkCanvas * ink = new InkCanvas;
     //ink->setStyleSheet("background-color:red;");
@@ -92,7 +92,7 @@ InkCanvas *InkStrokeHelper::createInkCanvas(QColor color, qreal lineWidth)
     ink->DefaultDrawingAttributes()->SetWidth(lineWidth);
     ink->DefaultDrawingAttributes()->SetHeight(lineWidth);
     ink->SetEditingMode(InkCanvasEditingMode::None);
-    StylusShape * shape = new StylusShape(StylusTip::Rectangle, 60, 80, 0);
+    StylusShape * shape = new StylusShape(StylusTip::Rectangle, eraserSize.width(), eraserSize.height(), 0);
     shape->setParent(ink);
     ink->SetEraserShape(shape);
     new PressureHelper(ink); // attached to InkCanvas
