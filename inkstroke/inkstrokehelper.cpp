@@ -82,12 +82,13 @@ private:
     InkCanvas * ink_;
 };
 
-InkCanvas *InkStrokeHelper::createInkCanvas(qreal lineWidth)
+InkCanvas *InkStrokeHelper::createInkCanvas(QColor color, qreal lineWidth)
 {
     InkCanvas * ink = new InkCanvas;
     //ink->setStyleSheet("background-color:red;");
     //ink->DefaultDrawingAttributes()->SetStylusTip(StylusTip::Rectangle);
     ink->DefaultDrawingAttributes()->SetFitToCurve(true);
+    ink->DefaultDrawingAttributes()->SetColor(color);
     ink->DefaultDrawingAttributes()->SetWidth(lineWidth);
     ink->DefaultDrawingAttributes()->SetHeight(lineWidth);
     ink->SetEditingMode(InkCanvasEditingMode::None);
@@ -191,13 +192,13 @@ void InkStrokeHelper::getToolButtons(InkCanvas* ink, QList<ToolButton *> &button
 {
     if (parent->name == "stroke(QString)") {
         if (strokeButtons.isEmpty()) {
-            for (QColor c : {
-                 Qt::black, Qt::white, Qt::gray, Qt::red, Qt::darkYellow,
-                 Qt::yellow, Qt::green, Qt::darkGreen, Qt::blue, Qt::darkBlue
+            for (char const * c : {
+                 "#FFF0F0F0", "#FFFFCE2D", "#FFFF9F5E", "#FFFF6262", "#FF46515F",
+                 "#FF43CAFF", "#FF2FA8B3", "#FF46515F", "#FF28417F", "#FF000000"
              }) {
-                QString name = QVariant::fromValue(c).toString();
+                QString name = c;
                 ToolButton::Flags flags = nullptr;
-                QGraphicsItem * icon = colorIcon(c);
+                QGraphicsItem * icon = colorIcon(QColor(c));
                 ToolButton * btn = new ToolButton({name, "", flags,
                      QVariant::fromValue(icon)});
                 strokeButtons.append(btn);

@@ -7,10 +7,12 @@ class ToolButton;
 class InkCanvas;
 class InkCanvasStrokeCollectedEventArgs;
 
+#include <QColor>
+
 class InkStrokeHelper
 {
 public:
-    static InkCanvas* createInkCanvas(qreal lineWidth = 4.0);
+    static InkCanvas* createInkCanvas(QColor color = QColor("#FFF0F0F0"), qreal lineWidth = 4.0);
 
     static Control::SelectMode selectTest(InkCanvas* ink, QPointF const & pt, bool eatUnselect = true);
 
