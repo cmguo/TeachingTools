@@ -16,6 +16,8 @@
 #include <QBoxLayout>
 #include <QPen>
 
+#define STROKE_SELECT 0
+
 static constexpr char const * toolsStr =
         "stroke()||Checkable,UnionUpdate|:/teachingtools/icon/brush.png;"
         "eraser()||Checkable,UnionUpdate|:/teachingtools/icon/eraser2.png;";
@@ -99,15 +101,14 @@ InkCanvas *InkStrokeHelper::createInkCanvas(qreal lineWidth)
 Control::SelectMode InkStrokeHelper::selectTest(InkCanvas *ink, const QPointF &pt, bool eatUnselect)
 {
     if (ink->EditingMode() == InkCanvasEditingMode::None) {
-        InkCanvasSelectionHitResult result = ink->HitTestSelection(pt);
-        if (result != InkCanvasSelectionHitResult::None)
-            return Control::NotSelect;
+#if STROKE_SELECT
         QSharedPointer<StrokeCollection> hits = ink->Strokes()->HitTest(pt);
         if (hits && !hits->empty()) {
             ink->Select(hits);
             ink->setProperty("tempSelect", true);
             return Control::NotSelect;
         }
+#endif
         return Control::PassSelect;
     } else if (ink->EditingMode() == InkCanvasEditingMode::Select &&
                ink->property("tempSelect").isValid()) {

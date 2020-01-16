@@ -12,7 +12,7 @@
 #include <Windows/Input/StylusPlugIns/rawstylusinput.h>
 
 InkStrokeControl::InkStrokeControl(ResourceView *res)
-    : Control(res, FullLayout, DefaultFlags)
+    : Control(res, {FullLayout, Touchable}, DefaultFlags)
 {
 }
 
