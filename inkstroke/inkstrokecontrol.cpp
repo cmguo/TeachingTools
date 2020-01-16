@@ -47,6 +47,9 @@ void InkStrokeControl::setEditingMode(InkCanvasEditingMode mode)
         } else {
             teardownErasing();
         }
+        if (mode != InkCanvasEditingMode::None) {
+            item_->setFocus();
+        }
     }
 }
 
