@@ -85,9 +85,12 @@ void InkStrokeControl::attached()
         QObject::connect(strokes, &InkStrokes::cloned, this, [ink, strokes](){
             ink->SetStrokes(strokes->strokes()); // replace with empty strokes
         });
-        QObject::connect(whiteCanvas(), &WhiteCanvas::loadFinished, this, [this, ink]() {
+        QObject::connect(whiteCanvas(), &WhiteCanvas::loadingChanged, this, [this, ink](bool loading) {
             if (res_->flags() & ResourceView::Splittable) {
-                if (ink->EditingMode() == InkCanvasEditingMode::EraseByPoint) {
+                if (loading) {
+                    setEditingMode(InkCanvasEditingMode::None);
+                }
+                if (!loading && ink->EditingMode() == InkCanvasEditingMode::EraseByPoint) {
                     teardownErasing();
                     setupErasing();
                 }
