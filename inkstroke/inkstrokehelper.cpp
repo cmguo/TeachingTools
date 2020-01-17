@@ -92,7 +92,6 @@ InkCanvas *InkStrokeHelper::createInkCanvas(QColor color, qreal lineWidth, QSize
     ink->DefaultDrawingAttributes()->SetWidth(lineWidth);
     ink->DefaultDrawingAttributes()->SetHeight(lineWidth);
     ink->SetEditingMode(InkCanvasEditingMode::None);
-    ink->setFlag(QGraphicsItem::ItemIsFocusable);
     StylusShape * shape = new StylusShape(StylusTip::Rectangle, eraserSize.width(), eraserSize.height(), 0);
     shape->setParent(ink);
     ink->SetEraserShape(shape);
