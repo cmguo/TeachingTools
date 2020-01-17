@@ -87,9 +87,11 @@ void InkStrokeControl::attached()
         });
         QObject::connect(whiteCanvas(), &WhiteCanvas::loadingChanged, this, [this, ink](bool loading) {
             if (res_->flags() & ResourceView::Splittable) {
+#if 0 // TODO: drive by data
                 if (loading) {
                     setEditingMode(InkCanvasEditingMode::None);
                 }
+#endif
                 if (!loading && ink->EditingMode() == InkCanvasEditingMode::EraseByPoint) {
                     teardownErasing();
                     setupErasing();
