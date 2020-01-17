@@ -236,5 +236,8 @@ void PageBoxControl::loadPages(PageBoxItem * item)
             tc.attachTransform(&tr);
         }
     }
+    if (!(flags_ & RestoreSession)) {
+        doc->stepMiddleScale();
+    }
     //*/
 }

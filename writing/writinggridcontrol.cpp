@@ -13,7 +13,7 @@
 #include <Windows/Controls/inkcanvas.h>
 
 WritingGridControl::WritingGridControl(ResourceView * res)
-    : Control(res, {KeepAspectRatio})
+    : Control(res, {KeepAspectRatio}, {CanRotate})
 {
 }
 

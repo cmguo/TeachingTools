@@ -50,6 +50,8 @@ public:
 
     void stepScale(bool up);
 
+    void stepMiddleScale();
+
     void setPadding(qreal pad);
 
     void setPlugin(PageBoxPlugin* plugin);

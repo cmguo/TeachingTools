@@ -121,6 +121,16 @@ void PageBoxDocItem::stepScale(bool up)
     }
 }
 
+void PageBoxDocItem::stepMiddleScale()
+{
+    qreal s = scale();
+    for (; scaleLevel_ < maxScaleLevel_ / 2; ++scaleLevel_)
+        s *= scaleInterval_;
+    for (; scaleLevel_ > maxScaleLevel_ / 2; --scaleLevel_)
+        s /= scaleInterval_;
+    setManualScale(s);
+}
+
 void PageBoxDocItem::setPadding(qreal pad)
 {
     padding_ = pad;
