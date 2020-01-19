@@ -10,6 +10,7 @@ Rectangle {
     color: "#00000000"
     property var  timeRunningView: undefined
     signal timerClose()
+    signal entryMinizeTimeState()
     Image{
         anchors.fill: parent
     }
@@ -28,6 +29,7 @@ Rectangle {
             visible = false;
             timeRunningView.backBtnClick.connect(timeRuningViewClose)
             timeRunningView.closeClick.connect(rootItem.timerClose)
+            timeRunningView.entryMinizeTimeState.connect(rootItem.entryMinizeTimeState)
         }
         function timeRuningViewClose(){
             timeRunningView.destroy();

@@ -12,6 +12,7 @@ Rectangle {
     width: parent.width-10
     signal closeClick();
     signal backBtnClick();
+    signal entryMinizeTimeState()
     states: [
         State {
             name: "runingTime"
@@ -97,6 +98,7 @@ Rectangle {
                 if(intervalTime == 5 && timeRuningItem.state == "runingTime"){
                     timeRuningItem.state = "minizeTime"
                     intervalTime =0;
+                    timeRuningItem.entryMinizeTimeState()
                 }
 
                 if(!positiveTime){
