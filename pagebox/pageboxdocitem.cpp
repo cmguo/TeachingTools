@@ -129,6 +129,9 @@ void PageBoxDocItem::stepMiddleScale()
     for (; scaleLevel_ > maxScaleLevel_ / 2; --scaleLevel_)
         s /= scaleInterval_;
     setManualScale(s);
+    QPointF off = transform_->offset();
+    off.setY(parentItem()->boundingRect().top());
+    transform_->translateTo(off);
 }
 
 void PageBoxDocItem::setPadding(qreal pad)
@@ -312,7 +315,7 @@ void PageBoxDocItem::onTransformChanged()
     if (layoutMode_ == Continuous) {
         QRectF vrect = static_cast<PageBoxItem*>(parentItem())->visibleRect();
         QPointF off = (vrect.center() - transform_->transform().map(rect().topLeft())) / scale();
-        qDebug() << "PageBoxDocItem" << transform_->transform() << vrect << off;
+        //qDebug() << "PageBoxDocItem" << transform_->transform() << vrect << off;
         int lastPage = curPage_;
         if (direction_ == Vertical)
             curPage_ = static_cast<int>(off.y() / (pageSize_.height() + padding()));
