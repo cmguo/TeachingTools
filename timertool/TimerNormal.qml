@@ -70,7 +70,7 @@ Rectangle{
                     id:minius1
                     width: swipeView.rowItemWidth
                     height: parent.height
-                    maxNum: 5
+                    maxNum: 9
                 }
                 NumberAdjustPanel {
                     id:minius2

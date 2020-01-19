@@ -50,6 +50,8 @@ Rectangle {
         visible: !positiveTime
         property int angle: 0
         onPaint: {
+            if(timeRuningItem.state == "minizeTime")
+                return;
             var ctx = getContext("2d");
             ctx.clearRect(0,0,width,height)
             ctx.save()
@@ -108,9 +110,17 @@ Rectangle {
     }
 
     MouseArea { // 注册全局可点击，最小化时使用
+        id :mouseArea
         anchors.fill: parent
-        onClicked: {
-            if(timeRuningItem.state == "minizeTime"){
+        property var prex: 0
+        property var prey: 0
+        onPressed: { //
+            prex= mapToGlobal(mouse.x,mouse.y).x
+            prey=mapToGlobal(mouse.x,mouse.y).y
+        }
+        onReleased: { //区分点击，如果是拖动的话，有加载的quickwidget响应拖动事件
+            var isDrag = Math.abs(mapToGlobal(mouse.x,mouse.y).x-prex)>5||Math.abs(mapToGlobal(mouse.x,mouse.y).y-prey)>5;
+            if(!isDrag &&timeRuningItem.state == "minizeTime"){
                 timeRuningItem.state= "runingTime"
             }
         }
