@@ -11,7 +11,7 @@ class TEACHINGTOOLS_EXPORT PageBoxControl : public Control
 {
     Q_OBJECT
 public:
-    Q_INVOKABLE PageBoxControl(ResourceView * res);
+    Q_INVOKABLE PageBoxControl(ResourceView * res, Flags flags = {}, Flags clearFlags = {});
 
     using Control::sizeChanged;
 

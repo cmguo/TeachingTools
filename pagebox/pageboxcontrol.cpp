@@ -16,8 +16,8 @@
 #include <QUrl>
 #include <QDir>
 
-PageBoxControl::PageBoxControl(ResourceView * res)
-    : Control(res, {KeepAspectRatio}, {CanRotate})
+PageBoxControl::PageBoxControl(ResourceView * res, Flags flags, Flags clearFlags)
+    : Control(res, flags | KeepAspectRatio, clearFlags)
     , bottomTransform_(nullptr)
 {
 }
