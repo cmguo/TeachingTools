@@ -14,7 +14,7 @@
 InkPadPlugin::InkPadPlugin(QObject * parent)
     : PageBoxPlugin(parent)
 {
-    inkCanvas_ = InkStrokeHelper::createInkCanvas(QColor("#FFFF6262"), 4);
+    inkCanvas_ = InkStrokeHelper::createInkCanvas(QColor("#FFFF6262"), 3.0);
     inkCanvas_->SetEditingMode(InkCanvasEditingMode::Ink);
     item_ = inkCanvas_;
     setToolsString(InkStrokeHelper::toolString());

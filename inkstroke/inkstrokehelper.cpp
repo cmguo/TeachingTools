@@ -203,11 +203,12 @@ void InkStrokeHelper::getToolButtons(InkCanvas* ink, QList<ToolButton *> &button
                  "#FFF0F0F0", "#FFFFCE2D", "#FFFF9F5E", "#FFFF6262", "#FF46515F",
                  "#FF43CAFF", "#FF2FA8B3", "#FF46515F", "#FF28417F", "#FF000000"
              }) {
-                QString name = c;
+                QColor cl(c);
+                QString name = QVariant(cl).toString();
                 ToolButton::Flags flags = nullptr;
                 QVariantMap icons;
-                icons.insert("normal", QVariant::fromValue(colorIcon(QColor(c), false)));
-                icons.insert("+normal", QVariant::fromValue(colorIcon(QColor(c), true)));
+                icons.insert("normal", QVariant::fromValue(colorIcon(cl, false)));
+                icons.insert("+normal", QVariant::fromValue(colorIcon(cl, true)));
                 ToolButton * btn = new ToolButton({name, "", flags, icons});
                 strokeButtons.append(btn);
                 if (strokeButtons.size() == 5)
@@ -226,8 +227,8 @@ void InkStrokeHelper::getToolButtons(InkCanvas* ink, QList<ToolButton *> &button
                 strokeButtons.append(btn);
             }
         }
-        QString color = QVariant::fromValue(ink->DefaultDrawingAttributes()->Color()).toString();
-        QString width = QVariant::fromValue(ink->DefaultDrawingAttributes()->Width()).toString();
+        QString color = QVariant(ink->DefaultDrawingAttributes()->Color()).toString();
+        QString width = QVariant(ink->DefaultDrawingAttributes()->Width()).toString();
         for (ToolButton* tb : strokeButtons) {
             tb->flags.setFlag(ToolButton::Selected, tb->name == color || tb->name == width);
         }
