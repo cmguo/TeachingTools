@@ -20,8 +20,9 @@ static constexpr char const * toolsStr =
         "-full|全屏|NeedUpdate|:/teachingtools/icon/enter_full.svg;"
         "duplex()|双页|Checkable,UnionUpdate|:/teachingtools/icon/double_page.png;"
         "single()|单页|Checkable,UnionUpdate|:/teachingtools/icon/single_page.png;"
-        "scaleUp()||:/teachingtools/icon/zoom_in.png;"
-        "scaleDown()||:/teachingtools/icon/zoom_out.png;"
+        ";"
+        "scaleUp()||UnionUpdate|:/teachingtools/icon/zoom_in.png;"
+        "scaleDown()||UnionUpdate|:/teachingtools/icon/zoom_out.png;"
         "pages||;";
 
 PageBoxItem::PageBoxItem(QGraphicsItem * parent)
@@ -162,6 +163,10 @@ void PageBoxItem::updateToolButton(ToolButton *button)
         button->flags.setFlag(ToolButton::Checked, document_->layoutMode() == PageBoxDocItem::Duplex);
     } else if (button->name == "single()") {
         button->flags.setFlag(ToolButton::Checked, document_->layoutMode() == PageBoxDocItem::Single);
+    } else if (button->name == "scaleUp()") {
+        button->flags.setFlag(ToolButton::Disabled, !document_->canStepScale(true));
+    } else if (button->name == "scaleDown()") {
+        button->flags.setFlag(ToolButton::Disabled, !document_->canStepScale(false));
     }
 }
 

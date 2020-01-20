@@ -121,6 +121,14 @@ void PageBoxDocItem::stepScale(bool up)
     }
 }
 
+bool PageBoxDocItem::canStepScale(bool up)
+{
+    if (up)
+        return scaleLevel_ < maxScaleLevel_;
+    else
+        return scaleLevel_ > 0;
+}
+
 void PageBoxDocItem::stepMiddleScale()
 {
     qreal s = scale();

@@ -142,7 +142,8 @@ void InkStrokeHelper::updateToolButton(InkCanvas* ink, ToolButton *button)
         return;
     bool checked = button->name.startsWith("stroke(")
               ? ink->EditingMode() == InkCanvasEditingMode::Ink
-              : ink->EditingMode() == InkCanvasEditingMode::EraseByStroke;
+              : (ink->EditingMode() == InkCanvasEditingMode::EraseByStroke
+                 || ink->EditingMode() == InkCanvasEditingMode::EraseByPoint);
     button->flags.setFlag(ToolButton::Checked, checked);
     button->flags.setFlag(ToolButton::Popup, checked);
     button->flags.setFlag(ToolButton::OptionsGroup, checked);

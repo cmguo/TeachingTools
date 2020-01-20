@@ -10,22 +10,22 @@ PageNumberWidget::PageNumberWidget(QWidget *parent)
     : QWidget(parent, Qt::FramelessWindowHint)
 {
     QHBoxLayout* layout = new QHBoxLayout(this);
-    preBtn = new QPushButton(this);
-    preBtn->setObjectName(("preBtn"));
-    preBtn->setIcon(QIcon(":/teachingtools/icon/arrow_left.png"));
-    progressLabel = new QLabel(this);
-    progressLabel->setObjectName(("progressLabel"));
-    progressLabel->setText(("0/0"));
-    nextBtn = new QPushButton(this);
-    nextBtn->setObjectName(("nextBtn"));
-    nextBtn->setIcon(QIcon(":/teachingtools/icon/arrow_right.png"));
-    layout->addWidget(preBtn);
-    layout->addWidget(progressLabel);
-    layout->addWidget(nextBtn);
+    preBtn_ = new QPushButton(this);
+    preBtn_->setObjectName(("preBtn"));
+    preBtn_->setIcon(QIcon(":/teachingtools/icon/arrow_left.png"));
+    progressLabel_ = new QLabel(this);
+    progressLabel_->setObjectName(("progressLabel"));
+    progressLabel_->setText(("0/0"));
+    nextBtn_ = new QPushButton(this);
+    nextBtn_->setObjectName(("nextBtn"));
+    nextBtn_->setIcon(QIcon(":/teachingtools/icon/arrow_right.png"));
+    layout->addWidget(preBtn_);
+    layout->addWidget(progressLabel_);
+    layout->addWidget(nextBtn_);
     setLayout(layout);
     hide();
-    QObject::connect(preBtn, &QPushButton::clicked, this, &PageNumberWidget::buttonClicked);
-    QObject::connect(nextBtn, &QPushButton::clicked, this, &PageNumberWidget::buttonClicked);
+    QObject::connect(preBtn_, &QPushButton::clicked, this, &PageNumberWidget::buttonClicked);
+    QObject::connect(nextBtn_, &QPushButton::clicked, this, &PageNumberWidget::buttonClicked);
 }
 
 PageNumberWidget::~PageNumberWidget()
@@ -45,7 +45,9 @@ void PageNumberWidget::setNumber(int n)
     if (no_ == n)
         return;
     no_ = n;
-    progressLabel->setText(QString("%1/%2").arg(no_ + 1).arg(total_));
+    progressLabel_->setText(QString("%1/%2").arg(no_ + 1).arg(total_));
+    preBtn_->setEnabled(no_ > 0);
+    nextBtn_->setEnabled(no_ + 1 < total_);
 }
 
 ToolButton *PageNumberWidget::toolButton()
@@ -58,11 +60,11 @@ ToolButton *PageNumberWidget::toolButton()
 
 void PageNumberWidget::buttonClicked()
 {
-    if (sender() == preBtn) {
+    if (sender() == preBtn_) {
         if (no_ > 0) {
             setNumber(no_ - 1);
         }
-    } else if (sender() == nextBtn) {
+    } else if (sender() == nextBtn_) {
         if (no_ + 1 < total_) {
             setNumber(no_ + 1);
         }

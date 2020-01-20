@@ -239,5 +239,6 @@ void PageBoxControl::loadPages(PageBoxItem * item)
     if (!(flags_ & RestoreSession)) {
         doc->stepMiddleScale();
     }
+    item->buttonsChanged();
     //*/
 }

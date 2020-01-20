@@ -29,9 +29,9 @@ private:
     void buttonClicked();
 
 private:
-    QPushButton *preBtn;
-    QLabel *progressLabel;
-    QPushButton *nextBtn;
+    QPushButton *preBtn_;
+    QLabel *progressLabel_;
+    QPushButton *nextBtn_;
 
 private:
     ToolButton* toolButton_ = nullptr;

@@ -52,7 +52,8 @@ void InkPadPlugin::stroke(QString const & arg)
 
 void InkPadPlugin::eraser()
 {
-    inkCanvas_->SetEditingMode(InkCanvasEditingMode::EraseByStroke);
+    inkCanvas_->SetEditingMode(InkCanvasEditingMode::EraseByPoint);
+    inkCanvas_->itemChange(QGraphicsItem::ItemTransformHasChanged, QVariant()); // for update cursor
 }
 
 void InkPadPlugin::eraser(const QString &)

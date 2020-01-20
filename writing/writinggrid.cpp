@@ -184,6 +184,7 @@ bool WritingGrid::sceneEventFilter(QGraphicsItem *watched, QEvent *event)
             }else{
                 inkItem->setPixmap(QPixmap(":/teachingtools/icon/icon_eraser_checked.png"));
                 ink->SetEditingMode(InkCanvasEditingMode::EraseByPoint);
+                ink->itemChange(QGraphicsItem::ItemTransformHasChanged, QVariant()); // for update cursor
             }
             m_inkEraser = !m_inkEraser;
             return true;
