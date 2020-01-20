@@ -162,6 +162,8 @@ private:
 
     void onTransformChanged();
 
+    void onCurrentPageChanged();
+
 private:
     QAbstractItemModel * model_;
     ResourceTransform * transform_;

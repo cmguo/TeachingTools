@@ -204,7 +204,7 @@ void PageBoxDocItem::setItems(QAbstractItemModel * model)
     emit pageCountChanged(model_ ? model_->rowCount() : 0);
     relayout();
     rescale();
-    emit currentPageChanged(curPage_);
+    onCurrentPageChanged();
 }
 
 void PageBoxDocItem::setItemBindings(QPropertyBindings * bindings)
@@ -235,7 +235,6 @@ void PageBoxDocItem::relayout()
             delete item;
         }
     }
-    int lastPage = curPage_;
     if (layoutMode_ == Single) {
         QVariant item0 = model_->data(model_->index(curPage_, 0), Qt::UserRole + 1);
         PageBoxPageItem * pageItem = new PageBoxPageItem(pageCanvas_);
@@ -279,8 +278,7 @@ void PageBoxDocItem::relayout()
         else
             plugin_->onPageChanged(-1, curPage_);
     }
-    if (lastPage != curPage_)
-        emit currentPageChanged(curPage_);
+    onCurrentPageChanged();
     if (direction_ == Vertical) {
         pos.setX(pageSize_.width());
     } else {
@@ -332,9 +330,14 @@ void PageBoxDocItem::onTransformChanged()
         if (lastPage != curPage_) {
             if (plugin_)
                 plugin_->onPageChanged(lastPage, curPage_);
-            emit currentPageChanged(curPage_);
+            onCurrentPageChanged();
         }
     }
+}
+
+void PageBoxDocItem::onCurrentPageChanged()
+{
+    emit currentPageChanged((layoutMode_ == Duplex && (curPage_ > 0 && curPage_ + 1 < pageCount())) ? curPage_ + 1 : curPage_);
 }
 
 bool PageBoxDocItem::hit(QPointF const & point)
@@ -409,7 +412,7 @@ void PageBoxDocItem::goToPage(int page)
     if (layoutMode_ == Duplex && page != 0 && page % 2 == 0)
         page = (page == curPage_ + 1) ? page + 1 : page - 1;
     if (page < 0 || page >= model_->rowCount() || page == curPage_) { // after adjust
-        emit currentPageChanged(curPage_);
+        onCurrentPageChanged();
         return;
     }
     int lastPage = curPage_;
@@ -459,7 +462,7 @@ void PageBoxDocItem::goToPage(int page)
         qDebug() << "goToPage" << page << off;
         transform_->translateTo(off);
     }
-    emit currentPageChanged(curPage_);
+    onCurrentPageChanged();
 }
 
 struct TransformData
