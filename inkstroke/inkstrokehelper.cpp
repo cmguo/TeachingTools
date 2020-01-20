@@ -162,22 +162,28 @@ void InkStrokeHelper::updateToolButton(InkCanvas* ink, ToolButton *button)
 
 static QList<ToolButton *> strokeButtons;
 
-static QGraphicsItem* colorIcon(QColor color)
+static QGraphicsItem* colorIcon(QColor color, bool selected)
 {
     QGraphicsRectItem * item = new QGraphicsRectItem;
     item->setRect({1, 1, 30, 30});
-    item->setPen(QPen(QColor(color.red() / 2 + 128, // mix with white
-                        color.green() / 2 + 128, color.blue() / 2 + 128), 2.0));
+    if (selected)
+        item->setPen(QPen(Qt::white, 2.0));
+    else
+        item->setPen(QPen(QColor(color.red() / 2 + 128, // mix with white
+                            color.green() / 2 + 128, color.blue() / 2 + 128), 2.0));
     item->setBrush(color);
     return item;
 }
 
-static QGraphicsItem* widthIcon(qreal width)
+static QGraphicsItem* widthIcon(qreal width, bool selected)
 {
     QPainterPath ph;
     ph.addEllipse(QRectF(1, 1, 30, 30));
     QGraphicsPathItem * border = new QGraphicsPathItem(ph);
-    border->setPen(QPen(Qt::blue, 2));
+    if (selected)
+        border->setPen(QPen(Qt::blue, 2));
+    else
+        border->setPen(Qt::NoPen);
     border->setBrush(QBrush());
     QPainterPath ph2;
     QRectF rect(0, 0, width * 3, width * 3);
@@ -199,9 +205,10 @@ void InkStrokeHelper::getToolButtons(InkCanvas* ink, QList<ToolButton *> &button
              }) {
                 QString name = c;
                 ToolButton::Flags flags = nullptr;
-                QGraphicsItem * icon = colorIcon(QColor(c));
-                ToolButton * btn = new ToolButton({name, "", flags,
-                     QVariant::fromValue(icon)});
+                QVariantMap icons;
+                icons.insert("normal", QVariant::fromValue(colorIcon(QColor(c), false)));
+                icons.insert("+normal", QVariant::fromValue(colorIcon(QColor(c), true)));
+                ToolButton * btn = new ToolButton({name, "", flags, icons});
                 strokeButtons.append(btn);
                 if (strokeButtons.size() == 5)
                     strokeButtons.append(&ToolButton::LINE_BREAK);
@@ -212,9 +219,10 @@ void InkStrokeHelper::getToolButtons(InkCanvas* ink, QList<ToolButton *> &button
              }) {
                 QString name = QVariant::fromValue(w).toString();
                 ToolButton::Flags flags = nullptr;
-                QGraphicsItem * icon = widthIcon(w);
-                ToolButton * btn = new ToolButton({name, "", flags,
-                     QVariant::fromValue(icon)});
+                QVariantMap icons;
+                icons.insert("normal", QVariant::fromValue(widthIcon(w, false)));
+                icons.insert("+normal", QVariant::fromValue(widthIcon(w, true)));
+                ToolButton * btn = new ToolButton({name, "", flags, icons});
                 strokeButtons.append(btn);
             }
         }
