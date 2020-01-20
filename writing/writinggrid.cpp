@@ -282,6 +282,8 @@ void WritingGrid::setGridCount(int n)
 {
     prepareGeometryChange();
     gridCount_ = n;
+    adjustControlItemPos();
+    adjustInkCanvas();
 }
 
 void WritingGrid::addGrid(){
