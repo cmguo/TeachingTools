@@ -24,7 +24,7 @@ InkStrokes::InkStrokes(InkStrokes &o)
     if (o.next_)
         o.next_->prev_ = this;
     o.next_ = this;
-    flags_.setFlag(StickOn);
+    //flags_.setFlag(StickOn);
     flags_.setFlag(CanDelete);
     flags_.setFlag(Splittable, false);
     flags_.setFlag(TopMost, false);
