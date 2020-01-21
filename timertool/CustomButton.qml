@@ -1,5 +1,6 @@
 import QtQuick 2.12
 import QtQuick.Controls 2.12
+import Strings 1.0
 
 Button {
     id: control
@@ -12,11 +13,13 @@ Button {
 
     contentItem: Text {
         text: control.text
-        font: control.font
+        font.pixelSize: control.font.pixelSize
+        font.family: String.font
         horizontalAlignment: Text.AlignHCenter
         verticalAlignment: Text.AlignVCenter
         elide: Text.ElideRight
         color: control.fontColor
+        font.bold: parent.font.bold
     }
     background: Rectangle {
         implicitWidth: 100

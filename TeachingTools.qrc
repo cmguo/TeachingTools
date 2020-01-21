@@ -29,5 +29,7 @@
         <file>icon/zoom_out.png</file>
         <file>icon/brush.png</file>
         <file>icon/eraser2.png</file>
+        <file>timertool/timer_bg_1.png</file>
+        <file>timertool/timer_bg_2.png</file>
     </qresource>
 </RCC>
