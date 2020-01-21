@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="65px" height="36px" viewBox="0 0 65 36" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 61 (89581) - https://sketch.com -->
+    <title>擦出滑动</title>
+    <desc>Created with Sketch.</desc>
+    <g id="擦出滑动" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="编组-2">
+            <path d="M17,36 L17.0003561,35.9727111 C7.52419947,35.4540065 0,27.6056887 0,18 C0,8.39431125 7.52419947,0.545993454 17.0003561,0.0272888836 L17,0 L48,0 L48.0006466,0.0273438003 C57.4763313,0.546547129 65,8.39465008 65,18 C65,27.6053499 57.4763313,35.4534529 48.0006466,35.9726562 L48,36 L17,36 Z" id="形状结合" fill="#2B3034"></path>
+            <g id="编组" transform="translate(33.000000, 18.000000) rotate(-270.000000) translate(-33.000000, -18.000000) translate(23.000000, 12.000000)" fill="#FFFFFF">
+                <rect id="矩形" x="0" y="5" width="20" height="2" rx="1"></rect>
+                <rect id="矩形" x="0" y="0" width="20" height="2" rx="1"></rect>
+                <rect id="矩形" x="0" y="10" width="20" height="2" rx="1"></rect>
+            </g>
+        </g>
+    </g>
+</svg>

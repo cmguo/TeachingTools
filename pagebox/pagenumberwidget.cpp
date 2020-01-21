@@ -9,16 +9,21 @@
 PageNumberWidget::PageNumberWidget(QWidget *parent)
     : QWidget(parent, Qt::FramelessWindowHint)
 {
+    constexpr char const * STYLE = "QPushButton:pressed {background-color:#FF008FFF;}"
+                                   "QPushButton:disabled {opacity:0.3;}";
+    setStyleSheet(STYLE);
     QHBoxLayout* layout = new QHBoxLayout(this);
     preBtn_ = new QPushButton(this);
     preBtn_->setObjectName(("preBtn"));
     preBtn_->setIcon(QIcon(":/teachingtools/icon/arrow_left.png"));
+    preBtn_->setIconSize({32, 32});
     progressLabel_ = new QLabel(this);
     progressLabel_->setObjectName(("progressLabel"));
     progressLabel_->setText(("0/0"));
     nextBtn_ = new QPushButton(this);
     nextBtn_->setObjectName(("nextBtn"));
     nextBtn_->setIcon(QIcon(":/teachingtools/icon/arrow_right.png"));
+    nextBtn_->setIconSize({32, 32});
     layout->addWidget(preBtn_);
     layout->addWidget(progressLabel_);
     layout->addWidget(nextBtn_);

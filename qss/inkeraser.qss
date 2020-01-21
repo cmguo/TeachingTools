@@ -1,5 +1,6 @@
 QWidget {
         border-radius: 6px;
+        background:#F22B3034;
 }
 
 QLabel#pTipLabel {
@@ -16,19 +17,20 @@ QLabel#pTipLabel {
 
 QSlider { 
 	border: none;
-	height: 32px;
+        height: 40px;
 	width: 132px;
 }
 
 QSlider::groove:horizontal {
-         height: 32px;
-         background: #cccccc;
-		 border-radius: 16px;
+         height: 40px;
+         width: 132px;
+         background: #FF000000;
+         border-radius: 20px;
 }
 
 QSlider::handle:horizontal {
-         width: 32px;
-		 height: 32px;
-         border-image: url(":/teachingtools/icon/eraser.png");
-         border-radius: 16px;
+         width: 56px;
+         height: 36px;
+         border-radius: 20px;
+         border-image: url(":/teachingtools/icon/eraser.svg");
 }

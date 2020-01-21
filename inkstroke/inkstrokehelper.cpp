@@ -164,15 +164,22 @@ static QList<ToolButton *> strokeButtons;
 
 static QGraphicsItem* colorIcon(QColor color, bool selected)
 {
-    QGraphicsRectItem * item = new QGraphicsRectItem;
-    item->setRect({1, 1, 30, 30});
+    QPainterPath ph;
+    ph.addEllipse(QRectF(1, 1, 30, 30));
+    QGraphicsPathItem * border = new QGraphicsPathItem(ph);
     if (selected)
-        item->setPen(QPen(Qt::white, 2.0));
+        border->setPen(QPen(Qt::white, 2.0));
     else
-        item->setPen(QPen(QColor(color.red() / 2 + 128, // mix with white
-                            color.green() / 2 + 128, color.blue() / 2 + 128), 2.0));
+        //border->setPen(QPen(QColor(color.red() * 3 / 4 + 64, // mix with white
+        //                    color.green() * 3 / 4 + 64, color.blue() * 3 / 4 + 64), 2.0));
+        border->setPen(QPen(QColor("#FF46515F"), 2.0));
+    border->setBrush(QBrush());
+    QPainterPath ph2;
+    ph2.addEllipse(QRectF(4, 4, 24, 24));
+    QGraphicsPathItem * item = new QGraphicsPathItem(ph2, border);
+    item->setPen(Qt::NoPen);
     item->setBrush(color);
-    return item;
+    return border;
 }
 
 static QGraphicsItem* widthIcon(qreal width, bool selected)
@@ -181,7 +188,7 @@ static QGraphicsItem* widthIcon(qreal width, bool selected)
     ph.addEllipse(QRectF(1, 1, 30, 30));
     QGraphicsPathItem * border = new QGraphicsPathItem(ph);
     if (selected)
-        border->setPen(QPen(Qt::blue, 2));
+        border->setPen(QPen(Qt::white, 2));
     else
         border->setPen(Qt::NoPen);
     border->setBrush(QBrush());
@@ -191,7 +198,7 @@ static QGraphicsItem* widthIcon(qreal width, bool selected)
     ph2.addEllipse(rect);
     QGraphicsPathItem * item = new QGraphicsPathItem(ph2, border);
     item->setPen(Qt::NoPen);
-    item->setBrush(Qt::yellow);
+    item->setBrush(Qt::white);
     return border;
 }
 
@@ -200,8 +207,8 @@ void InkStrokeHelper::getToolButtons(InkCanvas* ink, QList<ToolButton *> &button
     if (parent->name == "stroke(QString)") {
         if (strokeButtons.isEmpty()) {
             for (char const * c : {
-                 "#FFF0F0F0", "#FFFFCE2D", "#FFFF9F5E", "#FFFF6262", "#FF46515F",
-                 "#FF43CAFF", "#FF2FA8B3", "#FF46515F", "#FF28417F", "#FF000000"
+                 "#FFF0F0F0", "#FFFFCE2D", "#FFFF9F5E", "#FFFF6262", "#FF7A51AE",
+                 "#FF43CAFF", "#FF2FA8B3", "#FF506EB7", "#FF28417F", "#FF000000"
              }) {
                 QColor cl(c);
                 QString name = QVariant(cl).toString();

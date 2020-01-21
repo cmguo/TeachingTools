@@ -12,6 +12,9 @@ public:
     explicit PageBoxToolBar(QWidget *parent = nullptr);
 
     virtual ~PageBoxToolBar() override;
+
+protected:
+    QWidget * createPopupWidget() override;
 };
 
 #endif // PAGEBOXTOOLBAR_H
