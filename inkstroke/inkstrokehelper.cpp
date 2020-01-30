@@ -16,7 +16,11 @@
 #include <QBoxLayout>
 #include <QPen>
 
+#ifndef QT_DEBUG
 #define STROKE_SELECT 0
+#else
+#define STROKE_SELECT 1
+#endif
 
 static constexpr char const * toolsStr =
         "stroke()||Checkable,UnionUpdate|:/teachingtools/icon/brush.png;"

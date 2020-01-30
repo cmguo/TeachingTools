@@ -17,6 +17,8 @@
 #include <QGraphicsItem>
 #include <QGraphicsProxyWidget>
 
+#include <cmath>
+
 PageBoxDocItem::PageBoxDocItem(QGraphicsItem * parent)
     : QGraphicsRectItem(parent)
     , model_(nullptr)
