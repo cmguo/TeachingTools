@@ -17,8 +17,6 @@ class TEACHINGTOOLS_EXPORT WritingGridControl: public Control
 public:
     Q_INVOKABLE WritingGridControl(ResourceView *res);
 
-    virtual QString toolsString(QString const & parent = QString()) const override;
-
     using :: Control::sizeChanged;
 
 private slots:

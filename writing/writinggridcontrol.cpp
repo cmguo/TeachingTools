@@ -49,11 +49,6 @@ void WritingGridControl::attached()
     loadFinished(true);
 }
 
-QString WritingGridControl::toolsString(QString const & parent) const
-{
-    return nullptr;
-}
-
 void WritingGridControl::changeGridType()
 {
     WritingGrid *item = static_cast<WritingGrid*>(item_);

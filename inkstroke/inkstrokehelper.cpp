@@ -1,5 +1,6 @@
 #include "inkstrokehelper.h"
 
+#include <core/optiontoolbuttons.h>
 #include <core/toolbutton.h>
 
 #include <Windows/Controls/inkcanvas.h>
@@ -7,6 +8,7 @@
 #include <Windows/Ink/stroke.h>
 #include <Windows/Ink/strokecollection.h>
 #include <Windows/Ink/stylusshape.h>
+#include <Windows/Input/stylusdevice.h>
 
 #include <QFile>
 #include <QDebug>
@@ -50,7 +52,9 @@ public:
     {
         ink_->AddHandler(InkCanvas::StrokeCollectedEvent, RoutedEventHandlerT<
                         PressureHelper, InkCanvasStrokeCollectedEventArgs, &PressureHelper::applyPressure>(this));
-    }
+        QObject::connect(ink_, &InkCanvas::StrokesReplaced,
+                         this, &PressureHelper::strokesReplaced);
+   }
 
     ~PressureHelper()
     {
@@ -60,6 +64,12 @@ public:
     }
 
 private:
+    void strokesReplaced(InkCanvasStrokesReplacedEventArgs &e)
+    {
+        (void) e;
+        ink_->SetDefaultStylusPointDescription(Stylus::DefaultPointDescription());
+    }
+
     void applyPressure(InkCanvasStrokeCollectedEventArgs &e)
     {
         QSharedPointer<Stroke> stroke = e.GetStroke();
@@ -164,86 +174,18 @@ void InkStrokeHelper::updateToolButton(InkCanvas* ink, ToolButton *button)
     }
 }
 
-static QList<ToolButton *> strokeButtons;
-
-static QGraphicsItem* colorIcon(QColor color, bool selected)
-{
-    QPainterPath ph;
-    ph.addEllipse(QRectF(1, 1, 30, 30));
-    QGraphicsPathItem * border = new QGraphicsPathItem(ph);
-    if (selected)
-        border->setPen(QPen(Qt::white, 2.0));
-    else
-        //border->setPen(QPen(QColor(color.red() * 3 / 4 + 64, // mix with white
-        //                    color.green() * 3 / 4 + 64, color.blue() * 3 / 4 + 64), 2.0));
-        border->setPen(QPen(QColor("#FF46515F"), 2.0));
-    border->setBrush(QBrush());
-    QPainterPath ph2;
-    ph2.addEllipse(QRectF(4, 4, 24, 24));
-    QGraphicsPathItem * item = new QGraphicsPathItem(ph2, border);
-    item->setPen(Qt::NoPen);
-    item->setBrush(color);
-    return border;
-}
-
-static QGraphicsItem* widthIcon(qreal width, bool selected)
-{
-    QPainterPath ph;
-    ph.addEllipse(QRectF(1, 1, 30, 30));
-    QGraphicsPathItem * border = new QGraphicsPathItem(ph);
-    if (selected)
-        border->setPen(QPen(Qt::white, 2));
-    else
-        border->setPen(Qt::NoPen);
-    border->setBrush(QBrush());
-    QPainterPath ph2;
-    QRectF rect(0, 0, width * 3, width * 3);
-    rect.moveCenter(QPointF(16, 16));
-    ph2.addEllipse(rect);
-    QGraphicsPathItem * item = new QGraphicsPathItem(ph2, border);
-    item->setPen(Qt::NoPen);
-    item->setBrush(Qt::white);
-    return border;
-}
+static StateColorToolButtons colorButtons(QList<QColor>({
+                                              "#FFF0F0F0", "#FFFFCE2D", "#FFFF9F5E", "#FFFF6262", "#FF7A51AE",
+                                              "#FF43CAFF", "#FF2FA8B3", "#FF506EB7", "#FF28417F", "#FF000000"
+                                          }));
+static StateWidthToolButtons widthButtons({1.0, 3.0, 5.0});
 
 void InkStrokeHelper::getToolButtons(InkCanvas* ink, QList<ToolButton *> &buttons, ToolButton *parent)
 {
     if (parent->name == "stroke(QString)") {
-        if (strokeButtons.isEmpty()) {
-            for (char const * c : {
-                 "#FFF0F0F0", "#FFFFCE2D", "#FFFF9F5E", "#FFFF6262", "#FF7A51AE",
-                 "#FF43CAFF", "#FF2FA8B3", "#FF506EB7", "#FF28417F", "#FF000000"
-             }) {
-                QColor cl(c);
-                QString name = QVariant(cl).toString();
-                ToolButton::Flags flags = nullptr;
-                QVariantMap icons;
-                icons.insert("normal", QVariant::fromValue(colorIcon(cl, false)));
-                icons.insert("+normal", QVariant::fromValue(colorIcon(cl, true)));
-                ToolButton * btn = new ToolButton({name, "", flags, icons});
-                strokeButtons.append(btn);
-                if (strokeButtons.size() == 5)
-                    strokeButtons.append(&ToolButton::LINE_BREAK);
-            }
-            strokeButtons.append(&ToolButton::LINE_BREAK);
-            for (qreal w : {
-                 1.0, 3.0, 5.0,
-             }) {
-                QString name = QVariant::fromValue(w).toString();
-                ToolButton::Flags flags = nullptr;
-                QVariantMap icons;
-                icons.insert("normal", QVariant::fromValue(widthIcon(w, false)));
-                icons.insert("+normal", QVariant::fromValue(widthIcon(w, true)));
-                ToolButton * btn = new ToolButton({name, "", flags, icons});
-                strokeButtons.append(btn);
-            }
-        }
-        QString color = QVariant(ink->DefaultDrawingAttributes()->Color()).toString();
-        QString width = QVariant(ink->DefaultDrawingAttributes()->Width()).toString();
-        for (ToolButton* tb : strokeButtons) {
-            tb->flags.setFlag(ToolButton::Selected, tb->name == color || tb->name == width);
-        }
-        buttons.append(strokeButtons);
+        colorButtons.fill(buttons, ink->DefaultDrawingAttributes()->Color());
+        buttons.append(&ToolButton::LINE_BREAK);
+        widthButtons.fill(buttons, ink->DefaultDrawingAttributes()->Width());
     } else if (parent->name == "eraser(QString)") {
         QVariant eraseAllButton = ink->property("eraseAllButton");
         if (!eraseAllButton.isValid()) {
