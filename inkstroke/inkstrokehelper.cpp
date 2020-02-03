@@ -184,7 +184,7 @@ void InkStrokeHelper::getToolButtons(InkCanvas* ink, QList<ToolButton *> &button
 {
     if (parent->name == "stroke(QString)") {
         colorButtons.fill(buttons, ink->DefaultDrawingAttributes()->Color());
-        buttons.append(&ToolButton::LINE_BREAK);
+        buttons.append(&ToolButton::LINE_SPLITTER);
         widthButtons.fill(buttons, ink->DefaultDrawingAttributes()->Width());
     } else if (parent->name == "eraser(QString)") {
         QVariant eraseAllButton = ink->property("eraseAllButton");

@@ -153,7 +153,7 @@ void PageBoxItem::getToolButtons(QList<ToolButton *> &buttons, const QList<ToolB
         }
         buttons.removeAll(nullptr);
     }
-    if (buttons.endsWith(&ToolButton::SPLITER))
+    if (buttons.endsWith(&ToolButton::SPLITTER))
         buttons.pop_back();
 }
 
