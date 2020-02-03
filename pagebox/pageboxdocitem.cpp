@@ -245,9 +245,9 @@ void PageBoxDocItem::relayout()
         pageItem->setPos(pos);
         pos += off;
     } else if (layoutMode_ == Duplex) {
-        if (layoutMode_ == Duplex && curPage_ != 0 && curPage_ % 2 == 0)
-            --curPage_;
-        QVariant item1 = model_->data(model_->index(curPage_, 0), Qt::UserRole + 1);
+        if (layoutMode_ == Duplex && curPage_ != 0 && curPage_ % 2 == 1 && curPage_ + 1 < model_->rowCount())
+            ++curPage_;
+        QVariant item1 = model_->data(model_->index((curPage_ == 0 || (curPage_ & 1)) ? curPage_ : curPage_ - 1, 0), Qt::UserRole + 1);
         PageBoxPageItem * pageItem1 = new PageBoxPageItem(pageCanvas_);
         //pageItem->stackBefore(selBox_);
         itemBindings_->bind(QVariant::fromValue(pageItem1), item1);
@@ -259,8 +259,10 @@ void PageBoxDocItem::relayout()
         if (curPage_) {
             pos += off;
             pageSize2_ += QSizeF(off.x(), off.y());
-            QVariant item2 = model_->data(model_->index(curPage_ + 1, 0), Qt::UserRole + 1);
-            itemBindings_->bind(QVariant::fromValue(pageItem2), item2);
+            if ((curPage_ & 1) == 0) {
+                QVariant item2 = model_->data(model_->index(curPage_, 0), Qt::UserRole + 1);
+                itemBindings_->bind(QVariant::fromValue(pageItem2), item2);
+            }
         } else {
             pageItem2->setVisible(false);
         }
@@ -339,7 +341,7 @@ void PageBoxDocItem::onTransformChanged()
 
 void PageBoxDocItem::onCurrentPageChanged()
 {
-    emit currentPageChanged((layoutMode_ == Duplex && (curPage_ > 0 && curPage_ + 1 < pageCount())) ? curPage_ + 1 : curPage_);
+    emit currentPageChanged(curPage_);
 }
 
 bool PageBoxDocItem::hit(QPointF const & point)
@@ -411,8 +413,11 @@ void PageBoxDocItem::goToPage(int page)
 {
     if (!model_ || page == curPage_)
         return;
-    if (layoutMode_ == Duplex && page != 0 && page % 2 == 0)
+    if (layoutMode_ == Duplex && page != 0 && page % 2 == 1) {
         page = (page == curPage_ + 1) ? page + 1 : page - 1;
+        if (page == model_->rowCount())
+            --page;
+    }
     if (page < 0 || page >= model_->rowCount() || page == curPage_) { // after adjust
         onCurrentPageChanged();
         return;
@@ -428,7 +433,7 @@ void PageBoxDocItem::goToPage(int page)
         pageItem->setPixmap(QPixmap());
         itemBindings_->bind(QVariant::fromValue(pageItem), item);
     } else if (layoutMode_ == Duplex) {
-        QVariant item1 = model_->data(model_->index(page, 0), Qt::UserRole + 1);
+        QVariant item1 = model_->data(model_->index((curPage_ == 0 || (curPage_ & 1)) ? curPage_ : curPage_ - 1, 0), Qt::UserRole + 1);
         PageBoxPageItem * pageItem1 = static_cast<PageBoxPageItem *>(pageCanvas_->childItems()[0]);
         PageBoxPageItem * pageItem2 = static_cast<PageBoxPageItem *>(pageCanvas_->childItems()[1]);
         pageItem1->setPixmap(QPixmap());
@@ -439,15 +444,16 @@ void PageBoxDocItem::goToPage(int page)
         } else {
             off.setWidth(pageSize_.width() + padding_);
         }
-        if (page == 0) {
-            itemBindings_->bind(QVariant::fromValue(pageItem1), item1);
+        itemBindings_->bind(QVariant::fromValue(pageItem1), item1);
+        if (curPage_ == 0) {
             pageItem2->setVisible(false);
             pageSize2_ -= off;
         } else {
-            itemBindings_->bind(QVariant::fromValue(pageItem1), item1);
+            if ((curPage_ & 1) == 0) {
+                QVariant item2 = model_->data(model_->index(curPage_, 0), Qt::UserRole + 1);
+                itemBindings_->bind(QVariant::fromValue(pageItem2), item2);
+            }
             pageItem2->setVisible(true);
-            QVariant item2 = model_->data(model_->index(page + 1, 0), Qt::UserRole + 1);
-            itemBindings_->bind(QVariant::fromValue(pageItem2), item2);
             if (lastPage == 0)
                 pageSize2_ += off;
         }
