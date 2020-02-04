@@ -178,7 +178,7 @@ static StateColorToolButtons colorButtons(QList<QColor>({
                                               "#FFF0F0F0", "#FFFFCE2D", "#FFFF9F5E", "#FFFF6262", "#FF7A51AE",
                                               "#FF43CAFF", "#FF2FA8B3", "#FF506EB7", "#FF28417F", "#FF000000"
                                           }));
-static StateWidthToolButtons widthButtons({1.0, 3.0, 5.0});
+static StateWidthToolButtons widthButtons({2.0, 4.0, 8.0, 16.0});
 
 void InkStrokeHelper::getToolButtons(InkCanvas* ink, QList<ToolButton *> &buttons, ToolButton *parent)
 {

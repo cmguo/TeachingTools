@@ -10,7 +10,7 @@ PageNumberWidget::PageNumberWidget(QWidget *parent)
     : QWidget(parent, Qt::FramelessWindowHint)
 {
     constexpr char const * STYLE = "QPushButton:pressed {background-color:#FF008FFF;}"
-                                   "QPushButton:disabled {opacity:0.3;}"
+                                   "QPushButton:disabled {opacity:77;}"
                                    "QLabel{font-family:'微软雅黑';font-size:16pt;spacing:30px;}";
     setStyleSheet(STYLE);
     QHBoxLayout* layout = new QHBoxLayout(this);
