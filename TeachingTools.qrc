@@ -32,5 +32,7 @@
         <file>timertool/timer_bg_1.png</file>
         <file>timertool/timer_bg_2.png</file>
         <file>icon/eraser.svg</file>
+        <file>image/page1.png</file>
+        <file>image/page2.png</file>
     </qresource>
 </RCC>

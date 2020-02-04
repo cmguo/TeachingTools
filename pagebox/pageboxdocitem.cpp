@@ -427,17 +427,19 @@ void PageBoxDocItem::goToPage(int page)
     if (plugin_) {
         plugin_->onPageChanged(lastPage, curPage_);
     }
+    static QPixmap loading1(":teachingtools/image/page1.png");
+    static QPixmap loading2(":teachingtools/image/page2.png");
     if (layoutMode_ == Single) {
         QVariant item = model_->data(model_->index(page, 0), Qt::UserRole + 1);
         PageBoxPageItem * pageItem = static_cast<PageBoxPageItem *>(pageCanvas_->childItems().front());
-        pageItem->setPixmap(QPixmap());
+        pageItem->setPixmap(loading1);
         itemBindings_->bind(QVariant::fromValue(pageItem), item);
     } else if (layoutMode_ == Duplex) {
         QVariant item1 = model_->data(model_->index((curPage_ == 0 || (curPage_ & 1)) ? curPage_ : curPage_ - 1, 0), Qt::UserRole + 1);
         PageBoxPageItem * pageItem1 = static_cast<PageBoxPageItem *>(pageCanvas_->childItems()[0]);
         PageBoxPageItem * pageItem2 = static_cast<PageBoxPageItem *>(pageCanvas_->childItems()[1]);
-        pageItem1->setPixmap(QPixmap());
-        pageItem2->setPixmap(QPixmap());
+        pageItem1->setPixmap(loading1);
+        pageItem2->setPixmap(loading2);
         QSizeF off;
         if (direction_ == Vertical) {
             off.setHeight(pageSize_.height() + padding_);

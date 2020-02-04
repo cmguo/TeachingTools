@@ -25,6 +25,9 @@ public:
 
     void setImage(QUrl const & image);
 
+public:
+    void setPixmap(QPixmap const & pixmap);
+
 private:
     QUrl image_;
     QList<QRectF> rects_;
