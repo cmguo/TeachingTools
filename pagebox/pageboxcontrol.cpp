@@ -6,6 +6,7 @@
 
 #include <core/resource.h>
 #include <core/resourceview.h>
+#include <core/resourcepage.h>
 #include <core/resourcetransform.h>
 #include <core/controltransform.h>
 
@@ -95,6 +96,12 @@ void PageBoxControl::attached()
             bottomTransform_ = ct2;
         }
         item->toolBar()->hide();
+    }
+    PageBoxDocItem * doc = item->document();
+    if (res_->flags().testFlag(ResourceView::SubPages)) {
+        QObject::connect(doc, &PageBoxDocItem::currentPageChanged, this, [this](int page) {
+            res_->page()->switchSubPage(page);
+        });
     }
     if (property("pageData").isValid()) {
         loadPages(item);
