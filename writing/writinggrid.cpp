@@ -43,12 +43,12 @@ WritingGrid::WritingGrid(int h,WritingGridType type,QGraphicsItem * parent)
     decItem->setX((controlItemSize.width()-itemSize.width())/2);
 
     inkItem = new QGraphicsPixmapItem(controlItem);
-    inkItem->setPixmap(QPixmap(":/teachingtools/icon/icon_ink_normal.png"));
+    inkItem->setPixmap(QPixmap(":/teachingtools/icon/icon_ink_checked.png"));
     inkItem->setAcceptedMouseButtons(Qt::LeftButton);
     inkItem->setX((controlItemSize.width()-itemSize.width())/2);
 
     inkEraseItem = new QGraphicsPixmapItem(controlItem);
-    inkEraseItem->setPixmap(QPixmap(":/teachingtools/icon/icon_eraser_checked.png"));
+    inkEraseItem->setPixmap(QPixmap(":/teachingtools/icon/icon_eraser_normal.png"));
     inkEraseItem->setAcceptedMouseButtons(Qt::LeftButton);
     inkEraseItem->setX((controlItemSize.width() - itemSize.width()) / 2);
 
