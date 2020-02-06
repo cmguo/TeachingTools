@@ -77,6 +77,7 @@ private:
     QGraphicsPixmapItem *addItem;
     QGraphicsPixmapItem *decItem;
     QGraphicsPixmapItem *inkItem;
+	QGraphicsPixmapItem *inkEraseItem;
     QGraphicsRectItem *controlItem;
     qreal m_width;
     qreal m_height;
@@ -93,7 +94,6 @@ private:
     QSizeF newScaleSize;
     QSizeF controlItemSize=QSizeF(72,72);
     QSizeF itemSize=QSizeF(40,40);
-    bool m_inkEraser = false;
     InkCanvas * ink ;
 
 };

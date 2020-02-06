@@ -43,9 +43,15 @@ WritingGrid::WritingGrid(int h,WritingGridType type,QGraphicsItem * parent)
     decItem->setX((controlItemSize.width()-itemSize.width())/2);
 
     inkItem = new QGraphicsPixmapItem(controlItem);
-    inkItem->setPixmap(QPixmap(":/teachingtools/icon/icon_eraser_normal.png"));
+    inkItem->setPixmap(QPixmap(":/teachingtools/icon/icon_ink_normal.png"));
     inkItem->setAcceptedMouseButtons(Qt::LeftButton);
     inkItem->setX((controlItemSize.width()-itemSize.width())/2);
+
+    inkEraseItem = new QGraphicsPixmapItem(controlItem);
+    inkEraseItem->setPixmap(QPixmap(":/teachingtools/icon/icon_eraser_checked.png"));
+    inkEraseItem->setAcceptedMouseButtons(Qt::LeftButton);
+    inkEraseItem->setX((controlItemSize.width() - itemSize.width()) / 2);
+
 
     adjustControlItemPos();
     ink = InkStrokeHelper::createInkCanvas(Qt::black, 8, {30, 40});
@@ -152,46 +158,46 @@ void WritingGrid::paintPinYinTinGrids(QPainter *painter, const QStyleOptionGraph
     }
 }
 
-bool WritingGrid::sceneEventFilter(QGraphicsItem *watched, QEvent *event)
+bool WritingGrid::sceneEventFilter(QGraphicsItem* watched, QEvent* event)
 {
 
-    if(event->type()==QEvent::GraphicsSceneMousePress){
-        QGraphicsSceneMouseEvent *mouseEvent = static_cast<QGraphicsSceneMouseEvent*>(event);
-        double clickGap = addItem->boundingRect().height()/2;
-        if(mouseEvent->pos().y()>(addItem->pos().y()-clickGap) && mouseEvent->pos().y()<(addItem->pos().y()+clickGap*3)){
+    if (event->type() == QEvent::GraphicsSceneMousePress) {
+        QGraphicsSceneMouseEvent* mouseEvent = static_cast<QGraphicsSceneMouseEvent*>(event);
+        double clickGap = addItem->boundingRect().height() / 2;
+        if (mouseEvent->pos().y() > (addItem->pos().y() - clickGap) && mouseEvent->pos().y() < (addItem->pos().y() + clickGap * 3)) {
             addGrid();
-            WritingGridControl *control = qobject_cast<WritingGridControl*>(WritingGridControl::fromItem(this));
-            if(control != nullptr)
+            WritingGridControl* control = qobject_cast<WritingGridControl*>(WritingGridControl::fromItem(this));
+            if (control != nullptr)
                 control->sizeChanged();
             adjustControlItemPos();
             adjustInkCanvas();
             return true;
         }
-        if(decItem->isVisible()&&mouseEvent->pos().y()>(decItem->pos().y()-clickGap) && mouseEvent->pos().y()<(decItem->pos().y()+clickGap*3)){
+        if (decItem->isVisible() && mouseEvent->pos().y() > (decItem->pos().y() - clickGap) && mouseEvent->pos().y() < (decItem->pos().y() + clickGap * 3)) {
             decGrid();
-            WritingGridControl *control = qobject_cast<WritingGridControl*>(WritingGridControl::fromItem(this));
-            if(control != nullptr)
+            WritingGridControl* control = qobject_cast<WritingGridControl*>(WritingGridControl::fromItem(this));
+            if (control != nullptr)
                 control->sizeChanged();
             adjustControlItemPos();
             adjustInkCanvas();
             return true;
         }
 
-        if(mouseEvent->pos().y()>(inkItem->pos().y()-clickGap) && mouseEvent->pos().y()<(inkItem->pos().y()+clickGap*3)){
-            // 改变状态，改变笔迹
-            if(m_inkEraser){
-                inkItem->setPixmap(QPixmap(":/teachingtools/icon/icon_eraser_normal.png"));
-                ink->SetEditingMode(InkCanvasEditingMode::Ink);
-            }else{
-                inkItem->setPixmap(QPixmap(":/teachingtools/icon/icon_eraser_checked.png"));
-                ink->SetEditingMode(InkCanvasEditingMode::EraseByPoint);
-                ink->itemChange(QGraphicsItem::ItemTransformHasChanged, QVariant()); // for update cursor
-            }
-            m_inkEraser = !m_inkEraser;
+        if (mouseEvent->pos().y() > (inkItem->pos().y() - clickGap) && mouseEvent->pos().y() < (inkItem->pos().y() + clickGap * 3)) {
+            inkItem->setPixmap(QPixmap(":/teachingtools/icon/icon_ink_checked.png"));
+            inkEraseItem->setPixmap(QPixmap(":/teachingtools/icon/icon_eraser_normal.png"));
+            ink->SetEditingMode(InkCanvasEditingMode::Ink);
             return true;
         }
-
+        if (mouseEvent->pos().y() > (inkEraseItem->pos().y() - clickGap) && mouseEvent->pos().y() < (inkEraseItem->pos().y() + clickGap * 3)) {
+            inkEraseItem->setPixmap(QPixmap(":/teachingtools/icon/icon_eraser_checked.png"));
+            inkItem->setPixmap(QPixmap(":/teachingtools/icon/icon_ink_normal.png"));
+            ink->SetEditingMode(InkCanvasEditingMode::EraseByPoint);
+            ink->itemChange(QGraphicsItem::ItemTransformHasChanged, QVariant()); // for update cursor
+            return true;
+        }
     }
+
     if(watched == controlItem && event->type()==QEvent::GraphicsSceneResize){
         QGraphicsSceneResizeEvent *sceneResizeEvent = static_cast<QGraphicsSceneResizeEvent*>(event);
         newScaleSize = sceneResizeEvent->newSize();
@@ -320,16 +326,18 @@ void WritingGrid::adjustControlItemPos()
     if(gridCount_==1){
         // 只展示增加
         decItem->setVisible(false);
-        inkItem->setY(newScaleSize.height()*2/5-itemSize.height());
-        addItem->setY(newScaleSize.height()*3/5);
+        inkItem->setY(newScaleSize.height() * 1 / 4-itemSize.height()/2);
+        inkEraseItem->setY(newScaleSize.height() * 2 / 4 - itemSize.height()/2);
+        addItem->setY(newScaleSize.height() * 3 / 4- itemSize.height() / 2);
         return;
     }
 
-    inkItem->setY(newScaleSize.height()/4-itemSize.height()/2);
+    inkItem->setY(newScaleSize.height() / 5-itemSize.height()/2);
+    inkEraseItem->setY(newScaleSize.height() * 2 / 5 - itemSize.height() / 2);
     // 增加 减少都保留
-    addItem->setY(newScaleSize.height()/2-itemSize.height()/4);
+    addItem->setY(newScaleSize.height() * 3 / 5-itemSize.height()/2);
     decItem->setVisible(true);
-    decItem->setY(newScaleSize.height()*3/4-itemSize.height()/2);
+    decItem->setY(newScaleSize.height()* 4 / 5-itemSize.height()/2);
 }
 
 void WritingGrid::adjustInkCanvas()

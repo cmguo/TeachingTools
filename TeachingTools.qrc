@@ -34,5 +34,7 @@
         <file>icon/eraser.svg</file>
         <file>image/page1.png</file>
         <file>image/page2.png</file>
+        <file>icon/icon_ink_checked.png</file>
+        <file>icon/icon_ink_normal.png</file>
     </qresource>
 </RCC>
