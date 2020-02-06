@@ -39,8 +39,10 @@ void InkStrokeControl::setEditingMode(InkCanvasEditingMode mode)
     InkCanvas * ink = static_cast<InkCanvas*>(item_);
     ink->SetEditingMode(mode);
     item_->setAcceptHoverEvents(mode != InkCanvasEditingMode::None);
-    whiteCanvas()->enableSelector(mode == InkCanvasEditingMode::None);
     if (res_->flags() & ResourceView::Splittable) {
+#if !MIX_SELECT
+        whiteCanvas()->enableSelector(mode == InkCanvasEditingMode::None);
+#endif
         if (mode == InkCanvasEditingMode::EraseByPoint) {
             if (!whiteCanvas()->loading())
                 setupErasing();
@@ -124,7 +126,7 @@ void InkStrokeControl::resize(const QSizeF &size)
 
 Control::SelectMode InkStrokeControl::selectTest(QPointF const & pt)
 {
-    return InkStrokeHelper::selectTest(static_cast<InkCanvas*>(item_), pt, false);
+    return InkStrokeHelper::selectTest(static_cast<InkCanvas*>(item_), pt, false, true);
 }
 
 void InkStrokeControl::detaching()

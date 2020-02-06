@@ -113,7 +113,7 @@ InkCanvas *InkStrokeHelper::createInkCanvas(QColor color, qreal lineWidth, QSize
     return ink;
 }
 
-Control::SelectMode InkStrokeHelper::selectTest(InkCanvas *ink, const QPointF &pt, bool eatUnselect)
+Control::SelectMode InkStrokeHelper::selectTest(InkCanvas *ink, const QPointF &pt, bool eatUnselect, bool mixSelect)
 {
     if (ink->EditingMode() == InkCanvasEditingMode::None) {
 #if STROKE_SELECT
@@ -140,6 +140,10 @@ Control::SelectMode InkStrokeHelper::selectTest(InkCanvas *ink, const QPointF &p
         } else {
             return Control::NotSelect;
         }
+#if MIX_SELECT
+    } else if (mixSelect && ink->EditingMode() == InkCanvasEditingMode::Ink) {
+        return Control::PassSelect;
+#endif
     } else {
         return Control::NotSelect;
     }

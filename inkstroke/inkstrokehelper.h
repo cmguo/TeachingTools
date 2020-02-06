@@ -9,12 +9,14 @@ class InkCanvasStrokeCollectedEventArgs;
 
 #include <QColor>
 
+#define MIX_SELECT 1
+
 class InkStrokeHelper
 {
 public:
     static InkCanvas* createInkCanvas(QColor color = QColor("#FFF0F0F0"), qreal lineWidth = 4.0, QSizeF eraserSize = {60, 80});
 
-    static Control::SelectMode selectTest(InkCanvas* ink, QPointF const & pt, bool eatUnselect = true);
+    static Control::SelectMode selectTest(InkCanvas* ink, QPointF const & pt, bool eatUnselect = true, bool mixSelect = false);
 
     static QString toolString();
 
