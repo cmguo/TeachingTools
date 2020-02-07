@@ -1,36 +1,40 @@
 QWidget {
-        border-radius: 6px;
-        background:#F22B3034;
+    background:rgba(43,48,52,0.95);
+    border-radius:6px;
+    border:1px solid rgba(67,77,89,1);
 }
 
-QLabel#pTipLabel {
-	border-right: none;
-	border-left: none;
-	border-top: none;
-	border-bottom: 1px solid #cccccc;
-	min-width: 190px;
-	max-width: 190px;
-	min-height: 30px;
-	max-height: 30px;
-        background:transparent;
+QLabel {
+    border: none;
+    background:transparent;
+    width:96px;
+    height:21px;
+    font-size:16px;
+    font-family:MicrosoftYaHei;
+    color:rgba(207,207,207,1);
+    line-height:21px;
 }
 
 QSlider { 
-	border: none;
-        height: 40px;
-	width: 132px;
+    border: none;
+    width:132px;
+    height:40px;
+    background:rgba(42,46,48,1);
+    box-shadow:0px 0px 45px 1px rgba(0,0,0,0.57);
+    border-radius:23px;
 }
 
 QSlider::groove:horizontal {
-         height: 40px;
-         width: 132px;
-         background: #FF000000;
-         border-radius: 20px;
+     height: 40px;
+     width: 132px;
+     background: #FF000000;
+     border-radius: 20px;
 }
 
 QSlider::handle:horizontal {
-         width: 56px;
-         height: 36px;
-         border-radius: 20px;
-         border-image: url(":/teachingtools/icon/eraser.svg");
+     width: 60px;
+     height: 40px;
+     margin: 2px;
+     border-radius: 20px;
+     border-image: url(":/teachingtools/icon/eraser.svg");
 }

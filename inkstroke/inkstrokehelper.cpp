@@ -210,7 +210,9 @@ void InkStrokeHelper::getToolButtons(InkCanvas* ink, QList<ToolButton *> &button
 QWidget *InkStrokeHelper::createEraserWidget()
 {
     QWidget* pWidget = new QWidget(nullptr, Qt::FramelessWindowHint);
-    pWidget->setFixedSize(160, 125);
+    pWidget->setFixedSize(180, 125);
+    pWidget->setStyleSheet(ReadAllText(":/teachingtools/qss/inkeraser.qss"));
+
     QSlider* pSliter = new QSlider();
     pSliter->setOrientation(Qt::Horizontal);
     //设置滑动条控件的最小值
@@ -219,13 +221,10 @@ QWidget *InkStrokeHelper::createEraserWidget()
     pSliter->setMaximum(100);
 
     QLabel* pTextLabel = new QLabel;
-    QLabel* pTipLabel = new QLabel;
-    pTipLabel->setContentsMargins(20,0,0,0);
     pTextLabel->setText("滑动清空笔迹");
-    pTipLabel->setText("橡皮擦");
     pTextLabel->setAlignment(Qt::AlignCenter);
+
     QVBoxLayout* mainLayout = new QVBoxLayout(pWidget);
-    pWidget->setStyleSheet(ReadAllText(":/teachingtools/qss/inkeraser.qss"));
     mainLayout->setContentsMargins(0,0,0,10);
     mainLayout->addStretch();
     mainLayout->addWidget(pTextLabel);
@@ -238,7 +237,6 @@ QWidget *InkStrokeHelper::createEraserWidget()
     layout->addStretch();
     mainLayout->addLayout(layout);
     mainLayout->addStretch();
-   // mainLayout->addWidget(pTextLabel);
 
     QObject::connect(pSliter, &QSlider::sliderReleased, pWidget, [pWidget, pSliter] {
         if (pSliter->sliderPosition() == pSliter->maximum()) {
