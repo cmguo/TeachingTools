@@ -8,6 +8,7 @@ PageBoxPageItem::PageBoxPageItem(QGraphicsItem * parent)
     : QGraphicsPixmapItem(parent)
     , lifeToken_(nullptr)
 {
+    setShapeMode(QGraphicsPixmapItem::BoundingRectShape);
     setTransformationMode(Qt::SmoothTransformation);
     /*
     int N = 4;
