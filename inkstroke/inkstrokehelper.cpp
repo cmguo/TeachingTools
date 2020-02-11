@@ -142,7 +142,7 @@ Control::SelectMode InkStrokeHelper::selectTest(InkCanvas *ink, const QPointF &p
         }
 #if MIX_SELECT
     } else if (mixSelect && ink->EditingMode() == InkCanvasEditingMode::Ink) {
-        return Control::PassSelect;
+        return Control::PassSelect2;
 #endif
     } else {
         return Control::NotSelect;
