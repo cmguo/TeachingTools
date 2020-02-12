@@ -23,7 +23,7 @@ WritingGrid::WritingGrid(int h,WritingGridType type,QGraphicsItem * parent)
 {
     m_realLineColor = QColor(0xC3A4A4);
     m_dotLineColor = QColor(0xC3A4A4);
-    m_dotLineWidth = 1;
+    m_dotLineWidth = 2;
     m_realLineWidth = 3;
     adjustWidth();
     newScaleSize.setWidth(m_width);
@@ -100,7 +100,10 @@ void WritingGrid::paintTinWordFormat(QPainter *painter, const QStyleOptionGraphi
     }
     p.setColor(m_dotLineColor);
     p.setWidth(m_dotLineWidth);
-    p.setStyle(Qt::DashLine);
+    QVector<qreal> dashes;
+    qreal space = 4;
+    dashes << 7 << space << 7 << space;
+    p.setDashPattern(dashes);
     painter->setPen(p);
     painter->drawLine(rect.x(),rect.y()+rect.height()/2,rect.right(),rect.y()+rect.height()/2);
     for(int i = 0; i<gridCount_;i++){
@@ -120,13 +123,16 @@ void WritingGrid::paintFourLinesAndThreeGrids(QPainter *painter, const QStyleOpt
     p.setColor(m_realLineColor);
     painter->setPen(p);
     painter->drawLine(rect.x(),rect.y(),rect.right(),rect.y());
+    painter->drawLine(rect.x(), rect.bottom(), rect.right(), rect.bottom()); // 第1、4条线宽度相同
+    p.setWidth(1);
+    painter->setPen(p);
     painter->drawLine(rect.x(),rect.y()+rect.height()/3,rect.right(),rect.y()+rect.height()/3);
-    painter->drawLine(rect.x(),rect.bottom(),rect.right(),rect.bottom());
     if(getType()==WritingGridType::FourLinesAndThreeGrids){
-        p.setWidth(m_realLineWidth*2);
+        p.setWidth(m_realLineWidth);
         painter->setPen(p);
     }
     painter->drawLine(rect.x(),rect.y()+rect.height()*2/3,rect.right(),rect.y()+rect.height()*2/3);
+   
 
 }
 
@@ -139,8 +145,12 @@ void WritingGrid::paintPinYinTinGrids(QPainter *painter, const QStyleOptionGraph
     painter->setBrush(Qt::white);
     painter->drawRect(rect);
     // 绘制三条实线
+    p.setWidth(1);
+    painter->setPen(p);
     painter->drawLine(rect.x(),rect.y()+rect.height()*44.5/369.0f,rect.right(),rect.y()+rect.height()*44.5/369.0f);
     painter->drawLine(rect.x(),rect.y()+rect.height()*87.5/369.0f,rect.right(),rect.y()+rect.height()*87.5/369.0f);
+	p.setWidth(m_realLineWidth);
+	painter->setPen(p);
     painter->drawLine(rect.x(),rect.y()+rect.height()*130.5/369.0f,rect.right(),rect.y()+rect.height()*130.5/369.0f);
     // 绘制竖直实线
     for(int i = 1; i<gridCount_;i++){
@@ -148,7 +158,10 @@ void WritingGrid::paintPinYinTinGrids(QPainter *painter, const QStyleOptionGraph
     }
     p.setColor(m_dotLineColor);
     p.setWidth(m_dotLineWidth);
-    p.setStyle(Qt::DotLine);
+	QVector<qreal> dashes;
+	qreal space = 4;
+	dashes << 7 << space << 7 << space;
+	p.setDashPattern(dashes);
     painter->setPen(p);
     // 绘制虚线
     rect = rect.adjusted(0,m_height*132/369.0f,0,0);
