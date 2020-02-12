@@ -15,11 +15,12 @@
 WritingGridControl::WritingGridControl(ResourceView * res)
     : Control(res, {KeepAspectRatio}, {CanRotate})
 {
+    setMinSize({0, 232.1});
 }
 
 QGraphicsItem *WritingGridControl::create(ResourceView *res)
 {   QString path = res->url().path();
-    int type = res->url().path().split("/")[1].toInt(0);
+    int type = res->url().path().split("/")[1].toInt();
     QGraphicsItem *item =new WritingGrid(300,WritingGridType(type));
     return item;
 }

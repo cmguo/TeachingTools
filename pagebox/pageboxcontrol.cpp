@@ -21,6 +21,7 @@ PageBoxControl::PageBoxControl(ResourceView * res, Flags flags, Flags clearFlags
     : Control(res, flags | KeepAspectRatio, clearFlags)
     , bottomTransform_(nullptr)
 {
+    setMinSize({400.24, 0});
 }
 
 QGraphicsItem* PageBoxControl::create(ResourceView *res)
