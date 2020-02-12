@@ -323,21 +323,10 @@ void WritingGrid::adjustWidth(){
 void WritingGrid::adjustControlItemPos()
 {
     controlItem->setRect(0,0,controlItemSize.width(),newScaleSize.height());
-    if(gridCount_==1){
-        // 只展示增加
-        decItem->setVisible(false);
-        inkItem->setY(newScaleSize.height() * 1 / 4-itemSize.height()/2);
-        inkEraseItem->setY(newScaleSize.height() * 2 / 4 - itemSize.height()/2);
-        addItem->setY(newScaleSize.height() * 3 / 4- itemSize.height() / 2);
-        return;
-    }
-
-    inkItem->setY(newScaleSize.height() / 5-itemSize.height()/2);
-    inkEraseItem->setY(newScaleSize.height() * 2 / 5 - itemSize.height() / 2);
-    // 增加 减少都保留
-    addItem->setY(newScaleSize.height() * 3 / 5-itemSize.height()/2);
-    decItem->setVisible(true);
-    decItem->setY(newScaleSize.height()* 4 / 5-itemSize.height()/2);
+    inkEraseItem->setY(newScaleSize.height()/ 4);
+    addItem->setY(newScaleSize.height() *3/ 4-itemSize.height());
+    decItem->setVisible(gridCount_ != 1);
+    decItem->setY(newScaleSize.height()-itemSize.height());
 }
 
 void WritingGrid::adjustInkCanvas()
