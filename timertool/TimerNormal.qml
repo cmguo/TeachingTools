@@ -156,6 +156,10 @@ Rectangle{
                     font.bold: true
                     font.family: String.font
                 }
+				 Text {
+                    height: parent.height
+					width: Destiny.dp(4)
+                }
                 Text {
                     height: parent.height
                     font.pixelSize: Destiny.dp(120)
