@@ -21,14 +21,8 @@
         <file>icon/icon_eraser_checked.png</file>
         <file>icon/icon_eraser_normal.png</file>
         <file>icon/icon_drag.png</file>
-        <file>icon/arrow_left.png</file>
-        <file>icon/arrow_right.png</file>
         <file>icon/double_page.png</file>
         <file>icon/single_page.png</file>
-        <file>icon/zoom_in.png</file>
-        <file>icon/zoom_out.png</file>
-        <file>icon/brush.png</file>
-        <file>icon/eraser2.png</file>
         <file>timertool/timer_bg_1.png</file>
         <file>timertool/timer_bg_2.png</file>
         <file>icon/eraser.svg</file>
@@ -36,5 +30,12 @@
         <file>image/page2.png</file>
         <file>icon/icon_ink_checked.png</file>
         <file>icon/icon_ink_normal.png</file>
+        <file>qss/pageboxtoolbar.qss</file>
+        <file>qss/pageboxpopbar.qss</file>
+        <file>icon/arrow_left.svg</file>
+        <file>icon/arrow_right.svg</file>
+        <file>icon/brush.svg</file>
+        <file>icon/zoom_in.svg</file>
+        <file>icon/zoom_out.svg</file>
     </qresource>
 </RCC>

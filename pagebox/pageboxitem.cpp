@@ -21,8 +21,8 @@ static constexpr char const * toolsStr =
         "duplex()|双页|Checkable,UnionUpdate|:/teachingtools/icon/double_page.png;"
         "single()|单页|Checkable,UnionUpdate|:/teachingtools/icon/single_page.png;"
         ";"
-        "scaleUp()||UnionUpdate|:/teachingtools/icon/zoom_in.png;"
-        "scaleDown()||UnionUpdate|:/teachingtools/icon/zoom_out.png;"
+        "scaleUp()||UnionUpdate|:/teachingtools/icon/zoom_in.svg,default;"
+        "scaleDown()||UnionUpdate|:/teachingtools/icon/zoom_out.svg,default;"
         "pages||;";
 
 PageBoxItem::PageBoxItem(QGraphicsItem * parent)

@@ -1,0 +1,32 @@
+QPushButton,.QLabel {
+    color:white;
+    background-color:#00000000;
+    border:none;
+    font-size:16pt;
+    font-family:'Microsoft YaHei';
+    spacing:30px; /* [large] */
+}
+
+QPushButton {
+    qproperty-iconSize:32px 32px;
+    padding:2px;
+    border-radius:8px;
+}
+
+QPushButton:checked {
+    background-color:#008FFF;
+}
+
+QPushButton:pressed {
+    background-color:#1C61B0;
+}
+
+QPushButton:unchecked:hover {
+    background-color:#464A4E;
+}
+
+#pageboxtoolbar {
+    background-color:#80000000;
+    border-radius:6px;
+}
+

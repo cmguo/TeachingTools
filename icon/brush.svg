@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="26px" height="27px" viewBox="0 0 26 27" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 62 (91390) - https://sketch.com -->
+    <title>icon/brush_hover</title>
+    <desc>Created with Sketch.</desc>
+    <g id="最小尺寸" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="1024备份" transform="translate(-398.000000, -99.000000)">
+            <g id="icon/brush_hover" transform="translate(392.000000, 94.000000)">
+                <rect id="矩形" fill-opacity="0" fill="#008FFF" x="0" y="0" width="36" height="36"></rect>
+                <g id="icon/32px/brush" transform="translate(2.000000, 2.000000)" fill="#FFFFFF">
+                    <path d="M30,24 L30,29 C30,29.5128358 29.6139598,29.9355072 29.1166211,29.9932723 L29,30 L24,30 L30,24 Z M6.37067327,21.7687616 L10.613314,26.0114023 L6.14671952,27.5002671 C5.6227762,27.6749149 5.05645623,27.3917549 4.88180846,26.8678116 C4.81338619,26.6625447 4.81338619,26.4406228 4.88180846,26.235356 L6.37067327,21.7687616 Z M24.7554496,3.38398527 L28.9980903,7.62662596 L12.0275275,24.5971887 L7.78488683,20.354548 L24.7554496,3.38398527 Z" id="形状"></path>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

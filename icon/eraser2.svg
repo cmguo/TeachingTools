@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="27px" height="27px" viewBox="0 0 27 27" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 62 (91390) - https://sketch.com -->
+    <title>icon/eraser_hover</title>
+    <desc>Created with Sketch.</desc>
+    <g id="最小尺寸" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="1024备份" transform="translate(-449.000000, -99.000000)">
+            <g id="icon/eraser_hover" transform="translate(444.000000, 94.000000)">
+                <rect id="矩形" fill-opacity="0" fill="#008FFF" x="0" y="0" width="36" height="36"></rect>
+                <g id="icon/32px/eraser" transform="translate(2.000000, 2.000000)" fill="#FFFFFF">
+                    <path d="M30,24.0180512 L30,29.0030085 C30,29.5143015 29.6146156,29.9357012 29.1181217,29.9932925 L29.0016986,30 L24.0101919,30 L30,24.0180512 Z M20.1130172,3 L28.583885,11.4597531 L12.348055,27.67428 C11.1784722,28.8423282 9.28220381,28.8423282 8.11262102,27.67428 L3.87718709,23.4444034 C2.7076043,22.2763553 2.7076043,20.382575 3.87718709,19.2145269 L20.1130172,3 Z M8.11262102,17.804568 L5.2889984,20.6244857 C4.89913747,21.0138351 4.89913747,21.6450952 5.2889984,22.0344446 L9.52443233,26.2643211 C9.91429326,26.6536705 10.5463827,26.6536705 10.9362436,26.2643211 L13.7598663,23.4444034 L8.11262102,17.804568 Z" id="形状"></path>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>
