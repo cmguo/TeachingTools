@@ -37,5 +37,6 @@
         <file>icon/brush.svg</file>
         <file>icon/zoom_in.svg</file>
         <file>icon/zoom_out.svg</file>
+        <file>icon/eraser2.svg</file>
     </qresource>
 </RCC>

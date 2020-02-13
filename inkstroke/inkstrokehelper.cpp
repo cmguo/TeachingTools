@@ -26,7 +26,7 @@
 
 static constexpr char const * toolsStr =
         "stroke()||Checkable,UnionUpdate|:/teachingtools/icon/brush.svg,default;"
-        "eraser()||Checkable,UnionUpdate|:/teachingtools/icon/eraser.svg,default;";
+        "eraser()||Checkable,UnionUpdate|:/teachingtools/icon/eraser2.svg,default;";
 
 
 static QString ReadAllText( const QString &path )
