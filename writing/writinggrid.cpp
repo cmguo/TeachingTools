@@ -24,7 +24,7 @@ WritingGrid::WritingGrid(int h,WritingGridType type,QGraphicsItem * parent)
     m_realLineColor = QColor(0xC3A4A4);
     m_dotLineColor = QColor(0xC3A4A4);
     m_dotLineWidth = 2;
-    m_realLineWidth = 3;
+    m_realLineWidth = 2;
     adjustWidth();
     newScaleSize.setWidth(m_width);
     newScaleSize.setHeight(m_height);
@@ -145,7 +145,7 @@ void WritingGrid::paintPinYinTinGrids(QPainter *painter, const QStyleOptionGraph
     painter->setBrush(Qt::white);
     painter->drawRect(rect);
     // 绘制三条实线
-    p.setWidth(1);
+    p.setWidth(m_realLineWidth);
     painter->setPen(p);
     painter->drawLine(rect.x(),rect.y()+rect.height()*44.5/369.0f,rect.right(),rect.y()+rect.height()*44.5/369.0f);
     painter->drawLine(rect.x(),rect.y()+rect.height()*87.5/369.0f,rect.right(),rect.y()+rect.height()*87.5/369.0f);
@@ -319,16 +319,19 @@ void WritingGrid::decGrid(){
 }
 
 void WritingGrid::adjustWidth(){
+    m_width = m_height;
     switch (type_) {
     case WritingGridType::TinWordFormat:
-        m_width = m_height * tinWidthHeihtRatio;
+        m_height = m_width /tinWidthHeihtRatio;
         break;
     case WritingGridType::FourLinesAndThreeGrids:
     case WritingGridType::PinYin:
-        m_width = m_height * fourLineThreeGridsWidthHeihtRatio;
+        m_width = m_width * 1.5;
+        m_height = m_width / fourLineThreeGridsWidthHeihtRatio;
+
         break;
     case WritingGridType::PinYinTinGrids:
-        m_width = m_height * pinYinTinWidthHeightRatio;
+        m_height = m_width /  pinYinTinWidthHeightRatio;
         break;
     }
 }
