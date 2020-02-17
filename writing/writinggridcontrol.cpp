@@ -13,7 +13,11 @@
 #include <Windows/Controls/inkcanvas.h>
 
 WritingGridControl::WritingGridControl(ResourceView * res)
+#ifdef QT_DEBUG
+    : Control(res, {KeepAspectRatio}, {})
+#else
     : Control(res, {KeepAspectRatio}, {CanRotate})
+#endif
 {
     setMinSize({0, 232.1});
 }
