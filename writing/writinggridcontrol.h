@@ -30,6 +30,8 @@ protected:
     virtual void attached() override;
 
     virtual void afterClone(Control * control) override;
+private:
+    float m_adapterRatio = 1.0f;
 };
 
 #endif // WRITINGGRIDCONTROL_H

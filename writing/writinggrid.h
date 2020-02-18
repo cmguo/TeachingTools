@@ -93,8 +93,9 @@ private:
     float pinYinTinWidthHeightRatio = 240.0f/369.0f;
     QSizeF newScaleSize;
     QSizeF controlItemSize=QSizeF(72,72);
-    QSizeF itemSize=QSizeF(40,40);
+    QSize itemSize=QSize(40,40);
     InkCanvas * ink ;
+    float m_adapterRatio = 1.0f;
 
 };
 

@@ -23,7 +23,7 @@ WritingGrid::WritingGrid(int h,WritingGridType type,QGraphicsItem * parent)
 {
     m_realLineColor = QColor(0xC3A4A4);
     m_dotLineColor = QColor(0xC3A4A4);
-    m_dotLineWidth = 2;
+    m_dotLineWidth = 1;
     m_realLineWidth = 2;
     adjustWidth();
     newScaleSize.setWidth(m_width);
@@ -34,25 +34,22 @@ WritingGrid::WritingGrid(int h,WritingGridType type,QGraphicsItem * parent)
     controlItem->setBrush(QBrush(Qt::transparent));
     controlItem->setPen(Qt::NoPen);
     addItem = new QGraphicsPixmapItem(controlItem);
-    addItem->setPixmap(QPixmap(":/teachingtools/icon/icon_plus.png"));
+    addItem->setPixmap(QPixmap(":/teachingtools/icon/icon_plus.png").scaled(itemSize, Qt::KeepAspectRatio, Qt::SmoothTransformation));
     addItem->setAcceptedMouseButtons(Qt::LeftButton);
     decItem = new QGraphicsPixmapItem(controlItem);
-    decItem->setPixmap(QPixmap(":/teachingtools/icon/icon_minus.png"));
+    decItem->setPixmap(QPixmap(":/teachingtools/icon/icon_minus.png").scaled(itemSize, Qt::KeepAspectRatio, Qt::SmoothTransformation));
     decItem->setAcceptedMouseButtons(Qt::LeftButton);
     addItem->setX((controlItemSize.width()-itemSize.width())/2);
     decItem->setX((controlItemSize.width()-itemSize.width())/2);
-
     inkItem = new QGraphicsPixmapItem(controlItem);
-    inkItem->setPixmap(QPixmap(":/teachingtools/icon/icon_ink_checked.png"));
+    inkItem->setPixmap(QPixmap(":/teachingtools/icon/icon_ink_checked.png").scaled(itemSize, Qt::KeepAspectRatio, Qt::SmoothTransformation));
     inkItem->setAcceptedMouseButtons(Qt::LeftButton);
     inkItem->setX((controlItemSize.width()-itemSize.width())/2);
 
     inkEraseItem = new QGraphicsPixmapItem(controlItem);
-    inkEraseItem->setPixmap(QPixmap(":/teachingtools/icon/icon_eraser_normal.png"));
+    inkEraseItem->setPixmap(QPixmap(":/teachingtools/icon/icon_eraser_normal.png").scaled(itemSize, Qt::KeepAspectRatio, Qt::SmoothTransformation));
     inkEraseItem->setAcceptedMouseButtons(Qt::LeftButton);
     inkEraseItem->setX((controlItemSize.width() - itemSize.width()) / 2);
-
-
     adjustControlItemPos();
     ink = InkStrokeHelper::createInkCanvas(Qt::black, 8, {30, 40});
     ink->SetLimitInputPosition(true);
@@ -101,8 +98,8 @@ void WritingGrid::paintTinWordFormat(QPainter *painter, const QStyleOptionGraphi
     p.setColor(m_dotLineColor);
     p.setWidth(m_dotLineWidth);
     QVector<qreal> dashes;
-    qreal space = 4;
-    dashes << 7 << space << 7 << space;
+    qreal space = 10;
+    dashes << 10 << space << 10 << space;
     p.setDashPattern(dashes);
     painter->setPen(p);
     painter->drawLine(rect.x(),rect.y()+rect.height()/2,rect.right(),rect.y()+rect.height()/2);
@@ -159,8 +156,8 @@ void WritingGrid::paintPinYinTinGrids(QPainter *painter, const QStyleOptionGraph
     p.setColor(m_dotLineColor);
     p.setWidth(m_dotLineWidth);
 	QVector<qreal> dashes;
-	qreal space = 4;
-	dashes << 7 << space << 7 << space;
+	qreal space = 10;
+	dashes << 10 << space << 10 << space;
 	p.setDashPattern(dashes);
     painter->setPen(p);
     // 绘制虚线
@@ -197,14 +194,14 @@ bool WritingGrid::sceneEventFilter(QGraphicsItem* watched, QEvent* event)
         }
 
         if (mouseEvent->pos().y() > (inkItem->pos().y() - clickGap) && mouseEvent->pos().y() < (inkItem->pos().y() + clickGap * 3)) {
-            inkItem->setPixmap(QPixmap(":/teachingtools/icon/icon_ink_checked.png"));
-            inkEraseItem->setPixmap(QPixmap(":/teachingtools/icon/icon_eraser_normal.png"));
+            inkItem->setPixmap(QPixmap(":/teachingtools/icon/icon_ink_checked.png").scaled(itemSize, Qt::KeepAspectRatio, Qt::SmoothTransformation));
+            inkEraseItem->setPixmap(QPixmap(":/teachingtools/icon/icon_eraser_normal.png").scaled(itemSize, Qt::KeepAspectRatio, Qt::SmoothTransformation));
             ink->SetEditingMode(InkCanvasEditingMode::Ink);
             return true;
         }
         if (mouseEvent->pos().y() > (inkEraseItem->pos().y() - clickGap) && mouseEvent->pos().y() < (inkEraseItem->pos().y() + clickGap * 3)) {
-            inkEraseItem->setPixmap(QPixmap(":/teachingtools/icon/icon_eraser_checked.png"));
-            inkItem->setPixmap(QPixmap(":/teachingtools/icon/icon_ink_normal.png"));
+            inkEraseItem->setPixmap(QPixmap(":/teachingtools/icon/icon_eraser_checked.png").scaled(itemSize, Qt::KeepAspectRatio, Qt::SmoothTransformation));
+            inkItem->setPixmap(QPixmap(":/teachingtools/icon/icon_ink_normal.png").scaled(itemSize, Qt::KeepAspectRatio, Qt::SmoothTransformation));
             ink->SetEditingMode(InkCanvasEditingMode::EraseByPoint);
             ink->itemChange(QGraphicsItem::ItemTransformHasChanged, QVariant()); // for update cursor
             return true;
@@ -323,26 +320,31 @@ void WritingGrid::adjustWidth(){
     switch (type_) {
     case WritingGridType::TinWordFormat:
         m_height = m_width /tinWidthHeihtRatio;
+        m_adapterRatio = m_width / 300.0f;
         break;
     case WritingGridType::FourLinesAndThreeGrids:
     case WritingGridType::PinYin:
-        m_width = m_width * 1.5;
-        m_height = m_width / fourLineThreeGridsWidthHeihtRatio;
-
+        m_width = m_height * fourLineThreeGridsWidthHeihtRatio;
+        m_adapterRatio = m_height / 300.0f;
         break;
     case WritingGridType::PinYinTinGrids:
         m_height = m_width /  pinYinTinWidthHeightRatio;
+        m_adapterRatio = m_width / 300.0f;
         break;
     }
+    controlItemSize.setWidth(controlItemSize.width() * m_adapterRatio);
+    controlItemSize.setHeight(controlItemSize.height() * m_adapterRatio);
+	itemSize.setWidth(itemSize.width() * m_adapterRatio);
+    itemSize.setHeight(itemSize.height() * m_adapterRatio);
 }
 
 void WritingGrid::adjustControlItemPos()
 {
     controlItem->setRect(0,0,controlItemSize.width(),newScaleSize.height());
-    inkEraseItem->setY(newScaleSize.height()/ 4);
-    addItem->setY(newScaleSize.height() *3/ 4-itemSize.height());
+    inkEraseItem->setY(55*m_adapterRatio);
+    addItem->setY(125 * m_adapterRatio);
     decItem->setVisible(gridCount_ != 1);
-    decItem->setY(newScaleSize.height()-itemSize.height());
+    decItem->setY(180 * m_adapterRatio);
 }
 
 void WritingGrid::adjustInkCanvas()

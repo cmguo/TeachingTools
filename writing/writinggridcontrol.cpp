@@ -11,6 +11,8 @@
 #include <QGraphicsProxyWidget>
 #include <QUrl>
 #include <Windows/Controls/inkcanvas.h>
+#include <QGuiApplication>
+#include <QScreen>
 
 WritingGridControl::WritingGridControl(ResourceView * res)
 #ifdef QT_DEBUG
@@ -19,13 +21,15 @@ WritingGridControl::WritingGridControl(ResourceView * res)
     : Control(res, {KeepAspectRatio}, {CanRotate})
 #endif
 {
-    setMinSize({0, 232.1});
+    int screen_height = QGuiApplication::primaryScreen()-> availableGeometry().height();
+	m_adapterRatio = screen_height / 1080.0f;
+    setMinSize({0, 232});
 }
 
 QGraphicsItem *WritingGridControl::create(ResourceView *res)
 {   QString path = res->url().path();
     int type = res->url().path().split("/")[1].toInt();
-    QGraphicsItem *item =new WritingGrid(300,WritingGridType(type));
+    QGraphicsItem *item =new WritingGrid(300 * m_adapterRatio,WritingGridType(type));
     return item;
 }
 
@@ -37,14 +41,14 @@ void WritingGridControl::attaching()
     QGraphicsRectItem *topItem =  new QGraphicsRectItem();
     topItem->setBrush(QBrush(Qt::transparent));
     topItem->setPen(Qt::NoPen);
-    topItem->setRect(0,0,frame->boundingRect().width(),40);
-    QSize pixItemSize = QSize(40,40);
-    QGraphicsPixmapItem* pixItem = new QGraphicsPixmapItem(QPixmap(":/teachingtools/icon/icon_drag.png"),topItem);
+    topItem->setRect(0,0,frame->boundingRect().width(),40 * m_adapterRatio);
+    QSize pixItemSize = QSize(40 * m_adapterRatio,40 * m_adapterRatio);
+    QGraphicsPixmapItem* pixItem = new QGraphicsPixmapItem(QPixmap(":/teachingtools/icon/icon_drag.png").scaled(pixItemSize, Qt::KeepAspectRatio, Qt::SmoothTransformation),topItem);
     pixItem->setX(topItem->boundingRect().width()/2-pixItemSize.width()/2);
     pixItem->setY(topItem->boundingRect().height()/2-pixItemSize.height()/2);
     frame->addDockItem(ItemFrame::Top, topItem);
-    frame->addDockItem(ItemFrame::Left, 72);
-    frame->addDockItem(ItemFrame::Buttom, 16);
+    frame->addDockItem(ItemFrame::Left, 72 * m_adapterRatio);
+    frame->addDockItem(ItemFrame::Buttom, 16 * m_adapterRatio);
     QGraphicsItem *item = static_cast<WritingGrid*>(item_)->createControlBar();
     frame->addDockItem(ItemFrame::Right,item);
 }
