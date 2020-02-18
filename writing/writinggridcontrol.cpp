@@ -54,6 +54,13 @@ void WritingGridControl::attached()
     loadFinished(true);
 }
 
+void WritingGridControl::afterClone(Control * control)
+{
+    QSharedPointer<StrokeCollection> strokes(new StrokeCollection);
+    qobject_cast<WritingGridControl*>(control)->item_
+            ->toGraphicsObject()->setProperty("strokes", QVariant::fromValue(strokes));
+}
+
 void WritingGridControl::changeGridType()
 {
     WritingGrid *item = static_cast<WritingGrid*>(item_);

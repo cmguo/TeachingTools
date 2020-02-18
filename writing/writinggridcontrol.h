@@ -28,6 +28,8 @@ protected:
     virtual void attaching() override;
 
     virtual void attached() override;
+
+    virtual void afterClone(Control * control) override;
 };
 
 #endif // WRITINGGRIDCONTROL_H

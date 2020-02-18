@@ -20,7 +20,7 @@ class TEACHINGTOOLS_EXPORT WritingGrid : public QGraphicsObject
 {
     Q_OBJECT
 
-  //  Q_PROPERTY(QSharedPointer<StrokeCollection> strokes READ strokes WRITE setStrokes)
+    Q_PROPERTY(QSharedPointer<StrokeCollection> strokes READ strokes WRITE setStrokes)
     Q_PROPERTY(int gridCount READ gridCount WRITE setGridCount)
 
 public:
