@@ -222,6 +222,9 @@ QVariant WritingGrid::itemChange(QGraphicsItem::GraphicsItemChange change, const
     switch (change) {
     case ItemVisibleHasChanged:
         controlItem->installSceneEventFilter(this);
+        WritingGridControl* control = qobject_cast<WritingGridControl*>(WritingGridControl::fromItem(this));
+		if (control != nullptr)
+			control->sizeChanged();
         break;
     }
     return value;
@@ -341,10 +344,10 @@ void WritingGrid::adjustWidth(){
 void WritingGrid::adjustControlItemPos()
 {
     controlItem->setRect(0,0,controlItemSize.width(),newScaleSize.height());
-    inkEraseItem->setY(55*m_adapterRatio);
-    addItem->setY(125 * m_adapterRatio);
-    decItem->setVisible(gridCount_ != 1);
-    decItem->setY(180 * m_adapterRatio);
+	inkEraseItem->setY(newScaleSize.height() / 4);
+	addItem->setY(newScaleSize.height() * 3 / 4 - itemSize.height());
+	decItem->setVisible(gridCount_ != 1);
+	decItem->setY(newScaleSize.height() - itemSize.height());
 }
 
 void WritingGrid::adjustInkCanvas()
