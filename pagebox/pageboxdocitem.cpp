@@ -19,6 +19,12 @@
 
 #include <cmath>
 
+#ifndef QT_DEBUG
+#define DUPLEX_FIX_SIZE 1
+#else
+#define DUPLEX_FIX_SIZE 0
+#endif
+
 PageBoxDocItem::PageBoxDocItem(QGraphicsItem * parent)
     : QGraphicsRectItem(parent)
     , model_(nullptr)
@@ -264,6 +270,9 @@ void PageBoxDocItem::relayout()
                 itemBindings_->bind(QVariant::fromValue(pageItem2), item2);
             }
         } else {
+#if DUPLEX_FIX_SIZE
+            pageSize2_ += QSizeF(off.x(), off.y());
+#endif
             pageItem2->setVisible(false);
         }
     } else {
@@ -447,19 +456,26 @@ void PageBoxDocItem::goToPage(int page)
             off.setWidth(pageSize_.width() + padding_);
         }
         itemBindings_->bind(QVariant::fromValue(pageItem1), item1);
+#if DUPLEX_FIX_SIZE
+        QSizeF size = pageSize2_;
+#else
+        QSizeF& size = pageSize2_;
+#endif
         if (curPage_ == 0) {
             pageItem2->setVisible(false);
-            pageSize2_ -= off;
+            size -= off;
         } else {
             if ((curPage_ & 1) == 0) {
                 QVariant item2 = model_->data(model_->index(curPage_, 0), Qt::UserRole + 1);
                 itemBindings_->bind(QVariant::fromValue(pageItem2), item2);
             }
             pageItem2->setVisible(true);
+#if !DUPLEX_FIX_SIZE
             if (lastPage == 0)
-                pageSize2_ += off;
+                size += off;
+#endif
         }
-        setRect(QRectF(QPointF(0, 0), pageSize2_));
+        setRect(QRectF(QPointF(0, 0), size));
         onSizeChanged(pageSize2_);
         rescale();
     } else {
