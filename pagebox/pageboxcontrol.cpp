@@ -21,7 +21,7 @@ PageBoxControl::PageBoxControl(ResourceView * res, Flags flags, Flags clearFlags
     : Control(res, flags | KeepAspectRatio, clearFlags)
     , bottomTransform_(nullptr)
 {
-    setMinSize({400.24, 0});
+    setMinSize({450.24, 0});
 }
 
 QGraphicsItem* PageBoxControl::create(ResourceView *res)
@@ -91,7 +91,7 @@ void PageBoxControl::attached()
         } else {
             item->setSizeMode((flags_ & FullLayout) ? PageBoxItem::FixedSize : PageBoxItem::MatchContent);
             ControlTransform * ct1 = new ControlTransform(static_cast<ControlTransform*>(transform_), true, false, false);
-            QPointF pos(0, item->boundingRect().bottom() - 30);
+            QPointF pos(0, item->boundingRect().bottom() - 46);
             StaticTransform* ct2 = new StaticTransform(QTransform::fromTranslate(pos.x(), pos.y()), transform_);
             item->toolBar()->setTransformations({ct2, ct1});
             bottomTransform_ = ct2;
