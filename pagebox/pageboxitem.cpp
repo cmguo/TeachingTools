@@ -18,8 +18,8 @@
 
 static constexpr char const * toolsStr =
         "-full|全屏|NeedUpdate|:/teachingtools/icon/enter_full.svg;"
-        "duplex()|双页|Checkable,UnionUpdate|:/teachingtools/icon/double_page.png;"
-        "single()|单页|Checkable,UnionUpdate|:/teachingtools/icon/single_page.png;"
+        "duplex()|双页|Checkable,UnionUpdate|:/teachingtools/icon/double_page.svg;"
+        "single()|单页|Checkable,UnionUpdate|:/teachingtools/icon/single_page.svg;"
         ";"
         "scaleUp()||UnionUpdate|:/teachingtools/icon/zoom_in.svg,default;"
         "scaleDown()||UnionUpdate|:/teachingtools/icon/zoom_out.svg,default;"

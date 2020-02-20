@@ -21,8 +21,6 @@
         <file>icon/icon_eraser_checked.png</file>
         <file>icon/icon_eraser_normal.png</file>
         <file>icon/icon_drag.png</file>
-        <file>icon/double_page.png</file>
-        <file>icon/single_page.png</file>
         <file>timertool/timer_bg_1.png</file>
         <file>timertool/timer_bg_2.png</file>
         <file>icon/eraser.svg</file>
@@ -38,5 +36,7 @@
         <file>icon/zoom_in.svg</file>
         <file>icon/zoom_out.svg</file>
         <file>icon/eraser2.svg</file>
+        <file>icon/double_page.svg</file>
+        <file>icon/single_page.svg</file>
     </qresource>
 </RCC>

@@ -51,7 +51,7 @@ WritingGrid::WritingGrid(int h,WritingGridType type,QGraphicsItem * parent)
     inkEraseItem->setAcceptedMouseButtons(Qt::LeftButton);
     inkEraseItem->setX((controlItemSize.width() - itemSize.width()) / 2);
     adjustControlItemPos();
-    ink = InkStrokeHelper::createInkCanvas(Qt::black, 8, {30, 40});
+    ink = InkStrokeHelper::createInkCanvas(Qt::black, 8, {24, 40});
     ink->SetLimitInputPosition(true);
     ink->SetEditingMode(InkCanvasEditingMode::Ink);
     //QGraphicsProxyWidget * proxy = new QGraphicsProxyWidget(this);
