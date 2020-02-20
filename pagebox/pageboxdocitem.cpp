@@ -19,7 +19,7 @@
 
 #include <cmath>
 
-#ifndef QT_DEBUG
+#ifdef QT_DEBUG
 #define DUPLEX_FIX_SIZE 1
 #else
 #define DUPLEX_FIX_SIZE 0
