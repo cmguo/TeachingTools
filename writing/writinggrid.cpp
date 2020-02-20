@@ -141,14 +141,13 @@ void WritingGrid::paintPinYinTinGrids(QPainter *painter, const QStyleOptionGraph
     QRectF rect = boundingRect().adjusted(padding,padding,-padding,-padding);
     painter->setBrush(Qt::white);
     painter->drawRect(rect);
-    // 绘制三条实线
-    p.setWidth(m_realLineWidth);
+    p.setWidth(1);
     painter->setPen(p);
     painter->drawLine(rect.x(),rect.y()+rect.height()*44.5/369.0f,rect.right(),rect.y()+rect.height()*44.5/369.0f);
     painter->drawLine(rect.x(),rect.y()+rect.height()*87.5/369.0f,rect.right(),rect.y()+rect.height()*87.5/369.0f);
 	p.setWidth(m_realLineWidth);
 	painter->setPen(p);
-    painter->drawLine(rect.x(),rect.y()+rect.height()*130.5/369.0f,rect.right(),rect.y()+rect.height()*130.5/369.0f);
+    painter->drawLine(rect.x(), rect.y() + rect.height() * 130.5 / 369.0f, rect.right(), rect.y() + rect.height() * 130.5 / 369.0f);
     // 绘制竖直实线
     for(int i = 1; i<gridCount_;i++){
         painter->drawLine(rect.x()+m_width*i,rect.y(),rect.x()+m_width*i,rect.bottom());
