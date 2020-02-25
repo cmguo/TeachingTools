@@ -20,8 +20,10 @@
 
 #ifndef QT_DEBUG
 #define STROKE_SELECT 0
+#define TOUCH_ENABLE 0
 #else
 #define STROKE_SELECT 1
+#define TOUCH_ENABLE 1
 #endif
 
 static constexpr char const * toolsStr =
@@ -101,6 +103,7 @@ InkCanvas *InkStrokeHelper::createInkCanvas(QColor color, qreal lineWidth, QSize
     InkCanvas * ink = new InkCanvas;
     //ink->setStyleSheet("background-color:red;");
     //ink->DefaultDrawingAttributes()->SetStylusTip(StylusTip::Rectangle);
+    ink->setAcceptTouchEvents(TOUCH_ENABLE);
     ink->DefaultDrawingAttributes()->SetFitToCurve(true);
     ink->DefaultDrawingAttributes()->SetColor(color);
     ink->DefaultDrawingAttributes()->SetWidth(lineWidth);

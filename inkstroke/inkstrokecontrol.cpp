@@ -75,6 +75,8 @@ QGraphicsItem * InkStrokeControl::create(ResourceView *res)
 {
     (void) res;
     InkCanvas * ink = InkStrokeHelper::createInkCanvas();
+    if (!ink->acceptTouchEvents())
+        flags_.setFlag(Touchable, false);
     ink->DefaultDrawingAttributes()->SetColor(Qt::white);
     return ink;
 }
