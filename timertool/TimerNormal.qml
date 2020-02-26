@@ -14,8 +14,7 @@ Rectangle{
     Rectangle{
         id:topRect
         width: parent.width
-        border.width: Destiny.dp(1)
-        border.color: "white"
+        radius: Destiny.dp(8)
 
         gradient: Gradient {
             GradientStop{ position: 0.0; color: "#F9F9F9";}

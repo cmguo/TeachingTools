@@ -11,11 +11,7 @@ TalShapeLayout {
     height: Destiny.dp(508)
     visible: true
     color: "#00000000"
-    shapeItem: Rectangle {
-        anchors.fill: privateRoot
-        radius: Destiny.dp(8)
-        smooth: true
-    }
+    radius: Destiny.dp(8)
     property var  timeRunningView: undefined
     signal timerClose()
     signal entryMinizeTimeState()
@@ -26,7 +22,6 @@ TalShapeLayout {
         width: parent.width
         height: parent.height
         clip: true
-        radius: Destiny.dp(8);
         onRuningClick:{
             timeRunningView = Qt.createComponent("TimerRuning.qml").createObject(rootItem,
                                                                                 {
