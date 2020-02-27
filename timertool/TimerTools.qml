@@ -33,8 +33,9 @@ TalShapeLayout {
             timeRunningView.entryMinizeTimeState.connect(rootItem.entryMinizeTimeState)
         }
         function timeRuningViewClose(){
-            timeRunningView.destroy();
+            timeRunningView.visible = false;
             normal.visible = true;
+            timeRunningView = undefined;
         }
         onCloseBtnClick:{
             rootItem.timerClose()
