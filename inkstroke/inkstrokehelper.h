@@ -25,7 +25,9 @@ public:
     static void getToolButtons(InkCanvas* ink, QList<ToolButton *> & buttons,
                                 ToolButton * parent);
 
-private:
+public:
+    static QWidget * createPenWidget();
+
     static QWidget * createEraserWidget();
 };
 

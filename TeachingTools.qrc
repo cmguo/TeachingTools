@@ -38,5 +38,8 @@
         <file>icon/eraser2.svg</file>
         <file>icon/double_page.svg</file>
         <file>icon/single_page.svg</file>
+        <file>icon/stroke.eraser.png</file>
+        <file>icon/stroke.none.png</file>
+        <file>icon/stroke.stroke.png</file>
     </qresource>
 </RCC>

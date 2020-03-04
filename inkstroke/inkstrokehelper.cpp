@@ -9,6 +9,7 @@
 #include <Windows/Ink/strokecollection.h>
 #include <Windows/Ink/stylusshape.h>
 #include <Windows/Input/stylusdevice.h>
+#include <pagebox/pageboxtoolbar.h>
 
 #include <QFile>
 #include <QDebug>
@@ -208,6 +209,12 @@ void InkStrokeHelper::getToolButtons(InkCanvas* ink, QList<ToolButton *> &button
         }
         buttons.append(reinterpret_cast<ToolButton*>(eraseAllButton.value<ToolButton*>()));
     }
+}
+
+QWidget *InkStrokeHelper::createPenWidget()
+{
+    QList<ToolButton *> buttons;
+    return nullptr;
 }
 
 QWidget *InkStrokeHelper::createEraserWidget()
