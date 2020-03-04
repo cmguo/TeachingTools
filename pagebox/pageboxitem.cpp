@@ -138,16 +138,16 @@ void PageBoxItem::getToolButtons(QList<ToolButton *> &buttons, const QList<ToolB
     ToolButtonProvider::getToolButtons(buttons, parents);
     if (parents.empty()) {
         for (ToolButton * & b : buttons) {
-            if (b->name == "pages")
+            if (b->name() == "pages")
                 b = pageNumber_->toolButton();
             if (sizeMode_ != LargeCanvas) {
-                if (b->name == "scaleUp()"
-                        || b->name == "scaleDown()")
+                if (b->name() == "scaleUp()"
+                        || b->name() == "scaleDown()")
                     b = nullptr;
             }
             if (sizeMode_ != MatchContent) {
-                if (b && (b->name == "duplex()"
-                        || b->name == "single()"))
+                if (b && (b->name() == "duplex()"
+                        || b->name() == "single()"))
                     b = nullptr;
             }
         }
@@ -159,29 +159,29 @@ void PageBoxItem::getToolButtons(QList<ToolButton *> &buttons, const QList<ToolB
 
 void PageBoxItem::updateToolButton(ToolButton *button)
 {
-    if (button->name == "duplex()") {
-        button->flags.setFlag(ToolButton::Checked, document_->layoutMode() == PageBoxDocItem::Duplex);
-    } else if (button->name == "single()") {
-        button->flags.setFlag(ToolButton::Checked, document_->layoutMode() == PageBoxDocItem::Single);
-    } else if (button->name == "scaleUp()") {
-        button->flags.setFlag(ToolButton::Disabled, !document_->canStepScale(true));
-    } else if (button->name == "scaleDown()") {
-        button->flags.setFlag(ToolButton::Disabled, !document_->canStepScale(false));
+    if (button->name() == "duplex()") {
+        button->setChecked(document_->layoutMode() == PageBoxDocItem::Duplex);
+    } else if (button->name() == "single()") {
+        button->setChecked(document_->layoutMode() == PageBoxDocItem::Single);
+    } else if (button->name() == "scaleUp()") {
+        button->setEnabled(document_->canStepScale(true));
+    } else if (button->name() == "scaleDown()") {
+        button->setEnabled(document_->canStepScale(false));
     }
 }
 
 void PageBoxItem::handleToolButton(const QList<ToolButton *> &buttons)
 {
     ToolButton * button = buttons.back();
-    if (button->name == "full") {
-        if (button->flags.testFlag(ToolButton::Checked)) {
-            button->flags.setFlag(ToolButton::Checked, false);
-            button->title = "全屏";
-            button->icon = ":/teachingtools/icon/enter_full.svg";
+    if (button->name() == "full") {
+        if (button->isChecked()) {
+            button->setChecked(false);
+            button->setText("全屏");
+            button->setIcon(":/teachingtools/icon/enter_full.svg");
         } else {
-            button->flags.setFlag(ToolButton::Checked, true);
-            button->title = "缩小";
-            button->icon = ":/teachingtools/icon/exit_full.svg";
+            button->setChecked(true);
+            button->setText("缩小");
+            button->setIcon(":/teachingtools/icon/exit_full.svg");
         }
     }
     if (document_->plugin_)
@@ -268,7 +268,7 @@ void PageBoxItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
             d.setY(rect.top() > vrect.top() ? 0 : vrect.top() - rect.top());
         else if (rect.bottom() + d.y() < vrect.bottom())
             d.setY(rect.bottom() < vrect.bottom() ? 0 : vrect.bottom() - rect.bottom());
-        document_->transform_->translate(d);
+        document_->moveBy(d.x(), d.y());
         type_ = 2;
         break;
     }
@@ -291,7 +291,7 @@ void PageBoxItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 
 void PageBoxItem::wheelEvent(QGraphicsSceneWheelEvent *event)
 {
-    if (!document_->contains(mapToItem(document_, event->pos()))) {
+    if (sizeMode_ == LargeCanvas || !document_->contains(mapToItem(document_, event->pos()))) {
         QGraphicsRectItem::wheelEvent(event);
         return;
     }

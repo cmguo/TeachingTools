@@ -220,6 +220,11 @@ void PageBoxDocItem::setItemBindings(QPropertyBindings * bindings)
     itemBindings_ = bindings;
 }
 
+void PageBoxDocItem::moveBy(qreal dx, qreal dy)
+{
+    transform_->translate(QPointF(dx, dy));
+}
+
 void PageBoxDocItem::relayout()
 {
     if (pageSize_.isEmpty() || !model_)

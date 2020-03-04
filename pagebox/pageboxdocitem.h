@@ -112,6 +112,9 @@ public:
 
     void setItemBindings(QPropertyBindings * bindings);
 
+public:
+    void moveBy(qreal dx, qreal dy);
+
 public slots:
     void nextPage();
 

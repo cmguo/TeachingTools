@@ -159,25 +159,25 @@ QString InkStrokeHelper::toolString()
 
 void InkStrokeHelper::updateToolButton(InkCanvas* ink, ToolButton *button)
 {
-    if (!button->name.startsWith("stroke(") && !button->name.startsWith("eraser("))
+    if (!button->name().startsWith("stroke(") && !button->name().startsWith("eraser("))
         return;
-    bool checked = button->name.startsWith("stroke(")
+    bool checked = button->name().startsWith("stroke(")
               ? ink->EditingMode() == InkCanvasEditingMode::Ink
               : (ink->EditingMode() == InkCanvasEditingMode::EraseByStroke
                  || ink->EditingMode() == InkCanvasEditingMode::EraseByPoint);
-    button->flags.setFlag(ToolButton::Checked, checked);
-    button->flags.setFlag(ToolButton::Popup, checked);
-    button->flags.setFlag(ToolButton::OptionsGroup, checked);
+    button->setChecked(checked);
+    button->setPopup(checked);
+    button->setOptionsGroup(checked);
     if (checked) {
-        if (button->name == "stroke()")
-            button->name = "stroke(QString)";
-        if (button->name == "eraser()")
-            button->name = "eraser(QString)";
+        if (button->name() == "stroke()")
+            button->setName("stroke(QString)");
+        if (button->name() == "eraser()")
+            button->setName("eraser(QString)");
     } else {
-        if (button->name == "stroke(QString)")
-            button->name = "stroke()";
-        if (button->name == "eraser(QString)")
-            button->name = "eraser()";
+        if (button->name() == "stroke(QString)")
+            button->setName("stroke()");
+        if (button->name() == "eraser(QString)")
+            button->setName("eraser()");
     }
 }
 
@@ -189,11 +189,11 @@ static StateWidthToolButtons widthButtons({2.0, 4.0, 8.0, 16.0});
 
 void InkStrokeHelper::getToolButtons(InkCanvas* ink, QList<ToolButton *> &buttons, ToolButton *parent)
 {
-    if (parent->name == "stroke(QString)") {
+    if (parent->name() == "stroke(QString)") {
         colorButtons.fill(buttons, ink->DefaultDrawingAttributes()->Color());
         buttons.append(&ToolButton::LINE_SPLITTER);
         widthButtons.fill(buttons, ink->DefaultDrawingAttributes()->Width());
-    } else if (parent->name == "eraser(QString)") {
+    } else if (parent->name() == "eraser(QString)") {
         QVariant eraseAllButton = ink->property("eraseAllButton");
         if (!eraseAllButton.isValid()) {
             QWidget * w = createEraserWidget();
