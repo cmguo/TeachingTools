@@ -211,10 +211,14 @@ void InkStrokeHelper::getToolButtons(InkCanvas* ink, QList<ToolButton *> &button
     }
 }
 
-QWidget *InkStrokeHelper::createPenWidget()
+QWidget *InkStrokeHelper::createPenWidget(QColor color, qreal width)
 {
     QList<ToolButton *> buttons;
-    return nullptr;
+    colorButtons.fill(buttons, color);
+    buttons.append(&ToolButton::LINE_SPLITTER);
+    widthButtons.fill(buttons, width);
+    PageBoxToolBar bar;
+    return bar.createPopup(buttons);
 }
 
 QWidget *InkStrokeHelper::createEraserWidget()

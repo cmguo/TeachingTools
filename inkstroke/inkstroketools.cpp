@@ -98,9 +98,7 @@ void InkStrokeTools::togglePopupMenu(ToolButton *button)
     QWidget* widget = button->data().value<QWidget*>();
     if (widget == nullptr) {
         QWidget* btn = button->associatedWidgets().first();
-        widget = button->name() == "stroke"
-                ? InkStrokeHelper::createPenWidget()
-                : InkStrokeHelper::createEraserWidget();
+        widget = createWidget(this, button->name());
         widget->setParent(button->associatedWidgets().first()->window());
         button->setData(QVariant::fromValue(widget));
         QPoint pos = btn->mapTo(widget->parentWidget(), QPoint());
@@ -108,6 +106,15 @@ void InkStrokeTools::togglePopupMenu(ToolButton *button)
         widget->move(pos);
     }
     widget->setVisible(!widget->isVisible());
+}
+
+QWidget *InkStrokeTools::createWidget(QObject* inkControl, const QByteArray &name)
+{
+    return name == "stroke"
+            ? InkStrokeHelper::createPenWidget(
+                  inkControl->property("color").value<QColor>(),
+                  inkControl->property("width").toReal())
+            : InkStrokeHelper::createEraserWidget();
 }
 
 

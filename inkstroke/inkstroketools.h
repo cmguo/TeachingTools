@@ -1,6 +1,8 @@
 #ifndef INKSTROKETOOLS_H
 #define INKSTROKETOOLS_H
 
+#include "TeachingTools_global.h"
+
 #include <core/toolbuttonprovider.h>
 
 #include <Windows/Controls/editingmode.h>
@@ -10,8 +12,11 @@
 class WhiteCanvas;
 class Control;
 
-class InkStrokeTools : ToolButtonProvider
+class TEACHINGTOOLS_EXPORT InkStrokeTools : ToolButtonProvider
 {
+    Q_OBJECT
+
+    Q_PROPERTY(QColor color READ color WRITE setColor)
 public:
     InkStrokeTools();
 
@@ -21,6 +26,10 @@ public:
     void setOuterControl(Control* control);
 
 protected:
+    QColor color() { return *activeColor_; }
+
+    qreal width() { return width_; }
+
     void setColor(QColor color);
 
     void setWidth(qreal width);
@@ -30,6 +39,9 @@ protected:
 
 private:
     void togglePopupMenu(ToolButton *button);
+
+public:
+    static QWidget* createWidget(QObject* inkControl, QByteArray const & name);
 
 private:
     WhiteCanvas * canvas_;
