@@ -26,8 +26,6 @@ public:
                                 ToolButton * parent);
 
 public:
-    static QWidget * createPenWidget(QColor color, qreal width);
-
     static QWidget * createEraserWidget();
 };
 

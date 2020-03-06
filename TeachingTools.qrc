@@ -41,5 +41,8 @@
         <file>icon/stroke.eraser.png</file>
         <file>icon/stroke.none.png</file>
         <file>icon/stroke.stroke.png</file>
+        <file>qss/inktoolseraser.qss</file>
+        <file>qss/inktoolspen.qss</file>
+        <file>icon/colorchecked.png</file>
     </qresource>
 </RCC>

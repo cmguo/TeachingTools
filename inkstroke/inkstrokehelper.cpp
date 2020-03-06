@@ -9,7 +9,6 @@
 #include <Windows/Ink/strokecollection.h>
 #include <Windows/Ink/stylusshape.h>
 #include <Windows/Input/stylusdevice.h>
-#include <pagebox/pageboxtoolbar.h>
 
 #include <QFile>
 #include <QDebug>
@@ -191,9 +190,9 @@ static StateWidthToolButtons widthButtons({2.0, 4.0, 8.0, 16.0});
 void InkStrokeHelper::getToolButtons(InkCanvas* ink, QList<ToolButton *> &buttons, ToolButton *parent)
 {
     if (parent->name() == "stroke(QString)") {
-        colorButtons.fill(buttons, ink->DefaultDrawingAttributes()->Color());
+        colorButtons.getButtons(buttons, ink->DefaultDrawingAttributes()->Color());
         buttons.append(&ToolButton::LINE_SPLITTER);
-        widthButtons.fill(buttons, ink->DefaultDrawingAttributes()->Width());
+        widthButtons.getButtons(buttons, ink->DefaultDrawingAttributes()->Width());
     } else if (parent->name() == "eraser(QString)") {
         QVariant eraseAllButton = ink->property("eraseAllButton");
         if (!eraseAllButton.isValid()) {
@@ -209,16 +208,6 @@ void InkStrokeHelper::getToolButtons(InkCanvas* ink, QList<ToolButton *> &button
         }
         buttons.append(reinterpret_cast<ToolButton*>(eraseAllButton.value<ToolButton*>()));
     }
-}
-
-QWidget *InkStrokeHelper::createPenWidget(QColor color, qreal width)
-{
-    QList<ToolButton *> buttons;
-    colorButtons.fill(buttons, color);
-    buttons.append(&ToolButton::LINE_SPLITTER);
-    widthButtons.fill(buttons, width);
-    PageBoxToolBar bar;
-    return bar.createPopup(buttons);
 }
 
 QWidget *InkStrokeHelper::createEraserWidget()

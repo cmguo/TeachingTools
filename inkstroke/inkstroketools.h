@@ -12,36 +12,54 @@
 class WhiteCanvas;
 class Control;
 
-class TEACHINGTOOLS_EXPORT InkStrokeTools : ToolButtonProvider
+class TEACHINGTOOLS_EXPORT InkStrokeTools : public ToolButtonProvider
 {
     Q_OBJECT
 
+    Q_PROPERTY(InkCanvasEditingMode mode READ mode WRITE setMode)
     Q_PROPERTY(QColor color READ color WRITE setColor)
+    Q_PROPERTY(qreal width READ width WRITE setWidth)
+
 public:
-    InkStrokeTools();
+    InkStrokeTools(WhiteCanvas* whiteCanvas = nullptr);
 
 public:
     void attachToWhiteCanvas(WhiteCanvas* whiteCanvas);
 
     void setOuterControl(Control* control);
 
-protected:
-    QColor color() { return *activeColor_; }
+public:
+    InkCanvasEditingMode mode() const { return mode_; }
 
-    qreal width() { return width_; }
+    void setMode(InkCanvasEditingMode mode);
+
+    QColor color() { return *activeColor_; }
 
     void setColor(QColor color);
 
+    qreal width() { return width_; }
+
     void setWidth(qreal width);
 
+    void clearInkStroke();
+
 protected:
-    virtual void handleToolButton(ToolButton *button, QStringList const & args) override;
+    virtual void getToolButtons(QList<ToolButton *> &buttons, ToolButton *parent) override;
+
+    virtual void updateToolButton(ToolButton *button) override;
+
+    virtual void setOption(const QByteArray &key, QVariant value) override;
+
+    virtual bool eventFilter(QObject *, QEvent *event) override;
 
 private:
     void togglePopupMenu(ToolButton *button);
 
-public:
-    static QWidget* createWidget(QObject* inkControl, QByteArray const & name);
+    QWidget* createWidget(ToolButton *button);
+
+    QWidget * createPenWidget(ToolButton *button);
+
+    QWidget * createEraserWidget(ToolButton *button);
 
 private:
     WhiteCanvas * canvas_;
