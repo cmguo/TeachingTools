@@ -30,6 +30,7 @@ QGraphicsItem* PageBoxControl::create(ResourceView *res)
     PageBoxItem * item = new PageBoxItem;
     if (res_->flags().testFlag(ResourceView::LargeCanvas)) {
         item->setAcceptedMouseButtons(Qt::NoButton);
+        res_->setProperty("editingMode", 1); // Ink
     }
     return item;
 }

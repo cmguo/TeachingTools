@@ -71,6 +71,7 @@ private:
     QColor colorShow_;
     QColor colorOuter_;
     QColor* activeColor_;
+    Control * activeControl_;
     qreal width_;
 };
 
