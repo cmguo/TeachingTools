@@ -1,3 +1,4 @@
+#include "inkstrokecontrol.h"
 #include "inkstrokehelper.h"
 #include "inkstroketools.h"
 
@@ -9,6 +10,7 @@
 #include <core/optiontoolbuttons.h>
 #include <core/resourcepackage.h>
 #include <core/resourcepage.h>
+#include <core/resourceview.h>
 #include <core/toolbutton.h>
 
 #include <QApplication>
@@ -65,7 +67,8 @@ static QssHelper QSS_PEN(":/teachingtools/qss/inktoolspen.qss");
 static QssHelper QSS_ERASER(":/teachingtools/qss/inktoolseraser.qss");
 
 InkStrokeTools::InkStrokeTools(WhiteCanvas *whiteCanvas)
-    : outerControl_(nullptr)
+    : inkControl_(nullptr)
+    , outerControl_(nullptr)
     , mode_(InkCanvasEditingMode::None)
     , colorNormal_("#F0F0F0")
     , colorShow_("#FF274B")
@@ -87,18 +90,19 @@ void InkStrokeTools::attachToWhiteCanvas(WhiteCanvas *whiteCanvas)
         page->addResource(QUrl("inkstroke:"));
     });
     QObject::connect(package, &ResourcePackage::currentPageChanged, this, [this](ResourcePage* page) {
-        Control * control = canvas_->topControl();
-        QColor * color = page->resources().first() ? &colorNormal_ : &colorShow_;
+        InkStrokeControl * control = qobject_cast<InkStrokeControl*>(canvas_->topControl());
+        QColor * color = page->isIndependentPage() ? &colorShow_ : &colorNormal_;
         if (outerControl_ == nullptr)
             activeColor_ = color;
-        control->setProperty("editingMode", QVariant::fromValue(mode_));
-        control->setProperty("color", *color);
-        control->setProperty("width", width_);
+        control->setEditingMode(mode_);
+        control->setColor(*color);
+        control->setWidth(width_);
+        inkControl_ = control;
+        connect(inkControl_, &InkStrokeControl::editingModeChanged,
+                this, [this](InkCanvasEditingMode mode) {
+            setMode(mode);
+        });
     });
-    QObject::connect(canvas_, &WhiteCanvas::loadingChanged, this, [this](bool loading) {
-        if (loading)
-            setMode(InkCanvasEditingMode::None);
-    }, Qt::QueuedConnection);
 }
 
 void InkStrokeTools::setOuterControl(Control *control)
@@ -119,8 +123,9 @@ void InkStrokeTools::setMode(InkCanvasEditingMode mode)
     if (mode == mode_)
         return;
     mode_ = mode;
-    Control * control = outerControl_ ? outerControl_ : canvas_->topControl();
-    control->setProperty("editingMode", QVariant::fromValue(mode_));
+    Control * control = outerControl_ ? outerControl_ : inkControl_;
+    if (control)
+        control->setProperty("editingMode", QVariant::fromValue(mode_));
     // cause update
     QList<ToolButton*> buttons;
     ToolButtonProvider::getToolButtons(buttons);
@@ -129,21 +134,24 @@ void InkStrokeTools::setMode(InkCanvasEditingMode mode)
 void InkStrokeTools::setColor(QColor color)
 {
     *activeColor_ = color;
-    Control * control = outerControl_ ? outerControl_ : canvas_->topControl();
-    control->setProperty("color", *activeColor_);
+    Control * control = outerControl_ ? outerControl_ : inkControl_;
+    if (control)
+        control->setProperty("color", *activeColor_);
 }
 
 void InkStrokeTools::setWidth(qreal width)
 {
     width_ = width;
-    Control * control = outerControl_ ? outerControl_ : canvas_->topControl();
-    control->setProperty("width", width_);
+    Control * control = outerControl_ ? outerControl_ : inkControl_;
+    if (control)
+        control->setProperty("width", width_);
 }
 
 void InkStrokeTools::clearInkStroke()
 {
-    Control * control = outerControl_ ? outerControl_ : canvas_->topControl();
-    control->exec("clear()");
+    Control * control = outerControl_ ? outerControl_ : inkControl_;
+    if (control)
+        control->exec("clear()");
 }
 
 void InkStrokeTools::setOption(const QByteArray &key, QVariant value)

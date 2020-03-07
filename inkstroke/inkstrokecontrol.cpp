@@ -37,6 +37,8 @@ qreal InkStrokeControl::width()
 void InkStrokeControl::setEditingMode(InkCanvasEditingMode mode)
 {
     InkCanvas * ink = static_cast<InkCanvas*>(item_);
+    if (mode == ink->EditingMode())
+        return;
     ink->SetEditingMode(mode);
     item_->setAcceptHoverEvents(mode != InkCanvasEditingMode::None);
     if (res_->flags() & ResourceView::Splittable) {
@@ -50,6 +52,7 @@ void InkStrokeControl::setEditingMode(InkCanvasEditingMode mode)
             teardownErasing();
         }
     }
+    editingModeChanged(mode);
 }
 
 void InkStrokeControl::setColor(QColor c)

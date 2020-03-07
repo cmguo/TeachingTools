@@ -11,6 +11,7 @@
 
 class WhiteCanvas;
 class Control;
+class InkStrokeControl;
 
 class TEACHINGTOOLS_EXPORT InkStrokeTools : public ToolButtonProvider
 {
@@ -63,6 +64,7 @@ private:
 
 private:
     WhiteCanvas * canvas_;
+    InkStrokeControl * inkControl_;
     Control * outerControl_;
     InkCanvasEditingMode mode_;
     QColor colorNormal_;

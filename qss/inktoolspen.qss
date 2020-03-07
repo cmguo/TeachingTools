@@ -2,14 +2,14 @@ QPushButton,.QLabel {
     color:white;
     background-color:#00000000;
     border:none;
-    spacing:30px;
+    spacing:48px;
 }
 
 QPushButton {
-    qproperty-iconSize:30px 30px;
+    qproperty-iconSize:48px 48px;
 }
 
 #popupwidget {
-    background-color:#80000000;
+    background-color: white;
     border-radius:6px;
 }

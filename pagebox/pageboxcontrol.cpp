@@ -99,7 +99,7 @@ void PageBoxControl::attached()
         item->toolBar()->hide();
     }
     PageBoxDocItem * doc = item->document();
-    if (res_->flags().testFlag(ResourceView::SubPages)) {
+    if (res_->flags().testFlag(ResourceView::ListOfPages)) {
         QObject::connect(doc, &PageBoxDocItem::currentPageChanged, this, [this](int page) {
             res_->page()->switchSubPage(page);
         });

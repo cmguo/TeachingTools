@@ -17,7 +17,7 @@ class TEACHINGTOOLS_EXPORT InkStrokeControl : public Control
 {
     Q_OBJECT
 
-    Q_PROPERTY(InkCanvasEditingMode editingMode READ editingMode WRITE setEditingMode)
+    Q_PROPERTY(InkCanvasEditingMode editingMode READ editingMode WRITE setEditingMode NOTIFY editingModeChanged)
     Q_PROPERTY(QColor color READ color WRITE setColor)
     Q_PROPERTY(qreal width READ width WRITE setWidth)
 
@@ -38,6 +38,9 @@ public slots:
     void setWidth(qreal w);
 
     void clear();
+
+signals:
+    void editingModeChanged(InkCanvasEditingMode mode);
 
 protected:
     virtual QGraphicsItem * create(ResourceView *res) override;
