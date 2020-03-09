@@ -22,7 +22,7 @@ class TEACHINGTOOLS_EXPORT InkStrokeTools : public ToolButtonProvider
     Q_PROPERTY(qreal width READ width WRITE setWidth)
 
 public:
-    InkStrokeTools(WhiteCanvas* whiteCanvas = nullptr);
+    InkStrokeTools(QObject* parent = nullptr, WhiteCanvas* whiteCanvas = nullptr);
 
 public:
     void attachToWhiteCanvas(WhiteCanvas* whiteCanvas);
@@ -44,11 +44,14 @@ public:
 
     void clearInkStroke();
 
-protected:
+public:
+    using ToolButtonProvider::getToolButtons;
+
     virtual void getToolButtons(QList<ToolButton *> &buttons, ToolButton *parent) override;
 
     virtual void updateToolButton(ToolButton *button) override;
 
+protected:
     virtual void setOption(const QByteArray &key, QVariant value) override;
 
     virtual bool eventFilter(QObject *, QEvent *event) override;
@@ -65,13 +68,13 @@ private:
 private:
     WhiteCanvas * canvas_;
     InkStrokeControl * inkControl_;
-    Control * outerControl_;
+    QObject * outerControl_;
     InkCanvasEditingMode mode_;
     QColor colorNormal_;
     QColor colorShow_;
     QColor colorOuter_;
     QColor* activeColor_;
-    Control * activeControl_;
+    QObject * activeControl_;
     qreal width_;
 };
 
