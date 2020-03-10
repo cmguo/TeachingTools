@@ -51,8 +51,8 @@ void InkStrokeControl::setEditingMode(InkCanvasEditingMode mode)
         } else {
             teardownErasing();
         }
+        editingModeChanged(mode);
     }
-    editingModeChanged(mode);
 }
 
 void InkStrokeControl::setColor(QColor c)

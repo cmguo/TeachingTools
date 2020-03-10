@@ -12,6 +12,7 @@
 class WhiteCanvas;
 class Control;
 class InkStrokeControl;
+class ResourcePage;
 
 class TEACHINGTOOLS_EXPORT InkStrokeTools : public ToolButtonProvider
 {
@@ -57,6 +58,8 @@ protected:
     virtual bool eventFilter(QObject *, QEvent *event) override;
 
 private:
+    void switchPage(ResourcePage * page);
+
     void togglePopupMenu(ToolButton *button);
 
     QWidget* createWidget(ToolButton *button);

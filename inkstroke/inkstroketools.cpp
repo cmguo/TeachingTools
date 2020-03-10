@@ -87,36 +87,41 @@ InkStrokeTools::InkStrokeTools(QObject* parent, WhiteCanvas *whiteCanvas)
 void InkStrokeTools::attachToWhiteCanvas(WhiteCanvas *whiteCanvas)
 {
     canvas_ = whiteCanvas;
-    inkControl_ = qobject_cast<InkStrokeControl*>(canvas_->topControl());
-    if (!outerControl_)
-        activeControl_ = inkControl_;
     ResourcePackage * package = whiteCanvas->package();
     QObject::connect(package, &ResourcePackage::pageCreated, this, [](ResourcePage* page) {
         page->addResource(QUrl("inkstroke:"));
     });
     QObject::connect(package, &ResourcePackage::currentPageChanged, this, [this](ResourcePage* page) {
-        activeControl_ = outerControl_;
-        inkControl_ = nullptr;
-        InkStrokeControl * control = qobject_cast<InkStrokeControl*>(canvas_->topControl());
-        QColor * color = &colorNormal_;
-        if (!outerControl_ && page->isIndependentPage()) {
-            color = &colorShow_;
-            QVariant editingMode = page->mainResource()->property("editingMode");
-            if (editingMode.isValid())
-                setMode(editingMode.value<InkCanvasEditingMode>());
-        }
-        if (outerControl_ == nullptr) {
-            activeColor_ = color;
-            activeControl_ = control;
-        }
-        control->setEditingMode(mode_);
-        control->setColor(*color);
-        control->setWidth(width_);
-        inkControl_ = control;
-        connect(inkControl_, &InkStrokeControl::editingModeChanged,
-                this, [this](InkCanvasEditingMode mode) {
-            setMode(mode);
-        });
+        switchPage(page);
+    });
+    if (ResourcePage * page = whiteCanvas->page())
+        switchPage(page);
+}
+
+void InkStrokeTools::switchPage(ResourcePage *page)
+{
+    // detach active first, last control has dead
+    inkControl_ = nullptr;
+    activeControl_ = outerControl_;
+    InkStrokeControl * control = qobject_cast<InkStrokeControl*>(canvas_->topControl());
+    QColor * color = &colorNormal_;
+    if (!outerControl_ && page->isIndependentPage()) {
+        color = &colorShow_;
+        QVariant editingMode = page->mainResource()->property("editingMode");
+        if (editingMode.isValid())
+            setMode(editingMode.value<InkCanvasEditingMode>());
+    }
+    if (outerControl_ == nullptr) {
+        activeColor_ = color;
+        activeControl_ = control;
+    }
+    control->setEditingMode(mode_);
+    control->setColor(*color);
+    control->setWidth(width_);
+    inkControl_ = control;
+    connect(inkControl_, &InkStrokeControl::editingModeChanged,
+            this, [this](InkCanvasEditingMode mode) {
+        setMode(mode);
     });
 }
 

@@ -1,13 +1,15 @@
 #include "writinggridcontrol.h"
 #include "writinggrid.h"
 
+#include <views/itemframe.h>
+#include <views/whitecanvas.h>
+#include <core/resourceview.h>
+
 #include <QBrush>
 #include <QEvent>
 #include <QGraphicsSceneResizeEvent>
-#include <views/itemframe.h>
 #include <QPen>
 #include <QDebug>
-#include <core/resourceview.h>
 #include <QGraphicsProxyWidget>
 #include <QUrl>
 #include <Windows/Controls/inkcanvas.h>
@@ -55,6 +57,8 @@ void WritingGridControl::attaching()
 
 void WritingGridControl::attached()
 {
+    if (!(flags_ & RestoreSession))
+        whiteCanvas()->topControl()->setProperty("editingMode", 0);
     loadFinished(true);
 }
 
