@@ -88,6 +88,8 @@ void InkStrokeTools::attachToWhiteCanvas(WhiteCanvas *whiteCanvas)
 {
     canvas_ = whiteCanvas;
     inkControl_ = qobject_cast<InkStrokeControl*>(canvas_->topControl());
+    if (!outerControl_)
+        activeControl_ = inkControl_;
     ResourcePackage * package = whiteCanvas->package();
     QObject::connect(package, &ResourcePackage::pageCreated, this, [](ResourcePage* page) {
         page->addResource(QUrl("inkstroke:"));

@@ -20,7 +20,7 @@
 
 #ifndef QT_DEBUG
 #define STROKE_SELECT 0
-#define TOUCH_ENABLE 0
+#define TOUCH_ENABLE 1
 #else
 #define STROKE_SELECT 1
 #define TOUCH_ENABLE 1
