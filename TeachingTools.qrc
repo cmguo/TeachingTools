@@ -38,11 +38,11 @@
         <file>icon/eraser2.svg</file>
         <file>icon/double_page.svg</file>
         <file>icon/single_page.svg</file>
-        <file>icon/stroke.eraser.png</file>
-        <file>icon/stroke.none.png</file>
-        <file>icon/stroke.stroke.png</file>
         <file>qss/inktoolseraser.qss</file>
         <file>qss/inktoolspen.qss</file>
         <file>icon/colorchecked.png</file>
+        <file>icon/stroke.eraser.svg</file>
+        <file>icon/stroke.none.svg</file>
+        <file>icon/stroke.stroke.svg</file>
     </qresource>
 </RCC>

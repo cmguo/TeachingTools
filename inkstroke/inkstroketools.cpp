@@ -17,9 +17,9 @@
 #include <QUrl>
 
 static constexpr char const * toolstr =
-        "nonStroke|选择|Checkable,NeedUpdate|:/teachingtools/icon/stroke.none.png;"
-        "stroke|画笔|Checkable,NeedUpdate,OptionsGroup|:/teachingtools/icon/stroke.stroke.png;"
-        "eraser|橡皮|Checkable,NeedUpdate|:/teachingtools/icon/stroke.eraser.png;"
+        "nonStroke|选择|Checkable,NeedUpdate|:/teachingtools/icon/stroke.none.svg;"
+        "stroke|画笔|Checkable,NeedUpdate,OptionsGroup|:/teachingtools/icon/stroke.stroke.svg;"
+        "eraser|橡皮|Checkable,NeedUpdate|:/teachingtools/icon/stroke.eraser.svg;"
         ;
 
 
