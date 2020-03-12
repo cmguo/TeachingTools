@@ -17,7 +17,7 @@
 #include <QUrl>
 
 static constexpr char const * toolstr =
-        "nonStroke||Checkable,NeedUpdate|:/teachingtools/icon/stroke.none.png;"
+        "nonStroke|选择|Checkable,NeedUpdate|:/teachingtools/icon/stroke.none.png;"
         "stroke|画笔|Checkable,NeedUpdate,OptionsGroup|:/teachingtools/icon/stroke.stroke.png;"
         "eraser|橡皮|Checkable,NeedUpdate|:/teachingtools/icon/stroke.eraser.png;"
         ;
@@ -173,8 +173,9 @@ void InkStrokeTools::setWidth(qreal width)
 void InkStrokeTools::clearInkStroke()
 {
     if (activeControl_) {
-        activeControl_->metaObject()->invokeMethod(activeControl_, "clear()");
+        activeControl_->metaObject()->invokeMethod(activeControl_, "clear");
     }
+    setMode(InkCanvasEditingMode::Ink);
 }
 
 void InkStrokeTools::setOption(const QByteArray &key, QVariant value)
