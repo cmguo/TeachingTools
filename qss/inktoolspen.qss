@@ -9,6 +9,12 @@ QPushButton {
     qproperty-iconSize:48px 48px;
 }
 
+#lineSplitter {
+    max-height: 1px;
+    border: none;
+    background-color: #80000000;
+}
+
 #popupwidget {
     background-color: white;
     border-radius:6px;

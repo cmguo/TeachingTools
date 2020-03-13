@@ -62,7 +62,7 @@ private:
         return item;
     }
 } colorButtons;
-static StateWidthToolButtons widthButtons({4.0, 8.0, 12.0}, "#2E6A66");
+static StateWidthToolButtons widthButtons({0, 4.0, 8.0, 12.0, 0}, "#2E4A66", "#A4C3ED");
 
 static QssHelper QSS_PEN(":/teachingtools/qss/inktoolspen.qss");
 static QssHelper QSS_ERASER(":/teachingtools/qss/inktoolseraser.qss");
