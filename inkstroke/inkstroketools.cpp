@@ -6,6 +6,7 @@
 #include <views/whitecanvas.h>
 #include <views/qsshelper.h>
 #include <views/toolbarwidget.h>
+#include <views/floatwidgetmanager.h>
 #include <core/control.h>
 #include <core/optiontoolbuttons.h>
 #include <core/resourcepackage.h>
@@ -114,6 +115,7 @@ void InkStrokeTools::switchPage(ResourcePage *page)
     if (outerControl_ == nullptr) {
         activeColor_ = color;
         activeControl_ = control;
+        colorButtons.updateValue(*activeColor_);
     }
     control->setEditingMode(mode_);
     control->setColor(*color);
@@ -139,6 +141,7 @@ void InkStrokeTools::setOuterControl(Control *control)
         outerControl_->setProperty("editingMode", QVariant::fromValue(mode_));
         outerControl_->setProperty("color", colorOuter_);
         outerControl_->setProperty("width", width_);
+        colorButtons.updateValue(*activeColor_);
     } else {
         activeControl_ = inkControl_;
     }
@@ -154,6 +157,9 @@ void InkStrokeTools::setMode(InkCanvasEditingMode mode)
     // cause update
     QList<ToolButton*> buttons;
     ToolButtonProvider::getToolButtons(buttons);
+    buttons[0]->setChecked(mode_ == InkCanvasEditingMode::None);
+    buttons[1]->setChecked(mode_ == InkCanvasEditingMode::Ink);
+    buttons[2]->setChecked(mode_ == InkCanvasEditingMode::EraseByPoint);
 }
 
 void InkStrokeTools::setColor(QColor color)
@@ -161,6 +167,7 @@ void InkStrokeTools::setColor(QColor color)
     *activeColor_ = color;
     if (activeControl_)
         activeControl_->setProperty("color", *activeColor_);
+    colorButtons.updateValue(*activeColor_);
 }
 
 void InkStrokeTools::setWidth(qreal width)
@@ -168,6 +175,7 @@ void InkStrokeTools::setWidth(qreal width)
     width_ = width;
     if (activeControl_)
         activeControl_->setProperty("width", width_);
+    widthButtons.updateValue(width_);
 }
 
 void InkStrokeTools::clearInkStroke()
@@ -261,9 +269,7 @@ void InkStrokeTools::togglePopupMenu(ToolButton *button)
         } else {
             QWidget* btn = button->associatedWidgets().first();
             widget->setParent(btn->window());
-            pos = btn->mapTo(widget->parentWidget(), QPoint());
-            pos += QPoint(widget->width() / 2 - btn->width() / 2,
-                          -widget->sizeHint().height());
+            pos = FloatWidgetManager::getPopupPosition(widget, button);
         }
         widget->move(pos);
     }
