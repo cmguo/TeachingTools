@@ -9,6 +9,7 @@
 #include <core/resourcepage.h>
 #include <core/resourcetransform.h>
 #include <core/controltransform.h>
+#include <views/whitecanvas.h>
 
 #include <qcomponentcontainer.h>
 
@@ -186,6 +187,8 @@ void PageBoxControl::enableInkPad()
         }
     }
     item->document()->setPlugin(new InkPadPlugin(res_));
+    if (!(flags_ & RestoreSession))
+        whiteCanvas()->topControl()->setProperty("editingMode", 0);
 }
 
 void PageBoxControl::loadPages()
