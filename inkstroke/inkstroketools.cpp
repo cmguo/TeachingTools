@@ -127,7 +127,7 @@ void InkStrokeTools::switchPage(ResourcePage *page)
     });
 }
 
-void InkStrokeTools::setOuterControl(Control *control)
+void InkStrokeTools::setOuterControl(QObject *control)
 {
     if (control == outerControl_)
         return;

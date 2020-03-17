@@ -28,7 +28,7 @@ public:
 public:
     void attachToWhiteCanvas(WhiteCanvas* whiteCanvas);
 
-    void setOuterControl(Control* control);
+    void setOuterControl(QObject* control);
 
 public:
     InkCanvasEditingMode mode() const { return mode_; }
