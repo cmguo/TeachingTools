@@ -263,34 +263,16 @@ void InkStrokeTools::togglePopupMenu(ToolButton *button)
     if (widget == nullptr) {
         widget = createWidget(button);
         button->setData(QVariant::fromValue(widget));
-        QPoint pos(200, 100);
         if (button->associatedWidgets().isEmpty()) {
             widget->setParent(canvas_->scene()->views().first()->parentWidget());
+            widget->move(200, 100);
         } else {
             QWidget* btn = button->associatedWidgets().first();
             widget->setParent(btn->window());
-            pos = FloatWidgetManager::getPopupPosition(widget, button);
+            FloatWidgetManager::from(btn)->addWidget(widget, button);
         }
-        widget->move(pos);
     }
     widget->setVisible(!widget->isVisible());
-}
-
-bool InkStrokeTools::eventFilter(QObject * watched, QEvent *event)
-{
-    QWidget* widget = qobject_cast<QWidget*>(watched);
-    if (event->type() == QEvent::Show) {
-        widget->setFocus();
-    }
-    if (event->type() == QEvent::FocusOut) {
-        if (QApplication::focusWidget()
-                && QApplication::focusWidget()->parent() == watched) {
-            widget->setFocus();
-        } else {
-            widget->hide();
-        }
-    }
-    return false;
 }
 
 QWidget *InkStrokeTools::createWidget(ToolButton *button)
@@ -298,7 +280,6 @@ QWidget *InkStrokeTools::createWidget(ToolButton *button)
     QWidget * widget = button->name() == "stroke"
             ? createPenWidget(button)
             : createEraserWidget(button);
-    widget->installEventFilter(this);
     return widget;
 }
 
@@ -308,6 +289,7 @@ QWidget *InkStrokeTools::createPenWidget(ToolButton *button)
     ToolButtonProvider::getToolButtons(buttons, QList<ToolButton*>({button}));
     ToolbarWidget bar;
     QWidget * widget = bar.createPopup(buttons);
+    widget->setObjectName("inktoolspen");
     widget->setStyleSheet(QSS_PEN);
     return widget;
 }
@@ -315,6 +297,7 @@ QWidget *InkStrokeTools::createPenWidget(ToolButton *button)
 QWidget *InkStrokeTools::createEraserWidget(ToolButton *button)
 {
     QWidget * widget = InkStrokeHelper::createEraserWidget();
+    widget->setObjectName("inktoolseraser");
     widget->setStyleSheet(QSS_ERASER);
     ToolButton::action_t action([this, widget, button]() {
         widget->hide();

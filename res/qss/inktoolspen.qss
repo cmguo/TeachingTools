@@ -15,7 +15,7 @@ QPushButton {
     background-color: #80000000;
 }
 
-#popupwidget {
+#inktoolspen {
     background-color: white;
     border-radius:6px;
 }

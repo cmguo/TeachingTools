@@ -28,7 +28,7 @@ public:
 public:
     void attachToWhiteCanvas(WhiteCanvas* whiteCanvas);
 
-    void setOuterControl(QObject* control);
+    Q_INVOKABLE void setOuterControl(QObject* control);
 
 public:
     InkCanvasEditingMode mode() const { return mode_; }
@@ -54,8 +54,6 @@ public:
 
 protected:
     virtual void setOption(const QByteArray &key, QVariant value) override;
-
-    virtual bool eventFilter(QObject *, QEvent *event) override;
 
 private:
     void switchPage(ResourcePage * page);
