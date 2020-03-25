@@ -70,12 +70,13 @@ private:
     WhiteCanvas * canvas_;
     InkStrokeControl * inkControl_;
     QObject * outerControl_;
+    QObject * activeControl_;
     InkCanvasEditingMode mode_;
     QColor colorNormal_;
     QColor colorShow_;
     QColor colorOuter_;
+    QColor* inkColor_;
     QColor* activeColor_;
-    QObject * activeControl_;
     qreal width_;
 };
 

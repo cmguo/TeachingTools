@@ -71,12 +71,13 @@ InkStrokeTools::InkStrokeTools(QObject* parent, WhiteCanvas *whiteCanvas)
     : ToolButtonProvider(parent)
     , inkControl_(nullptr)
     , outerControl_(nullptr)
+    , activeControl_(nullptr)
     , mode_(InkCanvasEditingMode::None)
     , colorNormal_("#F0F0F0")
     , colorShow_("#FF274B")
     , colorOuter_("#FF274B")
+    , inkColor_(&colorNormal_)
     , activeColor_(&colorNormal_)
-    , activeControl_(nullptr)
     , width_(4.0)
 {
     setToolsString(toolstr);
@@ -105,20 +106,20 @@ void InkStrokeTools::switchPage(ResourcePage *page)
     inkControl_ = nullptr;
     activeControl_ = outerControl_;
     InkStrokeControl * control = qobject_cast<InkStrokeControl*>(canvas_->topControl());
-    QColor * color = &colorNormal_;
+    inkColor_ = &colorNormal_;
     if (!outerControl_ && page->isIndependentPage()) {
-        color = &colorShow_;
+        inkColor_ = &colorShow_;
         QVariant editingMode = page->mainResource()->property("editingMode");
         if (editingMode.isValid())
             setMode(editingMode.value<InkCanvasEditingMode>());
     }
     if (outerControl_ == nullptr) {
-        activeColor_ = color;
+        activeColor_ = inkColor_;
         activeControl_ = control;
         colorButtons.updateValue(*activeColor_);
     }
     control->setEditingMode(mode_);
-    control->setColor(*color);
+    control->setColor(*inkColor_);
     control->setWidth(width_);
     inkControl_ = control;
     connect(inkControl_, &InkStrokeControl::editingModeChanged,
@@ -131,6 +132,8 @@ void InkStrokeTools::setOuterControl(QObject *control)
 {
     if (control == outerControl_)
         return;
+    if (outerControl_)
+        outerControl_->disconnect(this);
     outerControl_ = control;
     if (outerControl_) {
         activeColor_ = &colorOuter_;
@@ -142,8 +145,13 @@ void InkStrokeTools::setOuterControl(QObject *control)
         outerControl_->setProperty("color", colorOuter_);
         outerControl_->setProperty("width", width_);
         colorButtons.updateValue(*activeColor_);
+        connect(outerControl_, &QObject::destroyed, this, [this] {
+            setOuterControl(nullptr);
+        });
     } else {
         activeControl_ = inkControl_;
+        activeColor_ = inkColor_;
+        colorButtons.updateValue(*activeColor_);
     }
 }
 
