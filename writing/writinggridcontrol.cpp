@@ -18,9 +18,9 @@
 
 WritingGridControl::WritingGridControl(ResourceView * res)
 #ifdef QT_DEBUG
-    : Control(res, {KeepAspectRatio}, {})
+    : Control(res, {KeepAspectRatio, FixedOnCanvas}, {})
 #else
-    : Control(res, {KeepAspectRatio}, {CanRotate})
+    : Control(res, {KeepAspectRatio, FixedOnCanvas}, {CanRotate})
 #endif
 {
     int screen_height = QGuiApplication::primaryScreen()-> availableGeometry().height();
