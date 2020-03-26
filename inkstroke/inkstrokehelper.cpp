@@ -17,6 +17,8 @@
 #include <QLabel>
 #include <QBoxLayout>
 #include <QPen>
+#include <QApplication>
+#include <QScreen>
 
 #ifndef QT_DEBUG
 #define STROKE_SELECT 0
@@ -109,6 +111,8 @@ InkCanvas *InkStrokeHelper::createInkCanvas(QColor color, qreal lineWidth, QSize
     ink->DefaultDrawingAttributes()->SetWidth(lineWidth);
     ink->DefaultDrawingAttributes()->SetHeight(lineWidth);
     ink->SetEditingMode(InkCanvasEditingMode::None);
+    if (eraserSize.width() < 10)
+        eraserSize *= QApplication::primaryScreen()->logicalDotsPerInchX();
     StylusShape * shape = new StylusShape(StylusTip::Rectangle, eraserSize.width(), eraserSize.height(), 0);
     shape->setParent(ink);
     ink->SetEraserShape(shape);
