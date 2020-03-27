@@ -23,46 +23,11 @@ static constexpr char const * toolstr =
         "eraser|橡皮|Checkable,NeedUpdate|:/teachingtools/icon/stroke.eraser.svg;"
         ;
 
-
-static class MyColorToolButtons : public OptionToolButtons
-{
-public:
-    MyColorToolButtons()
-        : OptionToolButtons(QList<QColor>({
-            "#1A1E28", "#F0F0F0", "#96A4B2", "#FF274B", "#FE9400",
-            "#FFDF3F", "#00D97F", "#00DDDD", "#00AAFF", "#B744D4"}), 5)
-    {
-    }
-private:
-    virtual QVariant buttonIcon(const QVariant &value) override
-    {
-        QVariant vcolor(value);
-        vcolor.convert(qMetaTypeId<QColor>());
-        QColor color = vcolor.value<QColor>();
-        QVariantMap icons;
-        icons.insert("normal", QVariant::fromValue(colorIcon(color, false)));
-        icons.insert("+normal", QVariant::fromValue(colorIcon(color, true)));
-        return icons;
-    }
-    static QGraphicsItem* colorIcon(QColor color, bool selected)
-    {
-        QPainterPath ph;
-        ph.addRoundedRect(QRectF(1, 1, 30, 30), 3, 3);
-        QGraphicsPathItem * item = new QGraphicsPathItem(ph);
-        item->setPen(Qt::NoPen);
-        item->setBrush(color);
-        if (selected) {
-            static QPixmap pixmap(":/teachingtools/icon/colorchecked.png");
-            QGraphicsPixmapItem * check = new QGraphicsPixmapItem(item);
-            check->setPixmap(pixmap);
-            check->setOffset(-pixmap.width() / 2, -pixmap.height() / 2);
-            check->setScale(32.0 / pixmap.width());
-            check->setPos(16, 16);
-        }
-        return item;
-    }
-} colorButtons;
-static StateWidthToolButtons widthButtons({0, 4.0, 8.0, 12.0, 0}, "#2E4A66", "#A4C3ED");
+static StateColorToolButtons colorButtons(QList<QColor>({
+    "#FFF0F0F0", "#FFFFCE2D", "#FFFF9F5E", "#FFFF6262", "#FF7A51AE",
+    "#FF43CAFF", "#FF2FA8B3", "#FF506EB7", "#FF28417F", "#FF000000"
+}));
+static StateWidthToolButtons widthButtons({0, 4.0, 8.0, 12.0, 0});
 
 static QssHelper QSS_PEN(":/teachingtools/qss/inktoolspen.qss");
 static QssHelper QSS_ERASER(":/teachingtools/qss/inktoolseraser.qss");

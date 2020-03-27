@@ -1,6 +1,7 @@
 QWidget {
-    background: white;
-    border-radius:6px;
+    background-color:#191d21;
+    border:1px solid rgb(37,42,49);
+    border-radius:8px;
 }
 
 QLabel {
@@ -10,7 +11,7 @@ QLabel {
     height:21px;
     font-size:16px;
     font-family:'Microsoft YaHei';
-    color: black;
+    color:rgba(207,207,207,1);
     line-height:21px;
 }
 
@@ -18,19 +19,22 @@ QSlider {
     border: none;
     width:132px;
     height:40px;
+    background:rgba(42,46,48,1);
+    box-shadow:0px 0px 45px 1px rgba(0,0,0,0.57);
     border-radius:20px;
 }
 
 QSlider::groove:horizontal {
      height: 40px;
      width: 132px;
-     background: #cccccc;
+     background: #FF000000;
      border-radius: 20px;
 }
 
 QSlider::handle:horizontal {
-     width: 40px;
+     width: 60px;
      height: 40px;
+     margin: 2px;
      border-radius: 20px;
-     border-image: url(":/teachingtools/icon/eraser.png");
+     border-image: url(":/teachingtools/icon/eraser.svg");
 }

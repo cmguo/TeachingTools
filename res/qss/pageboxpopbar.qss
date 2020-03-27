@@ -10,6 +10,7 @@ QPushButton {
 }
 
 #popupwidget {
-    background-color:#80000000;
-    border-radius:6px;
+    background-color:#191d21;
+    border:1px solid rgb(37,42,49);
+    border-radius:8px;
 }
