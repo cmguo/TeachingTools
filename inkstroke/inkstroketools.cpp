@@ -141,7 +141,6 @@ void InkStrokeTools::setOuterControl(QObject *control)
         QVariant editingMode = control->property("editingMode");
         setMode(editingMode.value<InkCanvasEditingMode>());
         activeControl_ = outerControl_;
-        outerControl_->setProperty("editingMode", QVariant::fromValue(mode_));
         outerControl_->setProperty("color", colorOuter_);
         outerControl_->setProperty("width", width_);
         colorButtons.updateValue(*activeColor_);
@@ -151,6 +150,8 @@ void InkStrokeTools::setOuterControl(QObject *control)
     } else {
         activeControl_ = inkControl_;
         activeColor_ = inkColor_;
+        inkControl_->setEditingMode(mode_);
+        inkControl_->setWidth(width_);
         colorButtons.updateValue(*activeColor_);
     }
 }
