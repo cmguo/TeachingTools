@@ -202,8 +202,7 @@ void InkStrokeControl::setupErasing()
     QList<QGraphicsItem*> items = item_->parentItem()->childItems();
     for (int i = items.size() - 1; i >= 0; --i) {
         Control * c = Control::fromItem(items[i]);
-        InkStrokeControl* ic = qobject_cast<InkStrokeControl*>(c);
-        if (ic) {
+        if (InkStrokeControl* ic = qobject_cast<InkStrokeControl*>(c)) {
             if (ic != this) {
                 InkCanvas * ink = static_cast<InkCanvas*>(items[i]);
                 ink->SetEditingMode(InkCanvasEditingMode::EraseByPoint);
@@ -211,7 +210,10 @@ void InkStrokeControl::setupErasing()
                 list.append(ink);
             }
         } else {
-            QPolygonF shape = items[i]->mapToItem(item_, items[i]->shape().toFillPolygon());
+            QPainterPath path = items[i]->type() == QGraphicsPathItem::Type
+                    ? QPainterPath()
+                    : items[i]->shape();
+            QPolygonF shape = items[i]->mapToItem(item_, path.toFillPolygon());
             clipShape = clipShape.united(shape);
         }
     }
