@@ -10,6 +10,7 @@
 #include <Windows/Input/StylusPlugIns/stylusplugincollection.h>
 #include <Windows/Input/StylusPlugIns/stylusplugin.h>
 #include <Windows/Input/StylusPlugIns/rawstylusinput.h>
+#include <core/resourcetransform.h>
 
 InkStrokeControl::InkStrokeControl(ResourceView *res)
     : Control(res, {FullLayout, Touchable}, DefaultFlags)
@@ -105,6 +106,13 @@ void InkStrokeControl::attached()
                 }
             }
         });
+        Control * canvasControl = Control::fromItem(whiteCanvas());
+        if (canvasControl) {
+            connect(&canvasControl->resource()->transform(), &ResourceTransform::changed,
+                    this, [ink] () {
+                ink->itemChange(QGraphicsItem::ItemTransformHasChanged, QVariant());
+            });
+        }
     }
     if (strokes->strokes()) {
         if (strokes->isClone())
