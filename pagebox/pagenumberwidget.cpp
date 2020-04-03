@@ -6,25 +6,24 @@
 #include <QLabel>
 #include <QHBoxLayout>
 
+#include <views/qsshelper.h>
+
 PageNumberWidget::PageNumberWidget(QWidget *parent)
     : QWidget(parent, Qt::FramelessWindowHint)
 {
-    constexpr char const * STYLE = "QPushButton:pressed {background-color:#1C61B0;}"
-                                   "QPushButton:hover {background-color:#464A4E;}"
-                                   "QLabel{font-family:'Microsoft YaHei';font-size:16pt;spacing:30px;}";
-    setStyleSheet(STYLE);
+    QssHelper qss(":/teachingtools/qss/pagenumber.qss");
+    QSize iconSize = QssHelper::sizeFromString(qss.value("QPushButton", "qproperty-iconSize"));
+    setStyleSheet(qss);
     QHBoxLayout* layout = new QHBoxLayout(this);
     preBtn_ = new QPushButton(this);
     preBtn_->setObjectName(("preBtn"));
-    preBtn_->setIcon(ToolButton::makeIcon(":/teachingtools/icon/arrow_left.svg,default"));
-    preBtn_->setIconSize({30, 30});
+    preBtn_->setIcon(ToolButton::makeIcon(":/teachingtools/icon/arrow_left.svg,default", iconSize));
     progressLabel_ = new QLabel(this);
     progressLabel_->setObjectName(("progressLabel"));
     progressLabel_->setText(("0/0"));
     nextBtn_ = new QPushButton(this);
     nextBtn_->setObjectName(("nextBtn"));
-    nextBtn_->setIcon(ToolButton::makeIcon(":/teachingtools/icon/arrow_right.svg,default"));
-    nextBtn_->setIconSize({30, 30});
+    nextBtn_->setIcon(ToolButton::makeIcon(":/teachingtools/icon/arrow_right.svg,default", iconSize));
     layout->setContentsMargins(0, 0, 0, 0);
     layout->addWidget(preBtn_);
     layout->addWidget(progressLabel_);

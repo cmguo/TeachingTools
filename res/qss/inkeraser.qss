@@ -1,4 +1,6 @@
-QWidget {
+#inkeraser {
+    width:180px; /* [size] */
+    heigth:125px; /* [size] */
     background-color:#2B3034;
     border:1px solid rgb(67,77,89);
     border-radius:8px;
@@ -20,7 +22,6 @@ QSlider {
     width:132px;
     height:40px;
     background:rgba(42,46,48,1);
-    box-shadow:0px 0px 45px 1px rgba(0,0,0,0.57);
     border-radius:20px;
 }
 

@@ -16,6 +16,7 @@
 
 #include <QApplication>
 #include <QUrl>
+#include <QDebug>
 
 static constexpr char const * toolstr =
         "nonStroke|选择|Checkable,NeedUpdate|:/teachingtools/icon/stroke.none.svg;"
@@ -273,6 +274,7 @@ QWidget *InkStrokeTools::createEraserWidget(ToolButton *button)
 {
     QWidget * widget = InkStrokeHelper::createEraserWidget();
     widget->setObjectName("inktoolseraser");
+    qDebug() << QString(QSS_ERASER);
     widget->setStyleSheet(QSS_ERASER);
     ToolButton::action_t action([this, widget, button]() {
         widget->hide();

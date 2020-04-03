@@ -9,6 +9,7 @@
 #include <Windows/Ink/strokecollection.h>
 #include <Windows/Ink/stylusshape.h>
 #include <Windows/Input/stylusdevice.h>
+#include <views/qsshelper.h>
 
 #include <QFile>
 #include <QDebug>
@@ -31,21 +32,6 @@
 static constexpr char const * toolsStr =
         "stroke()||Checkable,UnionUpdate|:/teachingtools/icon/brush.svg,default;"
         "eraser()||Checkable,UnionUpdate|:/teachingtools/icon/eraser2.svg,default;";
-
-
-static QString ReadAllText( const QString &path )
-{
-    QString ret;
-    QFile f(path);
-    if (f.open(QIODevice::ReadOnly)) {
-        ret = QString::fromUtf8(f.readAll());
-        f.close();
-    } else {
-        qDebug() << f.errorString();
-    }
-    return ret;
-}
-
 
 class PressureHelper : public QObject
 {
@@ -216,11 +202,15 @@ void InkStrokeHelper::getToolButtons(InkCanvas* ink, QList<ToolButton *> &button
     }
 }
 
+static QssHelper QSS_ERASER(":/teachingtools/qss/inkeraser.qss");
+
 QWidget *InkStrokeHelper::createEraserWidget()
 {
-    QWidget* pWidget = new QWidget(nullptr, Qt::FramelessWindowHint);
-    pWidget->setFixedSize(180, 125);
-    pWidget->setStyleSheet(ReadAllText(":/teachingtools/qss/inkeraser.qss"));
+    QWidget* widget = new QFrame(nullptr);
+    widget->setWindowFlags(Qt::FramelessWindowHint);
+    widget->setObjectName("inkeraser");
+    widget->setFixedSize(180, 125);
+    //pWidget->setStyleSheet(QSS_ERASER);
 
     QSlider* pSliter = new QSlider();
     pSliter->setOrientation(Qt::Horizontal);
@@ -233,7 +223,7 @@ QWidget *InkStrokeHelper::createEraserWidget()
     pTextLabel->setText("滑动清空笔迹");
     pTextLabel->setAlignment(Qt::AlignCenter);
 
-    QVBoxLayout* mainLayout = new QVBoxLayout(pWidget);
+    QVBoxLayout* mainLayout = new QVBoxLayout(widget);
     mainLayout->setContentsMargins(0,0,0,10);
     mainLayout->addStretch();
     mainLayout->addWidget(pTextLabel);
@@ -247,15 +237,15 @@ QWidget *InkStrokeHelper::createEraserWidget()
     mainLayout->addLayout(layout);
     mainLayout->addStretch();
 
-    QObject::connect(pSliter, &QSlider::sliderReleased, pWidget, [pWidget, pSliter] {
+    QObject::connect(pSliter, &QSlider::sliderReleased, widget, [widget, pSliter] {
         if (pSliter->sliderPosition() == pSliter->maximum()) {
-            QVariant action = pWidget->property(ToolButton::ACTION_PROPERTY);
+            QVariant action = widget->property(ToolButton::ACTION_PROPERTY);
             if (action.isValid()) {
                 action.value<ToolButton::action_t>()();
             }
         }
         pSliter->setSliderPosition(0);
     });
-    pWidget->hide();
-    return pWidget;
+    widget->hide();
+    return widget;
 }

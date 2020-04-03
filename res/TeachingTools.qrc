@@ -44,5 +44,6 @@
         <file>icon/stroke.eraser.svg</file>
         <file>icon/stroke.none.svg</file>
         <file>icon/stroke.stroke.svg</file>
+        <file>qss/pagenumber.qss</file>
     </qresource>
 </RCC>

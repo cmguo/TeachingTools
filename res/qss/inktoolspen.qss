@@ -2,11 +2,10 @@ QPushButton,.QLabel {
     color:white;
     background-color:#00000000;
     border:none;
-    spacing:30px;
 }
 
 QPushButton {
-    qproperty-iconSize:30px 30px;
+    qproperty-iconSize: 32px 32px; /* [size] */
 }
 
 #lineSplitter {
@@ -18,5 +17,5 @@ QPushButton {
 #inktoolspen {
     background-color:#2B3034;
     border:1px solid rgb(67,77,89);
-    border-radius:8px;
+    border-radius:8px; /* [size] */
 }
