@@ -272,10 +272,7 @@ QWidget *InkStrokeTools::createPenWidget(ToolButton *button)
 
 QWidget *InkStrokeTools::createEraserWidget(ToolButton *button)
 {
-    QWidget * widget = InkStrokeHelper::createEraserWidget();
-    widget->setObjectName("inktoolseraser");
-    qDebug() << QString(QSS_ERASER);
-    widget->setStyleSheet(QSS_ERASER);
+    QWidget * widget = InkStrokeHelper::createEraserWidget(QSS_ERASER);
     ToolButton::action_t action([this, widget, button]() {
         widget->hide();
         setOption(button->name(), "");

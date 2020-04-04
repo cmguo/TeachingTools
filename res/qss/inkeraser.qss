@@ -1,41 +1,38 @@
 #inkeraser {
     width:180px; /* [size] */
-    heigth:125px; /* [size] */
-    background-color:#2B3034;
-    border:1px solid rgb(67,77,89);
-    border-radius:8px;
+    height:125px; /* [size] */
+    background:#2B3034;
+    border-radius:8px; /* [size] */
 }
 
 QLabel {
-    border: none;
     background:transparent;
-    width:96px;
-    height:21px;
-    font-size:16px;
+    width:96px; /* [size] */
+    height:21px; /* [size] */
+    font-size:16px; /* [size] */
     font-family:'Microsoft YaHei';
     color:rgba(207,207,207,1);
-    line-height:21px;
+    line-height:21px; /* [size] */
 }
 
 QSlider { 
-    border: none;
-    width:132px;
-    height:40px;
+    width:132px; /* [size] */
+    height:40px; /* [size] */
     background:rgba(42,46,48,1);
-    border-radius:20px;
+    border-radius:20px; /* [size] */
 }
 
 QSlider::groove:horizontal {
-     height: 40px;
-     width: 132px;
-     background: #000000;
-     border-radius: 20px;
+    height: 40px; /* [size] */
+    width: 132px; /* [size] */
+    background: #222428;
+    border-radius: 20px; /* [size] */
 }
 
 QSlider::handle:horizontal {
-     width: 60px;
-     height: 40px;
-     margin: 2px;
-     border-radius: 20px;
-     border-image: url(":/teachingtools/icon/eraser.svg");
+    width: 60px; /* [size] */
+    height: 40px; /* [size] */
+    margin: 2px; /* [size] */
+    border-radius: 20px; /* [size] */
+    border-image: url(":/teachingtools/icon/eraser.svg");
 }

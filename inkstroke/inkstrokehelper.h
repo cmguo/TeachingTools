@@ -6,6 +6,7 @@
 class ToolButton;
 class InkCanvas;
 class InkCanvasStrokeCollectedEventArgs;
+class QssHelper;
 
 #include <QColor>
 
@@ -29,7 +30,7 @@ public:
                                 ToolButton * parent);
 
 public:
-    static QWidget * createEraserWidget();
+    static QWidget * createEraserWidget(QssHelper const & qss);
 };
 
 #endif // INKSTROKEHELPER_H

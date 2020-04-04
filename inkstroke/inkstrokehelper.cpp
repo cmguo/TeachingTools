@@ -179,6 +179,8 @@ static StateColorToolButtons colorButtons(QList<QColor>({
 }));
 static StateWidthToolButtons widthButtons({2.0, 4.0, 8.0, 16.0});
 
+static QssHelper QSS_ERASER(":/teachingtools/qss/inkeraser.qss");
+
 void InkStrokeHelper::getToolButtons(InkCanvas* ink, QList<ToolButton *> &buttons, ToolButton *parent)
 {
     if (parent->name() == "stroke(QString)") {
@@ -188,7 +190,7 @@ void InkStrokeHelper::getToolButtons(InkCanvas* ink, QList<ToolButton *> &button
     } else if (parent->name() == "eraser(QString)") {
         QVariant eraseAllButton = ink->property("eraseAllButton");
         if (!eraseAllButton.isValid()) {
-            QWidget * w = createEraserWidget();
+            QWidget * w = createEraserWidget(QSS_ERASER);
             ToolButton* b = new ToolButton({"eraseAll()", "", ToolButton::CustomWidget,
                         QVariant::fromValue(w)});
             eraseAllButton.setValue(b);
@@ -202,16 +204,16 @@ void InkStrokeHelper::getToolButtons(InkCanvas* ink, QList<ToolButton *> &button
     }
 }
 
-static QssHelper QSS_ERASER(":/teachingtools/qss/inkeraser.qss");
-
-QWidget *InkStrokeHelper::createEraserWidget()
+QWidget *InkStrokeHelper::createEraserWidget(QssHelper const & qss)
 {
     QWidget* widget = new QFrame(nullptr);
     widget->setWindowFlags(Qt::FramelessWindowHint);
     widget->setObjectName("inkeraser");
-    widget->setFixedSize(180, 125);
-    //pWidget->setStyleSheet(QSS_ERASER);
-
+    qDebug() << "createEraserWidget" << QString(qss);
+    int w = qss.value("#inkeraser", "width").replace("px", "").toInt();
+    int h = qss.value("#inkeraser", "height").replace("px", "").toInt();
+    widget->setFixedSize(w, h);
+    widget->setStyleSheet(qss);
     QSlider* pSliter = new QSlider();
     pSliter->setOrientation(Qt::Horizontal);
     //设置滑动条控件的最小值
