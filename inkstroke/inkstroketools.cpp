@@ -110,6 +110,8 @@ void InkStrokeTools::setOuterControl(QObject *control)
         outerControl_->setProperty("editingMode", QVariant::fromValue(mode_));
         outerControl_->setProperty("color", colorOuter_);
         outerControl_->setProperty("width", width_);
+        // avoid misunderstand
+        inkControl_->setEditingMode(InkCanvasEditingMode::None);
         colorButtons.updateValue(*activeColor_);
         connect(outerControl_, &QObject::destroyed, this, [this] {
             setOuterControl(nullptr);
