@@ -3,6 +3,7 @@
 #include "inkstrokehelper.h"
 
 #include <views/whitecanvas.h>
+#include <core/resourcetransform.h>
 
 #include <Windows/Controls/inkcanvas.h>
 #include <Windows/Controls/inkevents.h>
@@ -10,10 +11,13 @@
 #include <Windows/Input/StylusPlugIns/stylusplugincollection.h>
 #include <Windows/Input/StylusPlugIns/stylusplugin.h>
 #include <Windows/Input/StylusPlugIns/rawstylusinput.h>
-#include <core/resourcetransform.h>
+
+#include <QGraphicsScene>
+#include <QGraphicsSceneEvent>
 
 InkStrokeControl::InkStrokeControl(ResourceView *res)
     : Control(res, {FullLayout, Touchable}, DefaultFlags)
+    , filterItem_(nullptr)
 {
 }
 
@@ -52,6 +56,11 @@ void InkStrokeControl::setEditingMode(InkCanvasEditingMode mode)
         } else {
             teardownErasing();
         }
+        if (mode == InkCanvasEditingMode::Ink) {
+            item_->installSceneEventFilter(filterItem_);
+        } else {
+            item_->removeSceneEventFilter(filterItem_);
+        }
         editingModeChanged(mode);
     }
 }
@@ -75,6 +84,15 @@ void InkStrokeControl::clear()
     strokes->clear();
 }
 
+class EventFilterItem : public QGraphicsItem
+{
+public:
+    EventFilterItem(QGraphicsItem * parentItem) : QGraphicsItem(parentItem) {}
+    QRectF boundingRect() const override { return QRectF(); }
+    void paint(QPainter *, const QStyleOptionGraphicsItem *, QWidget *) override {}
+    bool sceneEventFilter(QGraphicsItem *watched, QEvent *event) override;
+};
+
 QGraphicsItem * InkStrokeControl::create(ResourceView *res)
 {
     (void) res;
@@ -82,6 +100,7 @@ QGraphicsItem * InkStrokeControl::create(ResourceView *res)
     if (!ink->acceptTouchEvents())
         flags_.setFlag(Touchable, false);
     ink->DefaultDrawingAttributes()->SetColor(Qt::white);
+    filterItem_ = new EventFilterItem(ink);
     return ink;
 }
 
@@ -147,6 +166,35 @@ void InkStrokeControl::detaching()
     if (res_->flags() & ResourceView::Splittable) {
         teardownErasing();
     }
+}
+
+bool EventFilterItem::sceneEventFilter(QGraphicsItem *watched, QEvent *event)
+{
+    (void) watched;
+    if (event->type() == QEvent::GraphicsSceneMousePress
+            || event->type() == QEvent::GraphicsSceneMouseRelease) {
+        QGraphicsSceneMouseEvent & me = static_cast<QGraphicsSceneMouseEvent&>(*event);
+        QList<QGraphicsItem*> items = scene()->items(me.scenePos());
+        items = items.mid(items.indexOf(watched) + 1);
+        QGraphicsItem* whiteCanvas = watched->parentItem()->parentItem();
+        Qt::MouseEventSource source = me.source();
+        me.setSource(Qt::MouseEventNotSynthesized);
+        for (QGraphicsItem * item : items) {
+            if (item == whiteCanvas)
+                break;
+            if (InkCanvas::fromItem(item))
+                break;
+            me.setPos(item->mapFromScene(me.scenePos()));
+            me.setLastPos(item->mapFromScene(me.lastScenePos()));
+            if (scene()->sendEvent(item, event) && event->isAccepted())
+                break;
+        }
+        me.setSource(source);
+        me.setPos(watched->mapFromScene(me.scenePos()));
+        me.setLastPos(watched->mapFromScene(me.lastScenePos()));
+        event->ignore();
+    }
+    return false;
 }
 
 class InputBroadcaster : public StylusPlugIn

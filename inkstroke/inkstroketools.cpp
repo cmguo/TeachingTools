@@ -62,6 +62,9 @@ void InkStrokeTools::attachToWhiteCanvas(WhiteCanvas *whiteCanvas)
     QObject::connect(package, &ResourcePackage::currentPageChanged, this, [this](ResourcePage* page) {
         switchPage(page);
     });
+    QObject::connect(package, &ResourcePackage::currentSubPageChanged, this, [this](ResourcePage* page) {
+        switchPage(page);
+    });
     if (ResourcePage * page = whiteCanvas->page())
         switchPage(page);
 }

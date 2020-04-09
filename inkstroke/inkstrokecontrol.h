@@ -57,6 +57,9 @@ private:
     void setupErasing();
 
     void teardownErasing();
+
+private:
+    QGraphicsItem * filterItem_;
 };
 
 #endif // INKSTROKECONTROL_H
