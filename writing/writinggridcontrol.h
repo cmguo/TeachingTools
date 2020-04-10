@@ -17,7 +17,7 @@ class TEACHINGTOOLS_EXPORT WritingGridControl: public Control
 public:
     Q_INVOKABLE WritingGridControl(ResourceView *res);
 
-    using :: Control::sizeChanged;
+    using Control::sizeChanged;
 
 private slots:
     void changeGridType();

@@ -50,8 +50,7 @@ public:
     }
     virtual void applyTo(QMatrix4x4 *matrix) const override
     {
-        //*matrix = transform_.toAffine()* *matrix ;
-        *matrix *= transform_.toAffine();
+        *matrix = matrix->toTransform() * transform_;
     }
 private:
     QTransform transform_;
@@ -86,17 +85,16 @@ void PageBoxControl::attached()
             QGraphicsItem* canvas = item_->parentItem()->parentItem();
             QGraphicsTransform * ct = Control::fromItem(canvas)->transform();
             ControlTransform * ct1 = new ControlTransform(static_cast<ControlTransform*>(ct), true, true, true);
-            QPointF pos(0, item_->scene()->sceneRect().bottom() - 30);
+            QPointF pos(0, item_->scene()->sceneRect().bottom() - 46);
             StaticTransform* ct2 = new StaticTransform(QTransform::fromTranslate(pos.x(), pos.y()), ct);
-            item->toolBar()->setTransformations({ct1, ct2});
+            item->toolBar()->setTransformations({ct2, ct1});
             item->setSizeMode(PageBoxItem::LargeCanvas);
         } else {
             item->setSizeMode((flags_ & FullLayout) ? PageBoxItem::FixedSize : PageBoxItem::MatchContent);
             ControlTransform * ct1 = new ControlTransform(static_cast<ControlTransform*>(transform_), true, false, false);
+            item->toolBar()->setTransformations({ct1});
             QPointF pos(0, item->boundingRect().bottom() - 46);
-            StaticTransform* ct2 = new StaticTransform(QTransform::fromTranslate(pos.x(), pos.y()), transform_);
-            item->toolBar()->setTransformations({ct2, ct1});
-            bottomTransform_ = ct2;
+            item->toolBar()->setPos(pos);
         }
         item->toolBar()->hide();
     }
@@ -134,10 +132,9 @@ void PageBoxControl::resize(QSizeF const & size)
     rect.moveCenter(QPointF(0, 0));
     item->setRect(rect);
     item->sizeChanged();
-    if (bottomTransform_) { // maybe before attached
-        QPointF pos(0, rect.bottom() - 60);
-        StaticTransform* ct2 = static_cast<StaticTransform*>(bottomTransform_);
-        ct2->setTransform(QTransform::fromTranslate(pos.x(), pos.y()));
+    if (!res_->flags().testFlag(ResourceView::LargeCanvas)) {
+        QPointF pos(0, item->boundingRect().bottom() - 46);
+        item->toolBar()->setPos(pos);
     }
 }
 
