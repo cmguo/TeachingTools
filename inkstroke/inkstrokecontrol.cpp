@@ -87,10 +87,12 @@ void InkStrokeControl::clear()
 class EventFilterItem : public QGraphicsItem
 {
 public:
-    EventFilterItem(QGraphicsItem * parentItem) : QGraphicsItem(parentItem) {}
+    EventFilterItem(QGraphicsItem * parentItem) : QGraphicsItem(parentItem), life_(new int) {}
     QRectF boundingRect() const override { return QRectF(); }
     void paint(QPainter *, const QStyleOptionGraphicsItem *, QWidget *) override {}
     bool sceneEventFilter(QGraphicsItem *watched, QEvent *event) override;
+private:
+    QSharedPointer<int> life_;
 };
 
 QGraphicsItem * InkStrokeControl::create(ResourceView *res)
@@ -179,6 +181,9 @@ bool EventFilterItem::sceneEventFilter(QGraphicsItem *watched, QEvent *event)
         QGraphicsItem* whiteCanvas = watched->parentItem()->parentItem();
         Qt::MouseEventSource source = me.source();
         me.setSource(Qt::MouseEventNotSynthesized);
+        QPointF pos = me.pos();
+        QPointF lastPos = me.lastPos();
+        QWeakPointer<int> l = life_;
         for (QGraphicsItem * item : items) {
             if (item == whiteCanvas)
                 break;
@@ -189,9 +194,11 @@ bool EventFilterItem::sceneEventFilter(QGraphicsItem *watched, QEvent *event)
             if (scene()->sendEvent(item, event) && event->isAccepted())
                 break;
         }
+        if (l.isNull())
+            return true;
         me.setSource(source);
-        me.setPos(watched->mapFromScene(me.scenePos()));
-        me.setLastPos(watched->mapFromScene(me.lastScenePos()));
+        me.setPos(pos);
+        me.setLastPos(lastPos);
         event->ignore();
     }
     return false;
