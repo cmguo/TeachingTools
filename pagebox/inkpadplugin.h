@@ -38,10 +38,10 @@ protected:
     virtual bool selectTest(const QPointF &pt) override;
 
 protected:
-    virtual void updateToolButton(ToolButton * button) override;
-
     virtual void getToolButtons(QList<ToolButton *> & buttons,
                                 ToolButton * parent) override;
+
+    virtual void updateToolButton(ToolButton * button) override;
 
 private:
     InkCanvas * inkCanvas_;

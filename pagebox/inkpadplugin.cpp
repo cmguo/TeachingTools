@@ -95,11 +95,6 @@ bool InkPadPlugin::selectTest(const QPointF &pt)
     return InkStrokeHelper::selectTest(inkCanvas_, pt) != Control::NotSelect;
 }
 
-void InkPadPlugin::updateToolButton(ToolButton *button)
-{
-    InkStrokeHelper::updateToolButton(inkCanvas_, button);
-}
-
 void InkPadPlugin::getToolButtons(QList<ToolButton *> &buttons, ToolButton *parent)
 {
     if (parent == nullptr) {
@@ -109,3 +104,7 @@ void InkPadPlugin::getToolButtons(QList<ToolButton *> &buttons, ToolButton *pare
     InkStrokeHelper::getToolButtons(inkCanvas_, buttons, parent);
 }
 
+void InkPadPlugin::updateToolButton(ToolButton *button)
+{
+    InkStrokeHelper::updateToolButton(inkCanvas_, button);
+}

@@ -149,10 +149,10 @@ QString InkStrokeHelper::toolString()
     return toolsStr;
 }
 
-void InkStrokeHelper::updateToolButton(InkCanvas* ink, ToolButton *button)
+bool InkStrokeHelper::updateToolButton(InkCanvas* ink, ToolButton *button)
 {
     if (!button->name().startsWith("stroke(") && !button->name().startsWith("eraser("))
-        return;
+        return false;
     bool checked = button->name().startsWith("stroke(")
               ? ink->EditingMode() == InkCanvasEditingMode::Ink
               : (ink->EditingMode() == InkCanvasEditingMode::EraseByStroke
@@ -171,6 +171,7 @@ void InkStrokeHelper::updateToolButton(InkCanvas* ink, ToolButton *button)
         if (button->name() == "eraser(QString)")
             button->setName("eraser()");
     }
+    return true;
 }
 
 static StateColorToolButtons colorButtons(QList<QColor>({

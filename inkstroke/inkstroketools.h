@@ -53,7 +53,7 @@ public:
     virtual void updateToolButton(ToolButton *button) override;
 
 protected:
-    virtual void setOption(const QByteArray &key, QVariant value) override;
+    virtual bool setOption(const QByteArray &key, QVariant value) override;
 
 private:
     void switchPage(ResourcePage * page);

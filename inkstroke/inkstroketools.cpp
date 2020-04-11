@@ -167,8 +167,9 @@ void InkStrokeTools::clearInkStroke()
     setMode(InkCanvasEditingMode::Ink);
 }
 
-void InkStrokeTools::setOption(const QByteArray &key, QVariant value)
+bool InkStrokeTools::setOption(const QByteArray &key, QVariant value)
 {
+    bool result = true;
     if (key == "nonStroke") {
         setMode(InkCanvasEditingMode::None);
     } else if (key == "stroke") {
@@ -210,8 +211,9 @@ void InkStrokeTools::setOption(const QByteArray &key, QVariant value)
             break;
         }
     } else {
-        ToolButtonProvider::setOption(key, value);
+        result = ToolButtonProvider::setOption(key, value);
     }
+    return result;
 }
 
 void InkStrokeTools::getToolButtons(QList<ToolButton *> &buttons, ToolButton *parent)
@@ -235,6 +237,8 @@ void InkStrokeTools::updateToolButton(ToolButton *button)
         widthButtons.updateValue(width_);
     } else if (button->name() == "eraser") {
         button->setChecked(mode_ == InkCanvasEditingMode::EraseByPoint);
+    } else {
+        ToolButtonProvider::updateToolButton(button);
     }
 }
 

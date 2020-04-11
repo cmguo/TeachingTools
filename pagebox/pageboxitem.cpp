@@ -17,7 +17,6 @@
 #include <QDebug>
 
 static constexpr char const * toolsStr =
-        "-full|全屏|NeedUpdate|:/teachingtools/icon/enter_full.svg;"
         "duplex()|双页|Checkable,UnionUpdate|:/teachingtools/icon/double_page.svg;"
         "single()|单页|Checkable,UnionUpdate|:/teachingtools/icon/single_page.svg;"
         ";"
@@ -39,14 +38,8 @@ PageBoxItem::PageBoxItem(QGraphicsItem * parent)
     QObject::connect(document_, &PageBoxDocItem::sizeChanged, this, &PageBoxItem::documentSizeChanged);
 
     pageNumber_ = new PageNumberWidget();
-    QGraphicsProxyWidget * proxy = new QGraphicsProxyWidget(this);
     toolBar_ = new PageBoxToolBar;
-    proxy->setWidget(toolBar_);
-    QObject::connect(toolBar_, &PageBoxToolBar::sizeChanged, proxy, [proxy](){
-        QPointF pos = -proxy->boundingRect().center();
-        proxy->setTransform(QTransform::fromTranslate(pos.x(), pos.y()));
-    });
-    toolBarProxy_ = proxy;
+    toolBarProxy_ = toolBar_->toGraphicsProxy(this);
     QObject::connect(pageNumber_, &PageNumberWidget::pageNumberChanged, this, &PageBoxItem::documentPageChanged);
     setToolsString(toolsStr);
 
@@ -89,7 +82,8 @@ bool PageBoxItem::selectTest(QPointF const & point)
 void PageBoxItem::setSizeMode(PageBoxItem::SizeMode mode)
 {
     sizeMode_ = mode;
-    toolBar_->attachProvider(this);
+    if (mode != LargeCanvas)
+        toolBar_->attachProvider(this);
 }
 
 void PageBoxItem::sizeChanged()
@@ -101,6 +95,12 @@ QRectF PageBoxItem::visibleRect() const
 {
     return sizeMode_ == LargeCanvas ? QRectF(rect().topLeft(), scene()->sceneRect().size())
                                     : boundingRect();
+}
+
+void PageBoxItem::setPlugin(PageBoxPlugin *plugin)
+{
+    attachSubProvider(plugin, true);
+    document_->setPlugin(plugin);
 }
 
 void PageBoxItem::duplex()
@@ -131,12 +131,10 @@ void PageBoxItem::exit()
     }
 }
 
-void PageBoxItem::getToolButtons(QList<ToolButton *> &buttons, const QList<ToolButton *> &parents)
+void PageBoxItem::getToolButtons(QList<ToolButton *> &buttons, ToolButton *parent)
 {
-    if (document_->plugin_)
-        document_->plugin_->getToolButtons(buttons, parents);
-    ToolButtonProvider::getToolButtons(buttons, parents);
-    if (parents.empty()) {
+    ToolButtonProvider::getToolButtons(buttons, parent);
+    if (parent == nullptr) {
         for (ToolButton * & b : buttons) {
             if (b->name() == "pages")
                 b = pageNumber_->toolButton();
@@ -167,26 +165,9 @@ void PageBoxItem::updateToolButton(ToolButton *button)
         button->setEnabled(document_->canStepScale(true));
     } else if (button->name() == "scaleDown()") {
         button->setEnabled(document_->canStepScale(false));
+    } else {
+        ToolButtonProvider::updateToolButton(button);
     }
-}
-
-void PageBoxItem::handleToolButton(const QList<ToolButton *> &buttons)
-{
-    ToolButton * button = buttons.back();
-    if (button->name() == "full") {
-        if (button->isChecked()) {
-            button->setChecked(false);
-            button->setText("全屏");
-            button->setIcon(":/teachingtools/icon/enter_full.svg");
-        } else {
-            button->setChecked(true);
-            button->setText("缩小");
-            button->setIcon(":/teachingtools/icon/exit_full.svg");
-        }
-    }
-    if (document_->plugin_)
-        document_->plugin_->handleToolButton(buttons);
-    ToolButtonProvider::handleToolButton(buttons);
 }
 
 void PageBoxItem::documentPageChanged(int page)

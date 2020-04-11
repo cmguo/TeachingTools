@@ -98,6 +98,7 @@ void PageBoxControl::attached()
         }
         item->toolBar()->hide();
     }
+    attachSubProvider(item);
     PageBoxDocItem * doc = item->document();
     if (res_->flags().testFlag(ResourceView::ListOfPages)) {
         QObject::connect(doc, &PageBoxDocItem::currentPageChanged, this, [this](int page) {
@@ -118,7 +119,8 @@ void PageBoxControl::attached()
 void PageBoxControl::detaching()
 {
     PageBoxItem * item = static_cast<PageBoxItem *>(item_);
-    item->document()->setPlugin(nullptr);
+    attachSubProvider(nullptr);
+    item->setPlugin(nullptr);
     QList<QGraphicsTransform*> tfs(item->toolBar()->transformations());
     item->toolBar()->setTransformations({});
     for (QGraphicsTransform* tf : tfs) // must delete before item
@@ -179,11 +181,11 @@ void PageBoxControl::enableInkPad()
     for(QObject* c : res_->children()) {
         InkPadPlugin * ink = qobject_cast<InkPadPlugin*>(c);
         if (ink) {
-            item->document()->setPlugin(ink);
+            item->setPlugin(ink);
             return;
         }
     }
-    item->document()->setPlugin(new InkPadPlugin(res_));
+    item->setPlugin(new InkPadPlugin(res_));
     if (!(flags_ & RestoreSession))
         whiteCanvas()->topControl()->setProperty("editingMode", 0);
 }

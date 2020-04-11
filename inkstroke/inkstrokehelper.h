@@ -24,7 +24,7 @@ public:
 
     static QString toolString();
 
-    static void updateToolButton(InkCanvas* ink, ToolButton * button);
+    static bool updateToolButton(InkCanvas* ink, ToolButton * button);
 
     static void getToolButtons(InkCanvas* ink, QList<ToolButton *> & buttons,
                                 ToolButton * parent);

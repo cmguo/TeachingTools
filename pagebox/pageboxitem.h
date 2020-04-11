@@ -8,6 +8,7 @@
 class PageBoxDocItem;
 class PageBoxToolBar;
 class PageNumberWidget;
+class PageBoxPlugin;
 
 class PageBoxItem : public ToolButtonProvider, public QGraphicsRectItem
 {
@@ -47,6 +48,8 @@ public:
 
     QRectF visibleRect() const;
 
+    void setPlugin(PageBoxPlugin* plugin);
+
 public slots:
     void duplex();
 
@@ -67,12 +70,10 @@ protected:
 
     void setPageBoxState(QByteArray state);
 
-protected:
-    virtual void getToolButtons(QList<ToolButton *> &buttons, const QList<ToolButton *> &parents = {}) override;
+public:
+    virtual void getToolButtons(QList<ToolButton *> &buttons, ToolButton *parent) override;
 
     virtual void updateToolButton(ToolButton *button) override;
-
-    virtual void handleToolButton(const QList<ToolButton *> &buttons) override;
 
 private:
     void documentPageChanged(int page);
