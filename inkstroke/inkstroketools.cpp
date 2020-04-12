@@ -72,15 +72,21 @@ void InkStrokeTools::attachToWhiteCanvas(WhiteCanvas *whiteCanvas)
 void InkStrokeTools::switchPage(ResourcePage *page)
 {
     // detach active first, last control has dead
+    InkStrokeControl * control = qobject_cast<InkStrokeControl*>(canvas_->topControl());
+    if (control == nullptr) // sometimes sub page change goes first, we can safely ignore
+        return;
     inkControl_ = nullptr;
     activeControl_ = outerControl_;
-    InkStrokeControl * control = qobject_cast<InkStrokeControl*>(canvas_->topControl());
     inkColor_ = &colorNormal_;
-    if (!outerControl_ && page->isIndependentPage()) {
+    while (page->isSubPage())
+        page = qobject_cast<ResourcePage*>(page->parent());
+    if (page->isIndependentPage()) {
         inkColor_ = &colorShow_;
-        QVariant editingMode = page->mainResource()->property("editingMode");
-        if (editingMode.isValid())
-            setMode(editingMode.value<InkCanvasEditingMode>());
+        if (!outerControl_) {
+            QVariant editingMode = page->mainResource()->property("editingMode");
+            if (editingMode.isValid())
+                setMode(editingMode.value<InkCanvasEditingMode>());
+        }
     }
     if (outerControl_ == nullptr) {
         activeColor_ = inkColor_;

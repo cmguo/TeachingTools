@@ -17,15 +17,16 @@
 #include <QDebug>
 
 static constexpr char const * toolsStr =
-        "duplex()|双页|Checkable,UnionUpdate|:/teachingtools/icon/double_page.svg;"
-        "single()|单页|Checkable,UnionUpdate|:/teachingtools/icon/single_page.svg;"
-        ";"
         "scaleUp()||UnionUpdate|:/teachingtools/icon/zoom_in.svg,default;"
         "scaleDown()||UnionUpdate|:/teachingtools/icon/zoom_out.svg,default;"
+        "|;"
+        "duplex()|双页|Checkable,UnionUpdate|:/teachingtools/icon/double_page.svg;"
+        "single()|单页|Checkable,UnionUpdate|:/teachingtools/icon/single_page.svg;"
         "pages||;";
 
 PageBoxItem::PageBoxItem(QGraphicsItem * parent)
     : QGraphicsRectItem(parent)
+    , pageMode_(Paper)
     , sizeMode_(FixedSize)
 {
     setFlags(ItemClipsToShape | ItemClipsChildrenToShape);
@@ -77,6 +78,22 @@ bool PageBoxItem::selectTest(QPointF const & point)
     return (document_->plugin_ == nullptr
                 || document_->plugin_->selectTest(document_->pluginItem_->mapFromItem(this, point)))
             && !toolBarProxy_->contains(mapToItem(toolBarProxy_, point));
+}
+
+void PageBoxItem::setPageMode(PageBoxItem::PageMode mode)
+{
+    pageMode_ = mode;
+    switch (mode) {
+    case Paper:
+        document_->setLayoutMode(PageBoxDocItem::Continuous);
+        document_->setDirection(PageBoxDocItem::Vertical);
+        document_->setPadding(30);
+        break;
+    case Book:
+        document_->setLayoutMode(PageBoxDocItem::Duplex);
+        document_->setDirection(PageBoxDocItem::Horizontal);
+        break;
+    }
 }
 
 void PageBoxItem::setSizeMode(PageBoxItem::SizeMode mode)
@@ -143,7 +160,7 @@ void PageBoxItem::getToolButtons(QList<ToolButton *> &buttons, ToolButton *paren
                         || b->name() == "scaleDown()")
                     b = nullptr;
             }
-            if (sizeMode_ != MatchContent) {
+            if (pageMode_ != Book) {
                 if (b && (b->name() == "duplex()"
                         || b->name() == "single()"))
                     b = nullptr;
@@ -183,6 +200,11 @@ void PageBoxItem::documentSizeChanged(const QSizeF &pageSize2)
     if (sizeMode_ == FixedSize) {
         return;
     }
+    if (sizeMode_ == LargeCanvas) {
+        PageBoxControl * control = qobject_cast<PageBoxControl*>(Control::fromItem(this));
+        if (control->flags() & (Control::RestoreSession | Control::LoadFinished))
+            return;
+    }
     QSizeF size2 = calcSize(pageSize2);
     QRectF rect(QPointF(0, 0), size2);
     rect.moveCenter(QPointF(0, 0));
@@ -198,9 +220,6 @@ QSizeF PageBoxItem::calcSize(QSizeF const &pageSize2)
 {
     QRectF rect = this->rect();
     if (sizeMode_ == LargeCanvas) {
-        PageBoxControl * control = qobject_cast<PageBoxControl*>(Control::fromItem(this));
-        if (control->flags() & Control::RestoreSession)
-            return rect.size();
         QSizeF docSize = document_->documentSize();
         document_->rescale();
         document_->transferToManualScale();

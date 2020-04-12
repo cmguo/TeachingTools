@@ -98,10 +98,10 @@ void PageBoxDocItem::setManualScale(qreal scale, bool changeMode)
 void PageBoxDocItem::transferToManualScale()
 {
     QRectF vrect = static_cast<PageBoxItem*>(parentItem())->visibleRect();
-    qreal sw = vrect.width() / pageSize2_.width();
-    qreal sh = vrect.height() / pageSize2_.height();
+    qreal sw = vrect.width() / pageSize1_.width();
+    qreal sh = vrect.height() / pageSize1_.height();
     qreal sMin = qMin(sh, sw);
-    qreal sMax = direction_ == Vertical ? sw : sh;
+    qreal sMax = qMax(sh, sw);
     qreal d = sMax / sMin;
     maxScaleLevel_ = 1;
     while (d >= 1.44) {
@@ -109,8 +109,12 @@ void PageBoxDocItem::transferToManualScale()
         d = sqrt(d);
     }
     scaleInterval_ = d;
-    scaleLevel_ = scaleMode_ == WholePage ? 0 : maxScaleLevel_;
     manualScale_ = scale();
+    sMin *= scaleInterval_;
+    while (sMin < manualScale_) {
+        sMin *= scaleInterval_;
+        ++scaleLevel_;
+    }
     scaleMode_ = ManualScale;
 }
 
@@ -231,7 +235,7 @@ void PageBoxDocItem::relayout()
         return;
     QPointF pos;
     QPointF off;
-    pageSize2_ = pageSize_;
+    pageSize1_ = pageSize2_ = pageSize_;
     if (direction_ == Vertical) {
         pos.setY(padding_);
         off.setY(pageSize_.height() + padding_);
@@ -255,6 +259,11 @@ void PageBoxDocItem::relayout()
         itemBindings_->bind(QVariant::fromValue(pageItem), item0);
         pageItem->setPos(pos);
         pos += off;
+        // special case, transform attach prevent us to place single page at center
+        if (static_cast<PageBoxItem*>(parentItem())->sizeMode() == PageBoxItem::LargeCanvas) {
+            pageItem->setPos(pos - off / 2);
+            pos += off;
+        }
     } else if (layoutMode_ == Duplex) {
         if (layoutMode_ == Duplex && curPage_ != 0 && curPage_ % 2 == 1 && curPage_ + 1 < model_->rowCount())
             ++curPage_;
@@ -277,6 +286,8 @@ void PageBoxDocItem::relayout()
         } else {
 #if DUPLEX_FIX_SIZE
             pageSize2_ += QSizeF(off.x(), off.y());
+            pos += off;
+            pageItem1->setPos(pageItem1->pos() + off / 2);
 #endif
             pageItem2->setVisible(false);
         }
@@ -461,28 +472,34 @@ void PageBoxDocItem::goToPage(int page)
             off.setWidth(pageSize_.width() + padding_);
         }
         itemBindings_->bind(QVariant::fromValue(pageItem1), item1);
-#if DUPLEX_FIX_SIZE
-        QSizeF size = pageSize2_;
-#else
+#if !DUPLEX_FIX_SIZE
         QSizeF& size = pageSize2_;
 #endif
         if (curPage_ == 0) {
-            pageItem2->setVisible(false);
+#if DUPLEX_FIX_SIZE
+            pageItem1->setPos(pageItem1->pos() + QPointF(off.width(), off.height()) / 2);
+#else
             size -= off;
+#endif
+            pageItem2->setVisible(false);
         } else {
+            if (lastPage == 0)
+#if DUPLEX_FIX_SIZE
+                pageItem1->setPos(pageItem1->pos() - QPointF(off.width(), off.height()) / 2);
+#else
+                size += off;
+#endif
+            pageItem2->setVisible(true);
             if ((curPage_ & 1) == 0) {
                 QVariant item2 = model_->data(model_->index(curPage_, 0), Qt::UserRole + 1);
                 itemBindings_->bind(QVariant::fromValue(pageItem2), item2);
             }
-            pageItem2->setVisible(true);
-#if !DUPLEX_FIX_SIZE
-            if (lastPage == 0)
-                size += off;
-#endif
         }
+#if !DUPLEX_FIX_SIZE
         setRect(QRectF(QPointF(0, 0), size));
         onSizeChanged(pageSize2_);
         rescale();
+#endif
     } else {
         QPointF topLeft = parentItem()->boundingRect().topLeft();
         QPointF off(offset());

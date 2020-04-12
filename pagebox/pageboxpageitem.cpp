@@ -49,6 +49,8 @@ void PageBoxPageItem::setPixmap(const QPixmap &pixmap)
         QSizeF imageSize(pixmap.size());
         setTransform(QTransform::fromScale(
                          pageSize.width() / imageSize.width(), pageSize.height() / imageSize.height()));
+    } else {
+        setTransform(QTransform());
     }
 }
 

@@ -63,16 +63,8 @@ void PageBoxControl::attaching()
     if (flags_ & RestoreSession)
         return;
     PageBoxDocItem * doc = item->document();
-    if (res_->flags().testFlag(ResourceView::LargeCanvas)) {
-        doc->setLayoutMode(PageBoxDocItem::Continuous);
-        doc->setDirection(PageBoxDocItem::Vertical);
-        doc->setScaleMode(PageBoxDocItem::WholePage);
-        doc->setPadding(30);
-    } else {
-        doc->setLayoutMode(PageBoxDocItem::Duplex);
-        doc->setDirection(PageBoxDocItem::Horizontal);
-        doc->setScaleMode(PageBoxDocItem::WholePage);
-    }
+    doc->setScaleMode(PageBoxDocItem::WholePage);
+
     //doc->setPlugin(new InkPadPlugin);
 }
 
@@ -98,7 +90,9 @@ void PageBoxControl::attached()
         }
         item->toolBar()->hide();
     }
-    attachSubProvider(item);
+    // ToolbarWidget has update problem, we do this later
+    //if (res_->flags().testFlag(ResourceView::LargeCanvas))
+    //    attachSubProvider(item);
     PageBoxDocItem * doc = item->document();
     if (res_->flags().testFlag(ResourceView::ListOfPages)) {
         QObject::connect(doc, &PageBoxDocItem::currentPageChanged, this, [this](int page) {
@@ -248,8 +242,11 @@ void PageBoxControl::loadPages(PageBoxItem * item)
         }
     }
     if (!(flags_ & RestoreSession)) {
-        doc->stepMiddleScale();
+        if (item->pageMode() == PageBoxItem::Paper)
+            doc->stepMiddleScale();
     }
     item->buttonsChanged();
+    if (res_->flags().testFlag(ResourceView::LargeCanvas))
+        attachSubProvider(item);
     //*/
 }

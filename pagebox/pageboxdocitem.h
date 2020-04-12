@@ -15,8 +15,8 @@ public:
     enum LayoutMode
     {
         Single,
-        Duplex, // except first page
         Continuous,
+        Duplex, // except first page
     };
 
     enum Direction
@@ -172,6 +172,7 @@ private:
     ResourceTransform * transform_;
 
     QSizeF pageSize_;
+    QSizeF pageSize1_;
     QSizeF pageSize2_;
     Direction direction_;
     LayoutMode layoutMode_;

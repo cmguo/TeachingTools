@@ -14,8 +14,27 @@ class PageBoxItem : public ToolButtonProvider, public QGraphicsRectItem
 {
     Q_OBJECT
 
+    Q_PROPERTY(PageMode pageMode READ pageMode  WRITE setPageMode)
+    Q_PROPERTY(SizeMode sizeMode READ sizeMode  WRITE setSizeMode)
     Q_PROPERTY(int pageNumber READ pageNumber  WRITE setPageNumber)
     Q_PROPERTY(QByteArray pageBoxState READ pageBoxState  WRITE setPageBoxState)
+
+public:
+    enum PageMode {
+        Paper,
+        Book,
+    };
+
+    Q_ENUM(PageMode)
+
+    enum SizeMode
+    {
+        FixedSize,
+        MatchContent,
+        LargeCanvas
+    };
+
+    Q_ENUM(SizeMode)
 
 public:
     PageBoxItem(QGraphicsItem * parent = nullptr);
@@ -35,12 +54,17 @@ public:
 
     bool selectTest(QPointF const & point);
 
-    enum SizeMode
+    PageMode pageMode() const
     {
-        FixedSize,
-        MatchContent,
-        LargeCanvas
-    };
+        return pageMode_;
+    }
+
+    void setPageMode(PageMode mode);
+
+    SizeMode sizeMode() const
+    {
+        return sizeMode_;
+    }
 
     void setSizeMode(SizeMode mode);
 
@@ -99,6 +123,7 @@ private:
     PageNumberWidget * pageNumber_;
 
 private:
+    PageMode pageMode_;
     SizeMode sizeMode_;
     QPointF start_;
     QRectF direction_;
