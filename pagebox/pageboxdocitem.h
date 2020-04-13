@@ -139,6 +139,8 @@ public:
     void restorePosition();
 
 signals:
+    void layoutModeChanged();
+
     void pageCountChanged(int count);
 
     void currentPageChanged(int page);

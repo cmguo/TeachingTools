@@ -98,6 +98,9 @@ void PageBoxControl::attached()
         QObject::connect(doc, &PageBoxDocItem::currentPageChanged, this, [this](int page) {
             res_->page()->switchSubPage(page);
         });
+        QObject::connect(doc, &PageBoxDocItem::layoutModeChanged, this, [this]() {
+            res_->page()->clearSubPages();
+        });
     }
     if (property("pageData").isValid()) {
         loadPages(item);

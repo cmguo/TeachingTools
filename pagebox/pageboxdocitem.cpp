@@ -72,6 +72,7 @@ void PageBoxDocItem::setLayoutMode(LayoutMode mode)
     if (layoutMode_ == mode)
         return;
     layoutMode_ = mode;
+    emit layoutModeChanged();
     relayout();
     rescale();
 }
