@@ -12,7 +12,7 @@ PageNumberWidget::PageNumberWidget(QWidget *parent)
     : QWidget(parent, Qt::FramelessWindowHint)
 {
     static QssHelper qss(":/teachingtools/qss/pagenumber.qss");
-    QSize iconSize = QssHelper::sizeFromString(qss.value("QPushButton", "qproperty-iconSize"));
+    QSize iconSize = qss.value("QPushButton", "qproperty-iconSize").toSize();
     setStyleSheet(qss);
     QHBoxLayout* layout = new QHBoxLayout(this);
     preBtn_ = new QPushButton(this);

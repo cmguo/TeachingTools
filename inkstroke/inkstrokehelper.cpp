@@ -211,8 +211,8 @@ QWidget *InkStrokeHelper::createEraserWidget(QssHelper const & qss)
     widget->setWindowFlags(Qt::FramelessWindowHint);
     widget->setObjectName("inkeraser");
     qDebug() << "createEraserWidget" << QString(qss);
-    int w = qss.value("#inkeraser", "width").replace("px", "").toInt();
-    int h = qss.value("#inkeraser", "height").replace("px", "").toInt();
+    int w = qss.value("#inkeraser", "width").toInt();
+    int h = qss.value("#inkeraser", "height").toInt();
     widget->setFixedSize(w, h);
     widget->setStyleSheet(qss);
     QSlider* pSliter = new QSlider();
