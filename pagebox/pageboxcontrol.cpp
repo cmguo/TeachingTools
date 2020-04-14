@@ -91,8 +91,8 @@ void PageBoxControl::attached()
         item->toolBar()->hide();
     }
     // ToolbarWidget has update problem, we do this later
-    //if (res_->flags().testFlag(ResourceView::LargeCanvas))
-    //    attachSubProvider(item);
+    if (res_->flags().testFlag(ResourceView::LargeCanvas))
+        attachSubProvider(item);
     PageBoxDocItem * doc = item->document();
     if (res_->flags().testFlag(ResourceView::ListOfPages)) {
         QObject::connect(doc, &PageBoxDocItem::currentPageChanged, this, [this](int page) {

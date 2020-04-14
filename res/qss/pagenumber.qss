@@ -1,4 +1,5 @@
 QPushButton {
+    border:none;
     qproperty-iconSize: 32px 32px; /* [size] */
 }
 
@@ -11,6 +12,7 @@ QPushButton:hover {
 }
 
 QLabel {
+    border:none;
     font-family:'Microsoft YaHei';
     font-size:16pt; /* [size] */
 }

@@ -11,18 +11,20 @@
 PageNumberWidget::PageNumberWidget(QWidget *parent)
     : QWidget(parent, Qt::FramelessWindowHint)
 {
-    QssHelper qss(":/teachingtools/qss/pagenumber.qss");
+    static QssHelper qss(":/teachingtools/qss/pagenumber.qss");
     QSize iconSize = QssHelper::sizeFromString(qss.value("QPushButton", "qproperty-iconSize"));
     setStyleSheet(qss);
     QHBoxLayout* layout = new QHBoxLayout(this);
     preBtn_ = new QPushButton(this);
     preBtn_->setObjectName(("preBtn"));
+    preBtn_->setIconSize(iconSize);
     preBtn_->setIcon(ToolButton::makeIcon(":/teachingtools/icon/arrow_left.svg,default", iconSize));
     progressLabel_ = new QLabel(this);
     progressLabel_->setObjectName(("progressLabel"));
     progressLabel_->setText(("0/0"));
     nextBtn_ = new QPushButton(this);
     nextBtn_->setObjectName(("nextBtn"));
+    nextBtn_->setIconSize(iconSize);
     nextBtn_->setIcon(ToolButton::makeIcon(":/teachingtools/icon/arrow_right.svg,default", iconSize));
     layout->setContentsMargins(0, 0, 0, 0);
     layout->addWidget(preBtn_);
