@@ -183,16 +183,26 @@ bool EventFilterItem::sceneEventFilter(QGraphicsItem *watched, QEvent *event)
         me.setSource(Qt::MouseEventNotSynthesized);
         QPointF pos = me.pos();
         QPointF lastPos = me.lastPos();
-        QWeakPointer<int> l = life_;
-        for (QGraphicsItem * item : items) {
-            if (item == whiteCanvas)
-                break;
-            if (InkCanvas::fromItem(item))
-                break;
-            me.setPos(item->mapFromScene(me.scenePos()));
-            me.setLastPos(item->mapFromScene(me.lastScenePos()));
-            if (scene()->sendEvent(item, event) && event->isAccepted())
-                break;
+        QWeakPointer<int> l = life_; // may switch page and destroyed
+        if (event->type() == QEvent::GraphicsSceneMousePress) {
+            for (QGraphicsItem * item : items) {
+                if (item == whiteCanvas)
+                    break;
+                if (InkCanvas::fromItem(item))
+                    break;
+                me.setPos(item->mapFromScene(me.scenePos()));
+                me.setLastPos(item->mapFromScene(me.lastScenePos()));
+                if (scene()->sendEvent(item, event) && event->isAccepted()) {
+                    setData(1000, QVariant::fromValue(item));
+                    break;
+                }
+            }
+        } else {
+            QGraphicsItem * item = data(1000).value<QGraphicsItem *>();
+            setData(1000, QVariant());
+            if (items.contains(item)) {
+                scene()->sendEvent(item, event);
+            }
         }
         if (l.isNull())
             return true;
