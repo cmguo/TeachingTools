@@ -78,11 +78,12 @@ void InkStrokeTools::switchPage(ResourcePage *page)
     inkControl_ = nullptr;
     activeControl_ = outerControl_;
     inkColor_ = &colorNormal_;
+    ResourcePage *subPage = page;
     while (page->isSubPage())
         page = qobject_cast<ResourcePage*>(page->parent());
     if (page->isIndependentPage()) {
         inkColor_ = &colorShow_;
-        if (!outerControl_) {
+        if (!outerControl_ && subPage == page) {
             QVariant editingMode = page->mainResource()->property("editingMode");
             if (editingMode.isValid())
                 setMode(editingMode.value<InkCanvasEditingMode>());
