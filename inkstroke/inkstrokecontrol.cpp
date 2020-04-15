@@ -192,6 +192,7 @@ bool EventFilterItem::sceneEventFilter(QGraphicsItem *watched, QEvent *event)
                     break;
                 me.setPos(item->mapFromScene(me.scenePos()));
                 me.setLastPos(item->mapFromScene(me.lastScenePos()));
+                me.accept();
                 if (scene()->sendEvent(item, event) && event->isAccepted()) {
                     setData(1000, QVariant::fromValue(item));
                     break;
