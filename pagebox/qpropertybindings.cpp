@@ -33,4 +33,11 @@ void QPropertyBindings::unbind(QVariant const & dst)
     itemBindings_.remove(dst);
 }
 
+void QPropertyBindings::clear()
+{
+    for (QPropertyBindings * bindings : itemBindings_)
+        delete bindings;
+    itemBindings_.clear();
+}
+
 

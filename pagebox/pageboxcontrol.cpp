@@ -61,11 +61,7 @@ void PageBoxControl::attaching()
     PageBoxItem * item = static_cast<PageBoxItem *>(item_);
     itemObj_ = item;
     if (flags_ & RestoreSession)
-        return;
-    PageBoxDocItem * doc = item->document();
-    doc->setScaleMode(PageBoxDocItem::WholePage);
-
-    //doc->setPlugin(new InkPadPlugin);
+        res_->setProperty("pageMode", QVariant()); // only apply once
 }
 
 void PageBoxControl::attached()
@@ -111,6 +107,17 @@ void PageBoxControl::attached()
         loadPages(item);
         return;
     }
+    // loading with default data
+    QStandardItemModel * model = new QStandardItemModel(res_);
+    model->appendRow(new QStandardItem);
+    QPropertyBindings * bindings = new QPropertyBindings(res_);
+    bindings->addBinding("", "image");
+    doc->setScaleMode(PageBoxDocItem::WholePage);
+    doc->setItemBindings(bindings);
+    doc->setPageSize({1656.0, 2326.0});
+    doc->setItems(model);
+    if (item->pageMode() == PageBoxItem::Paper)
+        doc->stepMiddleScale();
 }
 
 void PageBoxControl::detaching()
@@ -153,13 +160,13 @@ void PageBoxControl::loadData()
         QFileInfo fi(res_->url().toLocalFile());
         if (fi.isDir()) {
             QDir dir(fi.filePath());
-            QStandardItemModel * model = new QStandardItemModel();
+            QStandardItemModel * model = new QStandardItemModel(res_);
             for (QString file : dir.entryList({"*.jpg"})) {
                 QStandardItem * item = new QStandardItem;
                 item->setData(QUrl::fromLocalFile(dir.filePath(file)));
                 model->appendRow(item);
             }
-            QPropertyBindings * bindings = new QPropertyBindings;
+            QPropertyBindings * bindings = new QPropertyBindings(res_);
             bindings->addBinding("", "image");
             setProperty("pageSize", QSizeF(1656.0, 2326.0));
             setProperty("pageModel", QVariant::fromValue(model));
@@ -211,6 +218,10 @@ void PageBoxControl::loadPages(PageBoxItem * item)
         QVariant pageBindings = property("pageBindings");
         bindings = pageBindings.value<QPropertyBindings *>();
     }
+    if (!(flags_ & RestoreSession)) {
+        doc->reset();
+        doc->setScaleMode(PageBoxDocItem::WholePage);
+    }
     doc->setItemBindings(bindings);
     doc->setPageSize(size);
     doc->setItems(model);
@@ -249,7 +260,4 @@ void PageBoxControl::loadPages(PageBoxItem * item)
             doc->stepMiddleScale();
     }
     item->buttonsChanged();
-    if (res_->flags().testFlag(ResourceView::LargeCanvas))
-        attachSubProvider(item);
-    //*/
 }

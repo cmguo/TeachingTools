@@ -111,6 +111,7 @@ void PageBoxDocItem::transferToManualScale()
     }
     scaleInterval_ = d;
     manualScale_ = scale();
+    scaleLevel_ = 0;
     sMin *= scaleInterval_;
     while (sMin < manualScale_) {
         sMin *= scaleInterval_;
@@ -225,6 +226,27 @@ void PageBoxDocItem::setItemBindings(QPropertyBindings * bindings)
     itemBindings_ = bindings;
 }
 
+void PageBoxDocItem::reset()
+{
+    clear();
+    itemBindings_ = nullptr;
+    model_ = nullptr;
+    pageSize_ = QSizeF();
+    pos_ = QPointF();
+    scaleMode_ = WholePage;
+}
+
+void PageBoxDocItem::clear()
+{
+    for(QGraphicsItem * item : pageCanvas_->childItems()) {
+        if (pluginItem_ != item) {
+            scene()->removeItem(item);
+            itemBindings_->unbind(QVariant::fromValue(item));
+            delete item;
+        }
+    }
+}
+
 void PageBoxDocItem::moveBy(qreal dx, qreal dy)
 {
     transform_->translate(QPointF(dx, dy));
@@ -234,6 +256,7 @@ void PageBoxDocItem::relayout()
 {
     if (pageSize_.isEmpty() || !model_)
         return;
+    clear();
     QPointF pos;
     QPointF off;
     pageSize1_ = pageSize2_ = pageSize_;
@@ -246,16 +269,10 @@ void PageBoxDocItem::relayout()
         off.setX(pageSize_.width() + padding_);
         pageSize2_.setWidth(pageSize_.width() + padding_ * 2);
     }
-    for(QGraphicsItem * item : pageCanvas_->childItems()) {
-        if (pluginItem_ != item) {
-            scene()->removeItem(item);
-            itemBindings_->unbind(QVariant::fromValue(item));
-            delete item;
-        }
-    }
     if (layoutMode_ == Single) {
         QVariant item0 = model_->data(model_->index(curPage_, 0), Qt::UserRole + 1);
         PageBoxPageItem * pageItem = new PageBoxPageItem(pageCanvas_);
+        setDefaultImage(pageItem);
         //pageItem->stackBefore(selBox_);
         itemBindings_->bind(QVariant::fromValue(pageItem), item0);
         pageItem->setPos(pos);
@@ -268,15 +285,14 @@ void PageBoxDocItem::relayout()
     } else if (layoutMode_ == Duplex) {
         if (layoutMode_ == Duplex && curPage_ != 0 && curPage_ % 2 == 1 && curPage_ + 1 < model_->rowCount())
             ++curPage_;
-        QVariant item1 = model_->data(model_->index((curPage_ == 0 || (curPage_ & 1)) ? curPage_ : curPage_ - 1, 0), Qt::UserRole + 1);
         PageBoxPageItem * pageItem1 = new PageBoxPageItem(pageCanvas_);
-        //pageItem->stackBefore(selBox_);
-        itemBindings_->bind(QVariant::fromValue(pageItem1), item1);
+        PageBoxPageItem * pageItem2 = new PageBoxPageItem(pageCanvas_);
+        setDefaultImage(pageItem1, pageItem2);
         pageItem1->setPos(pos);
         pos += off;
-        PageBoxPageItem * pageItem2 = new PageBoxPageItem(pageCanvas_);
-        //pageItem2->stackBefore(selBox_);
         pageItem2->setPos(pos);
+        QVariant item1 = model_->data(model_->index((curPage_ == 0 || (curPage_ & 1)) ? curPage_ : curPage_ - 1, 0), Qt::UserRole + 1);
+        itemBindings_->bind(QVariant::fromValue(pageItem1), item1);
         if (curPage_) {
             pos += off;
             pageSize2_ += QSizeF(off.x(), off.y());
@@ -296,6 +312,7 @@ void PageBoxDocItem::relayout()
         for (int i = 0; i < model_->rowCount(); ++i) {
             QVariant item = model_->data(model_->index(i, 0), Qt::UserRole + 1);
             PageBoxPageItem * pageItem = new PageBoxPageItem(pageCanvas_);
+            setDefaultImage(pageItem);
             //pageItem->stackBefore(selBox_);
             itemBindings_->bind(QVariant::fromValue(pageItem), item);
             pageItem->setPos(pos);
@@ -453,19 +470,16 @@ void PageBoxDocItem::goToPage(int page)
     if (plugin_) {
         plugin_->onPageChanged(lastPage, curPage_);
     }
-    static QPixmap loading1(":teachingtools/image/page1.png");
-    static QPixmap loading2(":teachingtools/image/page2.png");
     if (layoutMode_ == Single) {
         QVariant item = model_->data(model_->index(page, 0), Qt::UserRole + 1);
         PageBoxPageItem * pageItem = static_cast<PageBoxPageItem *>(pageCanvas_->childItems().front());
-        pageItem->setPixmap(loading1);
+        setDefaultImage(pageItem);
         itemBindings_->bind(QVariant::fromValue(pageItem), item);
     } else if (layoutMode_ == Duplex) {
         QVariant item1 = model_->data(model_->index((curPage_ == 0 || (curPage_ & 1)) ? curPage_ : curPage_ - 1, 0), Qt::UserRole + 1);
         PageBoxPageItem * pageItem1 = static_cast<PageBoxPageItem *>(pageCanvas_->childItems()[0]);
         PageBoxPageItem * pageItem2 = static_cast<PageBoxPageItem *>(pageCanvas_->childItems()[1]);
-        pageItem1->setPixmap(loading1);
-        pageItem2->setPixmap(loading2);
+        setDefaultImage(pageItem1, pageItem2);
         QSizeF off;
         if (direction_ == Vertical) {
             off.setHeight(pageSize_.height() + padding_);
@@ -589,5 +603,14 @@ void PageBoxDocItem::resourceMoved(QModelIndex const &parent, int start, int end
     (void) end;
     (void) destination;
     (void) row;
+}
+
+void PageBoxDocItem::setDefaultImage(PageBoxPageItem *pageItem1, PageBoxPageItem *pageItem2)
+{
+    static QPixmap loading1(":teachingtools/image/page1.png");
+    static QPixmap loading2(":teachingtools/image/page2.png");
+    pageItem1->setPixmap(loading1);
+    if (pageItem2)
+        pageItem2->setPixmap(loading2);
 }
 

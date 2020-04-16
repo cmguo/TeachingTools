@@ -87,11 +87,13 @@ void PageBoxItem::setPageMode(PageBoxItem::PageMode mode)
     case Paper:
         document_->setLayoutMode(PageBoxDocItem::Continuous);
         document_->setDirection(PageBoxDocItem::Vertical);
+        document_->setScaleMode(PageBoxDocItem::WholePage);
         document_->setPadding(30);
         break;
     case Book:
         document_->setLayoutMode(PageBoxDocItem::Duplex);
         document_->setDirection(PageBoxDocItem::Horizontal);
+        document_->setScaleMode(PageBoxDocItem::WholePage);
         break;
     }
 }

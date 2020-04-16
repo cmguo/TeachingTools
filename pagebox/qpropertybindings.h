@@ -22,6 +22,8 @@ public:
 
     void unbind(QVariant const & dst);
 
+    void clear();
+
 private:
     QList<QPropertyBinding *> bindings_;
     QMap<QVariant, QPropertyBindings *> itemBindings_;

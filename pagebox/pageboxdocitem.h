@@ -7,6 +7,7 @@ class QAbstractItemModel;
 class QPropertyBindings;
 class PageBoxPlugin;
 class ResourceTransform;
+class PageBoxPageItem;
 
 class PageBoxDocItem : public QObject, public QGraphicsRectItem
 {
@@ -112,6 +113,8 @@ public:
 
     void setItemBindings(QPropertyBindings * bindings);
 
+    void reset();
+
 public:
     void moveBy(qreal dx, qreal dy);
 
@@ -150,6 +153,8 @@ signals:
 protected:
     friend class PageBoxItem;
 
+    void clear();
+
     void relayout();
 
     void rescale();
@@ -163,6 +168,8 @@ private slots:
                        QModelIndex const &destination, int row);
 
 private:
+    void setDefaultImage(PageBoxPageItem* pageItem1, PageBoxPageItem* pageItem2 = nullptr);
+
     void onSizeChanged(QSizeF const & size);
 
     void onTransformChanged();

@@ -19,6 +19,7 @@ PageNumberWidget::PageNumberWidget(QWidget *parent)
     preBtn_->setObjectName(("preBtn"));
     preBtn_->setIconSize(iconSize);
     preBtn_->setIcon(ToolButton::makeIcon(":/teachingtools/icon/arrow_left.svg,default", iconSize));
+    preBtn_->setEnabled(false);
     progressLabel_ = new QLabel(this);
     progressLabel_->setObjectName(("progressLabel"));
     progressLabel_->setText(("0/0"));
@@ -26,6 +27,7 @@ PageNumberWidget::PageNumberWidget(QWidget *parent)
     nextBtn_->setObjectName(("nextBtn"));
     nextBtn_->setIconSize(iconSize);
     nextBtn_->setIcon(ToolButton::makeIcon(":/teachingtools/icon/arrow_right.svg,default", iconSize));
+    nextBtn_->setEnabled(false);
     layout->setContentsMargins(0, 0, 0, 0);
     layout->addWidget(preBtn_);
     layout->addWidget(progressLabel_);
