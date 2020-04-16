@@ -7,6 +7,7 @@
 #include <views/qsshelper.h>
 #include <views/toolbarwidget.h>
 #include <views/floatwidgetmanager.h>
+#include <views/framewidget.h>
 #include <core/control.h>
 #include <core/optiontoolbuttons.h>
 #include <core/resourcepackage.h>
@@ -272,7 +273,7 @@ QWidget *InkStrokeTools::createWidget(ToolButton *button)
     QWidget * widget = button->name() == "stroke"
             ? createPenWidget(button)
             : createEraserWidget(button);
-    return widget;
+    return new FrameWidget(widget);
 }
 
 QWidget *InkStrokeTools::createPenWidget(ToolButton *button)
