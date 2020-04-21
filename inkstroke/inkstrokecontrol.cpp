@@ -15,6 +15,12 @@
 #include <QGraphicsScene>
 #include <QGraphicsSceneEvent>
 
+#ifndef QT_DEBUG
+#define ERASE_CLIP_SHAPE 1
+#else
+#define ERASE_CLIP_SHAPE 0
+#endif
+
 InkStrokeControl::InkStrokeControl(ResourceView *res)
     : Control(res, {FullLayout, Touchable}, DefaultFlags)
     , filterItem_(nullptr)
@@ -269,7 +275,9 @@ Q_DECLARE_METATYPE(InputBroadcaster*)
 
 void InkStrokeControl::setupErasing()
 {
+#if ERASE_CLIP_SHAPE
     QPolygonF clipShape;
+#endif
     QList<InkCanvas*> list;
     QList<QGraphicsItem*> items = item_->parentItem()->childItems();
     for (int i = items.size() - 1; i >= 0; --i) {
@@ -278,15 +286,19 @@ void InkStrokeControl::setupErasing()
             if (ic != this) {
                 InkCanvas * ink = static_cast<InkCanvas*>(items[i]);
                 ink->SetEditingMode(InkCanvasEditingMode::EraseByPoint);
+#if ERASE_CLIP_SHAPE
                 ink->SetEraseClip(clipShape);
+#endif
                 list.append(ink);
             }
+#if ERASE_CLIP_SHAPE
         } else {
             QPainterPath path = items[i]->type() == QGraphicsPathItem::Type
                     ? QPainterPath()
                     : items[i]->shape();
             QPolygonF shape = items[i]->mapToItem(item_, path.toFillPolygon());
             clipShape = clipShape.united(shape);
+#endif
         }
     }
     InkCanvas * ink = static_cast<InkCanvas*>(item_);
