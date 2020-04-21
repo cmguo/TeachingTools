@@ -137,6 +137,9 @@ void InkStrokeControl::attached()
         if (canvasControl) {
             connect(&canvasControl->resource()->transform(), &ResourceTransform::changed,
                     this, [ink] () {
+                QTransform xf = ink->RenderTransform();
+                xf = QTransform(xf.m11(), xf.m12(), xf.m21(), xf.m22(), 0, 0);
+                ink->EraserShape()->SetTransform(xf.inverted().toAffine());
                 ink->itemChange(QGraphicsItem::ItemTransformHasChanged, QVariant());
             });
         }

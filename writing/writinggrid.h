@@ -56,6 +56,11 @@ public:
 
    void setType(WritingGridType type);
 
+   InkCanvas * inkCanvas()
+   {
+       return ink;
+   }
+
    QSharedPointer<StrokeCollection> strokes();
 
    void setStrokes(QSharedPointer<StrokeCollection> strokes);

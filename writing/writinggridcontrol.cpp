@@ -3,6 +3,7 @@
 
 #include <views/itemframe.h>
 #include <views/whitecanvas.h>
+#include <core/resourcetransform.h>
 #include <core/resourceview.h>
 
 #include <QBrush>
@@ -57,6 +58,11 @@ void WritingGridControl::attaching()
 
 void WritingGridControl::attached()
 {
+    connect(&resource()->transform(), &ResourceTransform::changed,
+            this, [this] () {
+        WritingGrid *item = static_cast<WritingGrid*>(item_);
+        item->inkCanvas()->itemChange(QGraphicsItem::ItemTransformHasChanged, QVariant());
+    });
     if (!(flags_ & RestoreSession))
         whiteCanvas()->topControl()->setProperty("editingMode", 0);
     loadFinished(true);
