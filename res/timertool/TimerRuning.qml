@@ -1,4 +1,4 @@
-import QtQuick 2.7
+﻿import QtQuick 2.7
 import QtQuick.Controls 2.0
 import QtQuick.Layouts 1.12
 import Strings 1.0
@@ -208,6 +208,7 @@ Rectangle {
         visible: false
         color: "transparent"
         anchors.fill: parent
+        radius: parent.radius
         CustomButton {
             id:stopButton
             anchors.left: parent.left

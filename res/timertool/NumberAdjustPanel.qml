@@ -1,4 +1,4 @@
-import QtQuick 2.7
+﻿import QtQuick 2.7
 import QtQuick.Controls 2.5
 import QtQuick.Controls.Styles 1.4
 import Strings 1.0
@@ -11,7 +11,7 @@ Rectangle {
     property int maxNum: 9
     property bool canAdjustNum: true
     color:canAdjustNum?"#F4F4F4":"transparent"
-    border.width: Destiny.dp(2)
+    border.width: canAdjustNum?Destiny.dp(2):0
     border.color: "#ECECEC"
     Column{
         width: parent.width

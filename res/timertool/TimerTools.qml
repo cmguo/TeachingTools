@@ -1,16 +1,16 @@
-import QtQuick 2.7
+﻿import QtQuick 2.7
 import QtQuick.Controls 2.0
 import QtQuick.Layouts 1.12
 import Strings 1.0
 import TalDisplay 1.0
 import "qrc:/qml/TalWidget"
 
-TalShapeLayout {
+Rectangle {
     id:rootItem
     width: Destiny.dp(528)
     height: Destiny.dp(508)
     visible: true
-    color: "#00000000"
+    color: "white"
     radius: Destiny.dp(8)
     property var  timeRunningView: undefined
     signal timerClose()
@@ -22,6 +22,7 @@ TalShapeLayout {
         width: parent.width
         height: parent.height
         clip: true
+        radius: Destiny.dp(8)
         onRuningClick:{
             timeRunningView = Qt.createComponent("TimerRuning.qml").createObject(rootItem,
                                                                                 {

@@ -1,4 +1,4 @@
-import QtQuick 2.12
+﻿import QtQuick 2.12
 import QtQuick.Controls 2.12
 import QtQuick.Layouts 1.12
 import Strings 1.0
@@ -95,7 +95,7 @@ Rectangle{
                 Text {
                     height: parent.height
                     width: Destiny.dp(40)
-                    font.pixelSize: Destiny.sp(120)
+                    font.pixelSize: Destiny.dp(120)
                     verticalAlignment:Text.AlignVCenter
                     horizontalAlignment: Text.AlignHCenter
                     anchors.baseline: parent.verticalCenter
@@ -130,22 +130,23 @@ Rectangle{
             opacity: 0.0
             Row{
                 anchors.centerIn: parent
-                height: 260
-                spacing: 10
-                Text {
+                height: Destiny.dp(260)
+                spacing: Destiny.dp(10)
+                NumberAdjustPanel {
+                    width: swipeView.rowItemWidth
                     height: parent.height
-                    font.pixelSize: Destiny.sp(120)
-                    verticalAlignment:Text.AlignVCenter
-                    text: qsTr("00")
-                    color: "#2b2b2b"
-                    font.bold: true
-                    font.family: String.font
-                    font.letterSpacing:Destiny.dp(14)
-
+                    canAdjustNum: false
                 }
+                NumberAdjustPanel {
+                    width: swipeView.rowItemWidth
+                    height: parent.height
+                    canAdjustNum: false
+                }
+
                 Text {
                     height: parent.height
-                    font.pixelSize: Destiny.sp(120)
+                    width: Destiny.dp(40)
+                    font.pixelSize: Destiny.dp(120)
                     verticalAlignment:Text.AlignVCenter
                     horizontalAlignment: Text.AlignHCenter
                     anchors.baseline: parent.verticalCenter
@@ -155,21 +156,16 @@ Rectangle{
                     font.bold: true
                     font.family: String.font
                 }
-				 Text {
+                NumberAdjustPanel {
+                    width: swipeView.rowItemWidth
                     height: parent.height
-					width: Destiny.dp(4)
+                    canAdjustNum: false
                 }
-                Text {
+                NumberAdjustPanel {
+                    width: swipeView.rowItemWidth
                     height: parent.height
-                    font.pixelSize: Destiny.sp(120)
-                    verticalAlignment:Text.AlignVCenter
-                    text: qsTr("00")
-                    color: "#2b2b2b"
-                    font.bold: true
-                    font.family: String.font
-                    font.letterSpacing:Destiny.dp(14)
+                    canAdjustNum: false
                 }
-
             }
             Behavior on opacity {
                 NumberAnimation { duration: 1000 }
@@ -193,7 +189,7 @@ Rectangle{
 
     CustomButton {
         id:startTimerBtn
-        font.pixelSize: Destiny.sp(18)
+        font.pixelSize: Destiny.dp(18)
         height: Destiny.dp(64)
         width: Destiny.dp(256)
         anchors.horizontalCenter:   parent.horizontalCenter
@@ -225,5 +221,3 @@ Rectangle{
     }
 
 }
-
-
