@@ -1,14 +1,18 @@
 #include "inkstrokes.h"
 
+#include <core/resource.h>
+
 #include <Windows/Ink/strokecollection.h>
 #include <Windows/Ink/stroke.h>
 #include <Windows/Input/styluspointcollection.h>
 
 InkStrokes::InkStrokes(Resource *res)
-    : Strokes(res, Splittable)
+    : Strokes(res)
     , next_(nullptr)
     , prev_(nullptr)
 {
+    if (url().scheme() == res->type())
+        flags_.setFlag(Splittable);
     if (url().path().isEmpty()) {
         strokes_.reset(new StrokeCollection);
     }
@@ -44,12 +48,12 @@ QSharedPointer<StrokeCollection> InkStrokes::strokes()
     return strokes_;
 }
 
-QtPromise::QPromise<void> InkStrokes::load(QSizeF const & size, QSharedPointer<DrawingAttributes> attr)
+QtPromise::QPromise<void> InkStrokes::load(QSizeF const & maxSize, QSharedPointer<DrawingAttributes> attr)
 {
     if (strokes_ != nullptr)
         return QtPromise::QPromise<void>::resolve();
     strokes_.reset(new StrokeCollection);
-    return Strokes::load().then([this, l = life(), size, attr]() {
+    return Strokes::load(maxSize).then([this, l = life(), attr]() {
         //if (l.isNull())
         //    return;
         if (points().empty())
@@ -57,15 +61,17 @@ QtPromise::QPromise<void> InkStrokes::load(QSizeF const & size, QSharedPointer<D
         QSharedPointer<StylusPointCollection> stylusPoints(new StylusPointCollection);
         //render debug feedback?
         //QUuid guid("52053C24-CBDD-4547-AAA1-DEFEBF7FD1E1");
+        float pressureScale = static_cast<float>(scale() / maxPressure());
         for (auto & pt : points()) {
-            if (pt[2] < 0) {
-                QSharedPointer<Stroke> stroke(new Stroke(stylusPoints, attr));
-                //stroke->AddPropertyData(guid, 4.0);
-                strokes_->AddItem(stroke);
-                stylusPoints.reset(new StylusPointCollection);
+            if (pt[2] == 0) {
+                if (stylusPoints->size() > 0) {
+                    QSharedPointer<Stroke> stroke(new Stroke(stylusPoints, attr));
+                    //stroke->AddPropertyData(guid, 4.0);
+                    strokes_->AddItem(stroke);
+                    stylusPoints.reset(new StylusPointCollection);
+                }
             } else {
-                StylusPoint point((1 + static_cast<double>(pt[0])) / 2 * size.width(),
-                        (1 - static_cast<double>(pt[1])) * size.height(), pt[2]);
+                StylusPoint point(pt[0] * scale(), pt[1] * scale(), pt[2] * pressureScale);
                 stylusPoints->AddItem(point);
             }
         }

@@ -29,7 +29,7 @@ signals:
 public:
     QSharedPointer<StrokeCollection> strokes();
 
-    QtPromise::QPromise<void> load(QSizeF const & size, QSharedPointer<DrawingAttributes> attr);
+    QtPromise::QPromise<void> load(QSizeF const & maxSize, QSharedPointer<DrawingAttributes> attr);
 
     bool isClone() const
     {

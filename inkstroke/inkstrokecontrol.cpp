@@ -148,6 +148,8 @@ void InkStrokeControl::attached()
         if (strokes->strokes()) {
             ink->SetStrokes(strokes->strokes());
         }
+        flags_.setFlag(FullLayout, false);
+        ink->SetRenderSize(strokes->size());
         loadFinished(true);
     });
 }
