@@ -21,7 +21,7 @@ Rectangle {
             width: parent.width
             height: parent.height/4
             id:add
-            font.pixelSize: Destiny.dp(40)
+            font.pixelSize: Destiny.sp(40)
             font.family: String.font
             text: "+"
             enabled: num < maxNum
@@ -34,7 +34,7 @@ Rectangle {
             width: parent.width
             height: canAdjustNum?parent.height/2:parent.height
             id:number
-            font.pixelSize: Destiny.dp(120)
+            font.pixelSize: Destiny.sp(120)
             color: "#2B2B2B"
             font.bold: true
             text: num
@@ -47,7 +47,7 @@ Rectangle {
             width: parent.width
             height: parent.height/4
             id:dec
-            font.pixelSize: Destiny.dp(40)
+            font.pixelSize: Destiny.sp(40)
             text: "-"
             enabled: num>0
             onClicked: num--;

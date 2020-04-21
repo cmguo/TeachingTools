@@ -95,7 +95,7 @@ Rectangle{
                 Text {
                     height: parent.height
                     width: Destiny.dp(40)
-                    font.pixelSize: Destiny.dp(120)
+                    font.pixelSize: Destiny.sp(120)
                     verticalAlignment:Text.AlignVCenter
                     horizontalAlignment: Text.AlignHCenter
                     anchors.baseline: parent.verticalCenter
@@ -134,7 +134,7 @@ Rectangle{
                 spacing: 10
                 Text {
                     height: parent.height
-                    font.pixelSize: Destiny.dp(120)
+                    font.pixelSize: Destiny.sp(120)
                     verticalAlignment:Text.AlignVCenter
                     text: qsTr("00")
                     color: "#2b2b2b"
@@ -145,7 +145,7 @@ Rectangle{
                 }
                 Text {
                     height: parent.height
-                    font.pixelSize: Destiny.dp(120)
+                    font.pixelSize: Destiny.sp(120)
                     verticalAlignment:Text.AlignVCenter
                     horizontalAlignment: Text.AlignHCenter
                     anchors.baseline: parent.verticalCenter
@@ -161,7 +161,7 @@ Rectangle{
                 }
                 Text {
                     height: parent.height
-                    font.pixelSize: Destiny.dp(120)
+                    font.pixelSize: Destiny.sp(120)
                     verticalAlignment:Text.AlignVCenter
                     text: qsTr("00")
                     color: "#2b2b2b"
@@ -193,7 +193,7 @@ Rectangle{
 
     CustomButton {
         id:startTimerBtn
-        font.pixelSize: Destiny.dp(18)
+        font.pixelSize: Destiny.sp(18)
         height: Destiny.dp(64)
         width: Destiny.dp(256)
         anchors.horizontalCenter:   parent.horizontalCenter

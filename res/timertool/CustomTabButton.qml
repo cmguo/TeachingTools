@@ -18,7 +18,7 @@ TabButton {
     topPadding: Destiny.dp(20)
     bottomPadding: Destiny.dp(20)
 
-    font.pixelSize:  Destiny.dp(18)
+    font.pixelSize: Destiny.sp(18)
     font.family: String.font
 
     property bool talButtonActived: (this.down || this.checked)

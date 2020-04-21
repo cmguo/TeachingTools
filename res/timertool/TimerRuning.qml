@@ -133,7 +133,7 @@ Rectangle {
 
         Text { // 展示文字
             id:showTimeText
-            font.pixelSize:Destiny.dp(120)
+            font.pixelSize: Destiny.sp(120)
             anchors.centerIn: parent
             font.family: String.font
             font.bold: true
@@ -164,7 +164,7 @@ Rectangle {
 
     CustomButton { // 底部点击btn
         id:startTimerBtn
-        font.pixelSize: Destiny.dp(18)
+        font.pixelSize: Destiny.sp(18)
         height: Destiny.dp(64)
         width: Destiny.dp(256)
         anchors.horizontalCenter:   parent.horizontalCenter
@@ -212,7 +212,7 @@ Rectangle {
             id:stopButton
             anchors.left: parent.left
             anchors.leftMargin: Destiny.dp(24)
-            font.pixelSize: Destiny.dp(16)
+            font.pixelSize: Destiny.sp(16)
             width: Destiny.dp(83)
             height: Destiny.dp(40)
             anchors.verticalCenter: minizeShowContent.verticalCenter
@@ -230,7 +230,7 @@ Rectangle {
 
 
         Text {
-            font.pixelSize:Destiny.dp(60)
+            font.pixelSize: Destiny.sp(60)
             anchors.left: stopButton.right
             anchors.right: parent.right
             width: Destiny.dp(209)
