@@ -3,12 +3,13 @@
 
 #include "TeachingTools_global.h"
 
-#include <resources/strokes.h>
+#include <stroke/strokes.h>
 
 #include <QSharedPointer>
 
 class StrokeCollection;
 class DrawingAttributes;
+class InkStrokeRenderer;
 
 class TEACHINGTOOLS_EXPORT InkStrokes : public Strokes
 {
@@ -36,6 +37,8 @@ public:
         return prev_;
     }
 
+    QSizeF size() const;
+
     void clear();
 
 protected:
@@ -43,6 +46,7 @@ protected:
 
 private:
     QSharedPointer<StrokeCollection> strokes_;
+    InkStrokeRenderer * renderer_;
     InkStrokes * next_;
     InkStrokes * prev_;
 };
