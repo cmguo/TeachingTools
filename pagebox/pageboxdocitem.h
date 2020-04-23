@@ -1,6 +1,8 @@
 #ifndef PAGEBOXDOCITEM_H
 #define PAGEBOXDOCITEM_H
 
+#include "TeachingTools_global.h"
+
 #include <QGraphicsRectItem>
 
 class QAbstractItemModel;
@@ -9,7 +11,7 @@ class PageBoxPlugin;
 class ResourceTransform;
 class PageBoxPageItem;
 
-class PageBoxDocItem : public QObject, public QGraphicsRectItem
+class TEACHINGTOOLS_EXPORT PageBoxDocItem : public QObject, public QGraphicsRectItem
 {
     Q_OBJECT
 public:
