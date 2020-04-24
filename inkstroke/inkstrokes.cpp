@@ -13,9 +13,11 @@ InkStrokes::InkStrokes(Resource *res)
     , next_(nullptr)
     , prev_(nullptr)
 {
-    if (url().scheme() == res->type())
+    if (url().scheme() == res->type()) {
+        flags_.setFlag(TopMost);
         flags_.setFlag(Splittable);
-    if (url().path().isEmpty()) {
+        flags_.setFlag(CanCopy, false);
+        flags_.setFlag(CanDelete, false);
         strokes_.reset(new StrokeCollection);
     }
 }
@@ -26,16 +28,19 @@ InkStrokes::InkStrokes(InkStrokes &o)
     , next_(o.next_)
     , prev_(&o)
 {
-    strokes_.reset(new StrokeCollection);
-    strokes_.swap(o.strokes_);
-    if (o.next_)
-        o.next_->prev_ = this;
-    o.next_ = this;
-    //flags_.setFlag(StickOn);
-    flags_.setFlag(CanDelete);
-    flags_.setFlag(Splittable, false);
-    flags_.setFlag(TopMost, false);
-    flags_.setFlag(CanCopy, false);
+    if (o.flags().testFlag(Splittable)) {
+        strokes_.reset(new StrokeCollection);
+        strokes_.swap(o.strokes_);
+        if (o.next_)
+            o.next_->prev_ = this;
+        o.next_ = this;
+        //flags_.setFlag(StickOn);
+        flags_.setFlag(CanDelete);
+        flags_.setFlag(Splittable, false);
+        flags_.setFlag(TopMost, false);
+    } else {
+        strokes_ = o.strokes_->Clone();
+    }
 }
 
 InkStrokes::~InkStrokes()
@@ -116,10 +121,10 @@ QtPromise::QPromise<void> InkStrokes::load(QSizeF const & maxSize, QSharedPointe
 {
     if (strokes_ != nullptr)
         return QtPromise::QPromise<void>::resolve();
-    strokes_.reset(new StrokeCollection);
     return Strokes::load().then([this, l = life(), attr, maxSize](StrokeReader * reader) {
         //if (l.isNull())
         //    throw std::runtime_error("dead");
+        strokes_.reset(new StrokeCollection);
         renderer_ = new InkStrokeRenderer(reader, maxSize, strokes_, attr, this);
         renderer_->start();
     });

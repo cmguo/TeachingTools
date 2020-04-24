@@ -3,7 +3,7 @@
 
 #include "TeachingTools_global.h"
 
-#include <stroke/strokes.h>
+#include <resources/strokes.h>
 
 #include <QSharedPointer>
 

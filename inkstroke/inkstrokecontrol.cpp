@@ -22,9 +22,15 @@
 #endif
 
 InkStrokeControl::InkStrokeControl(ResourceView *res)
-    : Control(res, {FullLayout, Touchable}, DefaultFlags)
+    : Control(res, {Touchable})
     , filterItem_(nullptr)
 {
+    if (res->flags().testFlag(ResourceView::Splittable)) {
+        flags_.setFlag(FullLayout);
+        flags_.setFlag(DefaultFlags, false);
+    } else {
+        flags_.setFlag(KeepAspectRatio, true);
+    }
 }
 
 InkCanvasEditingMode InkStrokeControl::editingMode()
@@ -153,17 +159,10 @@ void InkStrokeControl::attached()
     }
     auto l = life();
     ink->DefaultDrawingAttributes()->SetFitToCurve(false);
-    strokes->load(item_->boundingRect().size(), ink->DefaultDrawingAttributes()).then([l, this, strokes, ink]() {
+    strokes->load(ink->scene()->sceneRect().size(), ink->DefaultDrawingAttributes()).then([l, this, strokes, ink]() {
         if (l.isNull())
             return;
-        if (strokes->strokes()) {
-            ink->SetStrokes(strokes->strokes());
-        }
-        flags_.setFlag(FullLayout, false);
-        flags_.setFlag(CanSelect, true);
-        flags_.setFlag(CanScale, true);
-        flags_.setFlag(CanMove, true);
-        flags_.setFlag(KeepAspectRatio, true);
+        ink->SetStrokes(strokes->strokes());
         ink->SetRenderSize(strokes->size());
         loadFinished(true);
     }, [this, l] (std::exception & e) {
