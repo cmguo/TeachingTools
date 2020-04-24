@@ -8,7 +8,6 @@
 class QAbstractItemModel;
 class QPropertyBindings;
 class PageBoxPlugin;
-class ResourceTransform;
 class PageBoxPageItem;
 
 class TEACHINGTOOLS_EXPORT PageBoxDocItem : public QObject, public QGraphicsRectItem
@@ -28,13 +27,6 @@ public:
         Horizontal,
     };
 
-    enum ScaleMode
-    {
-        WholePage,
-        FitLayout, // when horizontal, fit heigth, else fit width
-        ManualScale,
-    };
-
 public:
     PageBoxDocItem(QGraphicsItem * parent = nullptr);
 
@@ -45,70 +37,33 @@ public:
 
     void setLayoutMode(LayoutMode mode);
 
-    void setScaleMode(ScaleMode mode);
-
-    void setManualScale(qreal scale, bool changeMode = true);
-
-    void transferToManualScale();
-
-    void stepScale(bool up);
-
-    bool canStepScale(bool up);
-
-    void stepMiddleScale();
-
     void setPadding(qreal pad);
 
     void setPlugin(PageBoxPlugin* plugin);
 
 public:
-    QSizeF pageSize() const
-    {
-        return pageSize_;
-    }
+    QSizeF pageSize() const { return pageSize_; }
 
-    QSizeF pageSize2() const
-    {
-        return pageSize2_;
-    }
+    QSizeF pageSize2() const { return pageSize2_; }
 
     QSizeF documentSize() const;
 
-    Direction direction() const
-    {
-        return direction_;
-    }
+    Direction direction() const { return direction_; }
 
-    LayoutMode layoutMode() const
-    {
-        return layoutMode_;
-    }
+    LayoutMode layoutMode() const { return layoutMode_; }
 
-    ScaleMode scaleMode() const
-    {
-        return scaleMode_;
-    }
-
-    qreal padding() const
-    {
-        return padding_;
-    }
-
-    qreal scale() const;
-
-    QPointF offset() const;
+    qreal padding() const { return padding_; }
 
     int pageCount() const;
 
-    int curPage() const
-    {
-        return curPage_;
-    }
+    int curPage() const { return curPage_; }
 
-    PageBoxPlugin * plugin() const
-    {
-        return plugin_;
-    }
+    PageBoxPlugin * plugin() const { return plugin_; }
+
+public:
+    qreal requestScale(QSizeF const & borderSize, bool whole);
+
+    void visiblePositionHint(QGraphicsItem * from, QPointF const & pos);
 
 public:
     void setItems(QAbstractItemModel * model);
@@ -116,9 +71,6 @@ public:
     void setItemBindings(QPropertyBindings * bindings);
 
     void reset();
-
-public:
-    void moveBy(qreal dx, qreal dy);
 
 public slots:
     void nextPage();
@@ -135,13 +87,9 @@ public:
     bool hit(QPointF const & point);
 
 public:
-    ResourceTransform * detachTransform();
-
     QByteArray saveState();
 
     void restoreState(QByteArray data);
-
-    void restorePosition();
 
 signals:
     void layoutModeChanged();
@@ -152,14 +100,15 @@ signals:
 
     void sizeChanged(QSizeF const & size);
 
+    // request visible position in document, if x < 0, x is not changed, y same
+    void requestPosition(QPointF const & pos);
+
 protected:
     friend class PageBoxItem;
 
     void clear();
 
     void relayout();
-
-    void rescale();
 
 private slots:
     void resourceInserted(QModelIndex const &parent, int first, int last);
@@ -174,27 +123,20 @@ private:
 
     void onSizeChanged(QSizeF const & size);
 
-    void onTransformChanged();
+    void onVisibleCenterChanged(QPointF const & pos);
 
     void onCurrentPageChanged();
 
 private:
     QAbstractItemModel * model_;
-    ResourceTransform * transform_;
 
     QSizeF pageSize_;
     QSizeF pageSize1_;
     QSizeF pageSize2_;
     Direction direction_;
     LayoutMode layoutMode_;
-    ScaleMode scaleMode_;
     qreal padding_; // Continuous mode
-    qreal manualScale_;
-    QPointF pos_;
     int curPage_;
-    qreal scaleInterval_;
-    int scaleLevel_;
-    int maxScaleLevel_;
 
 private:
     QGraphicsRectItem * pageCanvas_;

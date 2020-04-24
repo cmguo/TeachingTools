@@ -6,6 +6,7 @@
 #include <QGraphicsRectItem>
 
 class PageBoxDocItem;
+class ResourceTransform;
 class PageBoxToolBar;
 class PageNumberWidget;
 class PageBoxPlugin;
@@ -36,43 +37,59 @@ public:
 
     Q_ENUM(SizeMode)
 
+    enum ScaleMode
+    {
+        WholePage,
+        FitLayout, // when horizontal, fit heigth, else fit width
+        ManualScale,
+    };
+
 public:
     PageBoxItem(QGraphicsItem * parent = nullptr);
 
     virtual ~PageBoxItem() override;
 
 public:
-    PageBoxDocItem * document()
-    {
-        return document_;
-    }
+    PageBoxDocItem * document() { return document_; }
 
-    QGraphicsItem * toolBar()
-    {
-        return toolBarProxy_;
-    }
+    QGraphicsItem * toolBar() { return toolBarProxy_; }
 
-    bool selectTest(QPointF const & point);
-
-    PageMode pageMode() const
-    {
-        return pageMode_;
-    }
+    PageMode pageMode() const { return pageMode_; }
 
     void setPageMode(PageMode mode);
 
-    SizeMode sizeMode() const
-    {
-        return sizeMode_;
-    }
+    SizeMode sizeMode() const { return sizeMode_; }
 
     void setSizeMode(SizeMode mode);
 
+    ScaleMode scaleMode() const { return scaleMode_; }
+
+    void setScaleMode(ScaleMode mode);
+
+    qreal scale() const;
+
+    void setManualScale(qreal scale, bool changeMode = true);
+
+    void transferToManualScale();
+
+    void stepScale(bool up);
+
+    bool canStepScale(bool up);
+
+    void stepMiddleScale();
+
+public:
+    // called from PageBoxControl
     void sizeChanged();
 
-    QRectF visibleRect() const;
+    bool selectTest(QPointF const & point);
 
+    void restorePosition();
+
+public:
     void setPlugin(PageBoxPlugin* plugin);
+
+    ResourceTransform * detachTransform();
 
 public slots:
     void duplex();
@@ -100,9 +117,17 @@ public:
     virtual void updateToolButton(ToolButton *button) override;
 
 private:
+    void rescale();
+
+    QRectF visibleRect() const;
+
     void documentPageChanged(int page);
 
     void documentSizeChanged(QSizeF const & size);
+
+    void setDocumentPosition(QPointF const & pos);
+
+    void onTransformChanged();
 
 private:
     virtual void mousePressEvent(QGraphicsSceneMouseEvent *event) override;
@@ -118,6 +143,7 @@ private:
 
 private:
     PageBoxDocItem * document_;
+    ResourceTransform * transform_;
     PageBoxToolBar * toolBar_;
     QGraphicsItem * toolBarProxy_;
     PageNumberWidget * pageNumber_;
@@ -125,6 +151,14 @@ private:
 private:
     PageMode pageMode_;
     SizeMode sizeMode_;
+    ScaleMode scaleMode_;
+    qreal manualScale_;
+    qreal scaleInterval_;
+    int scaleLevel_;
+    int maxScaleLevel_;
+    QPointF pos_;
+
+private:
     QPointF start_;
     QRectF direction_;
     int type_;

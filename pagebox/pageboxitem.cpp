@@ -9,6 +9,7 @@
 #include <core/control.h>
 #include <core/resourceview.h>
 #include <core/resourcetransform.h>
+#include <core/controltransform.h>
 
 #include <QGraphicsScene>
 #include <QGraphicsSceneMouseEvent>
@@ -28,6 +29,10 @@ PageBoxItem::PageBoxItem(QGraphicsItem * parent)
     : QGraphicsRectItem(parent)
     , pageMode_(Paper)
     , sizeMode_(FixedSize)
+    , scaleMode_(FitLayout)
+    , scaleInterval_(1.2)
+    , scaleLevel_(0)
+    , maxScaleLevel_(0)
 {
     setFlags(ItemClipsToShape | ItemClipsChildrenToShape);
     setPen(QPen(Qt::NoPen));
@@ -35,16 +40,24 @@ PageBoxItem::PageBoxItem(QGraphicsItem * parent)
     setRect({-150, -300, 300, 600});
 
     document_ = new PageBoxDocItem(this);
-    QObject::connect(document_, &PageBoxDocItem::currentPageChanged, this, &PageBoxItem::documentPageChanged);
-    QObject::connect(document_, &PageBoxDocItem::sizeChanged, this, &PageBoxItem::documentSizeChanged);
+    QObject::connect(document_, &PageBoxDocItem::currentPageChanged,
+                     this, &PageBoxItem::documentPageChanged);
+    QObject::connect(document_, &PageBoxDocItem::sizeChanged,
+                     this, &PageBoxItem::documentSizeChanged);
+    transform_ = new ResourceTransform(this);
+    document_->setTransformations({new ControlTransform(*transform_)});
+    QObject::connect(document_, &PageBoxDocItem::requestPosition,
+                     this, &PageBoxItem::setDocumentPosition);
 
     pageNumber_ = new PageNumberWidget();
     toolBar_ = new PageBoxToolBar;
     toolBarProxy_ = toolBar_->toGraphicsProxy(this);
-    QObject::connect(pageNumber_, &PageNumberWidget::pageNumberChanged, this, &PageBoxItem::documentPageChanged);
+    QObject::connect(pageNumber_, &PageNumberWidget::pageNumberChanged,
+                     this, &PageBoxItem::documentPageChanged);
     setToolsString(toolsStr);
 
-    QObject::connect(document_, &PageBoxDocItem::pageCountChanged, pageNumber_, &PageNumberWidget::setTotal);
+    QObject::connect(document_, &PageBoxDocItem::pageCountChanged,
+                     pageNumber_, &PageNumberWidget::setTotal);
 }
 
 PageBoxItem::~PageBoxItem()
@@ -63,14 +76,56 @@ void PageBoxItem::setPageNumber(int n)
     document_->goToPage(n);
 }
 
+struct TransformData
+{
+    TransformData() {}
+    TransformData(QTransform const & t)
+    {
+        scale = t.m11();
+        offset.setX(t.dx());
+        offset.setY(t.dy());
+    }
+    QTransform toQTransform() const
+    {
+        return QTransform::fromTranslate(offset.x(), offset.y()).scale(scale, scale);
+    }
+    qreal scale;
+    QPointF offset;
+};
+
 QByteArray PageBoxItem::pageBoxState()
 {
-    return document_->saveState();
+    qDebug() << "PageBoxItem saveState" << transform_->transform();
+    pos_ = transform_->offset();
+    char * p1 = reinterpret_cast<char *>(&pageMode_);
+    char * p2 = reinterpret_cast<char *>(&start_);
+    QByteArray data(p1, static_cast<int>(p2 - p1));
+    if (document_->transformations().empty()) {
+        data.append(1);
+        TransformData d(document_->transform());
+        data.append(reinterpret_cast<char *>(&d), sizeof(d));
+    } else {
+        data.append('\000');
+    }
+    data.append(document_->saveState());
+    return data;
 }
 
 void PageBoxItem::setPageBoxState(QByteArray state)
 {
-    document_->restoreState(state);
+    char * p1 = reinterpret_cast<char *>(&pageMode_);
+    char * p2 = reinterpret_cast<char *>(&start_);
+    int n = static_cast<int>(p2 - p1);
+    memcpy(p1, state.data(), static_cast<size_t>(n));
+    if (state[static_cast<int>(n)]) {
+        TransformData d;
+        memcpy(reinterpret_cast<char *>(&d), state.data() + n + 1, sizeof(d));
+        document_->setTransform(d.toQTransform());
+        document_->setTransformations({});
+        n += sizeof(d);
+    }
+    ++n;
+    document_->restoreState(state.mid(n));
 }
 
 bool PageBoxItem::selectTest(QPointF const & point)
@@ -87,13 +142,13 @@ void PageBoxItem::setPageMode(PageBoxItem::PageMode mode)
     case Paper:
         document_->setLayoutMode(PageBoxDocItem::Continuous);
         document_->setDirection(PageBoxDocItem::Vertical);
-        document_->setScaleMode(PageBoxDocItem::WholePage);
         document_->setPadding(30);
+        setScaleMode(WholePage);
         break;
     case Book:
         document_->setLayoutMode(PageBoxDocItem::Duplex);
         document_->setDirection(PageBoxDocItem::Horizontal);
-        document_->setScaleMode(PageBoxDocItem::WholePage);
+        setScaleMode(WholePage);
         break;
     }
 }
@@ -107,7 +162,7 @@ void PageBoxItem::setSizeMode(PageBoxItem::SizeMode mode)
 
 void PageBoxItem::sizeChanged()
 {
-    document_->rescale();
+    rescale();
 }
 
 QRectF PageBoxItem::visibleRect() const
@@ -134,12 +189,132 @@ void PageBoxItem::single()
 
 void PageBoxItem::scaleUp()
 {
-    document_->stepScale(true);
+    stepScale(true);
 }
 
 void PageBoxItem::scaleDown()
 {
-    document_->stepScale(false);
+    stepScale(false);
+}
+
+qreal PageBoxItem::scale() const
+{
+    return transform_->scale().m11();
+}
+
+void PageBoxItem::setScaleMode(ScaleMode mode)
+{
+    if (scaleMode_ == mode)
+        return;
+    scaleMode_ = mode;
+    rescale();
+}
+
+void PageBoxItem::setManualScale(qreal scale, bool changeMode)
+{
+    if (scaleMode_ == ManualScale && qFuzzyIsNull(manualScale_ - scale))
+        return;
+    manualScale_ = scale;
+    if (changeMode)
+        scaleMode_ = ManualScale;
+    if (scaleMode_ == ManualScale)
+        rescale();
+}
+
+void PageBoxItem::transferToManualScale()
+{
+    QRectF vrect = visibleRect();
+    qreal sw = vrect.width() / document_->pageSize().width();
+    qreal sh = vrect.height() / document_->pageSize().height();
+    qreal sMin = qMin(sh, sw);
+    qreal sMax = qMax(sh, sw);
+    qreal d = sMax / sMin;
+    maxScaleLevel_ = 1;
+    while (d >= 1.44) {
+        maxScaleLevel_ *= 2;
+        d = sqrt(d);
+    }
+    scaleInterval_ = d;
+    manualScale_ = scale();
+    scaleLevel_ = 0;
+    sMin *= scaleInterval_;
+    while (sMin < manualScale_) {
+        sMin *= scaleInterval_;
+        ++scaleLevel_;
+    }
+    scaleMode_ = ManualScale;
+}
+
+void PageBoxItem::stepScale(bool up)
+{
+    if (up) {
+        if (scaleLevel_ < maxScaleLevel_) {
+            ++scaleLevel_;
+            setManualScale(scale() * scaleInterval_);
+        }
+    } else {
+        if (scaleLevel_ > 0) {
+            --scaleLevel_;
+            setManualScale(scale() / scaleInterval_);
+        }
+    }
+}
+
+bool PageBoxItem::canStepScale(bool up)
+{
+    if (up)
+        return scaleLevel_ < maxScaleLevel_;
+    else
+        return scaleLevel_ > 0;
+}
+
+void PageBoxItem::stepMiddleScale()
+{
+    qreal s = scale();
+    for (; scaleLevel_ < maxScaleLevel_ / 2; ++scaleLevel_)
+        s *= scaleInterval_;
+    for (; scaleLevel_ > maxScaleLevel_ / 2; --scaleLevel_)
+        s /= scaleInterval_;
+    setManualScale(s);
+    QPointF off = transform_->offset();
+    off.setY(boundingRect().top());
+    transform_->translateTo(off);
+}
+
+void PageBoxItem::rescale()
+{
+    if (document_->boundingRect().isEmpty())
+        return;
+    QRectF vrect = visibleRect();
+    qreal s = 1.0;
+    if (scaleMode_ == ManualScale) {
+        s = manualScale_;
+    } else {
+        s = document_->requestScale(vrect.size(), scaleMode_ == WholePage);
+    }
+    QRectF rect = document_->rect();
+    transform_->scaleKeepToCenter(vrect, rect, s);
+}
+
+ResourceTransform * PageBoxItem::detachTransform()
+{
+    if (!document_->transformations().empty()) { // else already detach in restore
+        document_->setTransform(transform_->transform());
+        document_->setTransformations({});
+    }
+    // use QueuedConnection to handle after attaching/canvas transform changed
+    QObject::connect(transform_, &ResourceTransform::changed,
+                     this, &PageBoxItem::onTransformChanged, Qt::QueuedConnection);
+    return transform_;
+}
+
+void PageBoxItem::restorePosition()
+{
+    if (!pos_.isNull()) {
+        transform_->translateTo(pos_);
+        pos_ = QPointF();
+        qDebug() << "PageBoxItem restorePosition" << transform_->transform();
+    }
 }
 
 void PageBoxItem::exit()
@@ -181,9 +356,9 @@ void PageBoxItem::updateToolButton(ToolButton *button)
     } else if (button->name() == "single()") {
         button->setChecked(document_->layoutMode() == PageBoxDocItem::Single);
     } else if (button->name() == "scaleUp()") {
-        button->setEnabled(document_->canStepScale(true));
+        button->setEnabled(canStepScale(true));
     } else if (button->name() == "scaleDown()") {
-        button->setEnabled(document_->canStepScale(false));
+        button->setEnabled(canStepScale(false));
     } else {
         ToolButtonProvider::updateToolButton(button);
     }
@@ -204,8 +379,10 @@ void PageBoxItem::documentSizeChanged(const QSizeF &pageSize2)
     }
     if (sizeMode_ == LargeCanvas) {
         PageBoxControl * control = qobject_cast<PageBoxControl*>(Control::fromItem(this));
-        if (control->flags() & (Control::RestoreSession | Control::LoadFinished))
+        if (control->flags() & (Control::RestoreSession | Control::LoadFinished)) {
+            rescale();
             return;
+        }
     }
     QSizeF size2 = calcSize(pageSize2);
     QRectF rect(QPointF(0, 0), size2);
@@ -216,6 +393,29 @@ void PageBoxItem::documentSizeChanged(const QSizeF &pageSize2)
     if (control) {
         control->sizeChanged();
     }
+    rescale();
+}
+
+void PageBoxItem::setDocumentPosition(const QPointF &pos)
+{
+    QPointF p(pos);
+    QPointF tl = boundingRect().topLeft();
+    if (p.x() < 0)
+        p.setX(transform_->translate().dx());
+    else
+        p.setX(tl.x() - p.x() * scale());
+    if (p.y() < 0)
+        p.setY(transform_->translate().dy());
+    else
+        p.setY(tl.y() - p.y() * scale());
+    transform_->translateTo(p);
+}
+
+void PageBoxItem::onTransformChanged()
+{
+    qDebug() << "PageBoxItem onTransformChanged" << transform_->transform();
+    QPointF center = mapFromScene(scene()->sceneRect()).boundingRect().center();
+    document_->visiblePositionHint(this, center);
 }
 
 QSizeF PageBoxItem::calcSize(QSizeF const &pageSize2)
@@ -223,8 +423,8 @@ QSizeF PageBoxItem::calcSize(QSizeF const &pageSize2)
     QRectF rect = this->rect();
     if (sizeMode_ == LargeCanvas) {
         QSizeF docSize = document_->documentSize();
-        document_->rescale();
-        document_->transferToManualScale();
+        rescale();
+        transferToManualScale();
         if (document_->direction() == PageBoxDocItem::Horizontal) {
             qreal s = pageSize2.width() / rect.width();
             return QSizeF(docSize.width() / s, rect.height());
@@ -270,7 +470,7 @@ void PageBoxItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
             d.setY(rect.top() > vrect.top() ? 0 : vrect.top() - rect.top());
         else if (rect.bottom() + d.y() < vrect.bottom())
             d.setY(rect.bottom() < vrect.bottom() ? 0 : vrect.bottom() - rect.bottom());
-        document_->moveBy(d.x(), d.y());
+        transform_->translate({d.x(), d.y()});
         type_ = 2;
         break;
     }
@@ -300,7 +500,7 @@ void PageBoxItem::wheelEvent(QGraphicsSceneWheelEvent *event)
     QRectF vrect = rect();
     QRectF rect = mapFromItem(document_, document_->boundingRect()).boundingRect();
     qreal d = event->delta();
-    if (document_->scaleMode() == PageBoxDocItem::WholePage) {
+    if (scaleMode() == WholePage) {
         if (d > 0)
             document_->previousPage();
         else
@@ -312,12 +512,12 @@ void PageBoxItem::wheelEvent(QGraphicsSceneWheelEvent *event)
             d = rect.top() > vrect.top() ? 0 : vrect.top() - rect.top();
         else if (rect.bottom() + d < vrect.bottom())
             d = rect.bottom() < vrect.bottom() ? 0 : vrect.bottom() - rect.bottom();
-        document_->moveBy(0, d);
+        transform_->translate({0, d});
     } else {
         if (rect.left() + d > vrect.left())
             d = rect.left() > vrect.left() ? 0 : vrect.left() - rect.left();
         else if (rect.right() + d < vrect.right())
             d = rect.right() < vrect.right() ? 0 : vrect.right() - rect.right();
-        document_->moveBy(d, 0);
+        transform_->translate({d, 0});
     }
 }

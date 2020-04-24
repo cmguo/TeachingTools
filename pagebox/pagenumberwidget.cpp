@@ -46,7 +46,10 @@ PageNumberWidget::~PageNumberWidget()
 
 void PageNumberWidget::setTotal(int n)
 {
+    if (total_ == n)
+        return;
     total_ = n;
+    no_ = -1;
     setNumber(total_ == 0 ? -1 : 0);
 }
 

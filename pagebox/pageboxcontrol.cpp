@@ -112,12 +112,12 @@ void PageBoxControl::attached()
     model->appendRow(new QStandardItem);
     QPropertyBindings * bindings = new QPropertyBindings(res_);
     bindings->addBinding("", "image");
-    doc->setScaleMode(PageBoxDocItem::WholePage);
+    item->setScaleMode(PageBoxItem::WholePage);
     doc->setItemBindings(bindings);
     doc->setPageSize({1656.0, 2326.0});
     doc->setItems(model);
     if (item->pageMode() == PageBoxItem::Paper)
-        doc->stepMiddleScale();
+        item->stepMiddleScale();
 }
 
 void PageBoxControl::detaching()
@@ -220,13 +220,13 @@ void PageBoxControl::loadPages(PageBoxItem * item)
     }
     if (!(flags_ & RestoreSession)) {
         doc->reset();
-        doc->setScaleMode(PageBoxDocItem::WholePage);
+        item->setScaleMode(PageBoxItem::WholePage);
     }
     doc->setItemBindings(bindings);
     doc->setPageSize(size);
     doc->setItems(model);
     if (flags_ & RestoreSession) {
-        item->document()->restorePosition();
+        item->restorePosition();
     } else {
         //doc->setManualScale(
         //            item->rect().width() / item->document()->rect().width() / 1.3);
@@ -236,7 +236,7 @@ void PageBoxControl::loadPages(PageBoxItem * item)
     //*
     if (res_->flags().testFlag(ResourceView::LargeCanvas)) {
         QGraphicsItem* canvas = item_->parentItem()->parentItem();
-        ResourceTransform& tr = *item->document()->detachTransform();
+        ResourceTransform& tr = *item->detachTransform();
         ResourceTransform& tc = Control::fromItem(canvas)->resource()->transform();
         QVariant attachedCanvasTransform = property("attachedCanvasTransform");
         QVariant attachedPageTransform = property("attachedPageTransform");
@@ -257,7 +257,7 @@ void PageBoxControl::loadPages(PageBoxItem * item)
     }
     if (!(flags_ & RestoreSession)) {
         if (item->pageMode() == PageBoxItem::Paper)
-            doc->stepMiddleScale();
+            item->stepMiddleScale();
     }
     item->buttonsChanged();
 }
