@@ -151,15 +151,25 @@ void InkStrokeControl::attached()
         loadFinished(true);
         return;
     }
-    strokes->load(item_->boundingRect().size(), ink->DefaultDrawingAttributes()).then([life = life(), this, strokes, ink]() {
-        if (life.isNull())
+    auto l = life();
+    ink->DefaultDrawingAttributes()->SetFitToCurve(false);
+    strokes->load(item_->boundingRect().size(), ink->DefaultDrawingAttributes()).then([l, this, strokes, ink]() {
+        if (l.isNull())
             return;
         if (strokes->strokes()) {
             ink->SetStrokes(strokes->strokes());
         }
         flags_.setFlag(FullLayout, false);
+        flags_.setFlag(CanSelect, true);
+        flags_.setFlag(CanScale, true);
+        flags_.setFlag(CanMove, true);
+        flags_.setFlag(KeepAspectRatio, true);
         ink->SetRenderSize(strokes->size());
         loadFinished(true);
+    }, [this, l] (std::exception & e) {
+        if (l.isNull())
+            return;
+        loadFinished(false, e.what());
     });
 }
 
