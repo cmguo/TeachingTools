@@ -15,7 +15,7 @@
 #include <QGraphicsScene>
 #include <QGraphicsSceneEvent>
 
-#ifdef QT_DEBUG
+#ifndef QT_DEBUG
 #define ERASE_CLIP_SHAPE 1
 #else
 #define ERASE_CLIP_SHAPE 0
