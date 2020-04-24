@@ -15,7 +15,7 @@
 #include <QGraphicsScene>
 #include <QGraphicsSceneEvent>
 
-#ifndef QT_DEBUG
+#ifdef QT_DEBUG
 #define ERASE_CLIP_SHAPE 1
 #else
 #define ERASE_CLIP_SHAPE 0
@@ -25,7 +25,8 @@ InkStrokeControl::InkStrokeControl(ResourceView *res)
     : Control(res, {Touchable})
     , filterItem_(nullptr)
 {
-    if (res->flags().testFlag(ResourceView::Splittable)) {
+    if (res->flags().testFlag(ResourceView::Splittable)
+            || qobject_cast<InkStrokes *>(res)->isClone()) {
         flags_.setFlag(FullLayout);
         flags_.setFlag(DefaultFlags, false);
     } else {

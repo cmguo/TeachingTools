@@ -144,9 +144,13 @@ void InkStrokes::clear()
 
 InkStrokes *InkStrokes::clone() const
 {
-    if (strokes_->empty())
-        return nullptr;
-    InkStrokes* ink = new InkStrokes(const_cast<InkStrokes&>(*this));
-    emit cloned();
-    return ink;
+    if (flags_.testFlag(Splittable)) {
+        if (strokes_->empty())
+            return nullptr;
+        InkStrokes* ink = new InkStrokes(const_cast<InkStrokes&>(*this));
+        emit cloned();
+        return ink;
+    } else {
+        return new InkStrokes(const_cast<InkStrokes&>(*this));
+    }
 }
