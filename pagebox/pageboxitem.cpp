@@ -121,9 +121,8 @@ void PageBoxItem::setPageBoxState(QByteArray state)
 
 bool PageBoxItem::selectTest(QPointF const & point)
 {
-    int i = 0;
     for (PageBoxPlugin * plugin : document_->plugins()) {
-        if (!plugin->selectTest(document_->pluginItems().at(i)->mapFromItem(this, point)))
+        if (!plugin->selectTest(plugin->item()->mapFromItem(this, point)))
             return false;
     }
     return !toolBarProxy_->contains(mapToItem(toolBarProxy_, point));

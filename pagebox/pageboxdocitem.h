@@ -69,8 +69,6 @@ public:
 
     QList<PageBoxPlugin *> plugins() const { return plugins_; }
 
-    QList<QGraphicsItem *> pluginItems() const { return pluginItems_; }
-
     PageNumberWidget * pageNumberWidget() const { return pageNumber_; }
 
 public:
@@ -160,7 +158,6 @@ private:
     QGraphicsRectItem * pageCanvas_;
     PageNumberWidget * pageNumber_;
     QList<PageBoxPlugin *> plugins_;
-    QList<QGraphicsItem *> pluginItems_;
 
 private:
     QPropertyBindings * itemBindings_;

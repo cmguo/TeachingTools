@@ -40,10 +40,9 @@ PageBoxDocItem::PageBoxDocItem(QGraphicsItem * parent)
 
 PageBoxDocItem::~PageBoxDocItem()
 {
-    for (QGraphicsItem * item : pluginItems_)
-        item->setParentItem(nullptr);
+    for (PageBoxPlugin * plugin : plugins_)
+        plugin->item()->setParentItem(nullptr);
     plugins_.clear();
-    pluginItems_.clear();
     delete pageNumber_;
 }
 
@@ -93,7 +92,6 @@ void PageBoxDocItem::addPlugin(PageBoxPlugin *plugin)
     plugin->onRelayout(pageCount(), curPage_);
     plugin->onSizeChanged(rect().size(), pageSize2_);
     plugins_.append(plugin);
-    pluginItems_.append(pluginItem);
     buttonsChanged();
 }
 
@@ -102,8 +100,10 @@ void PageBoxDocItem::removePlugin(PageBoxPlugin *plugin)
     int index = plugins_.indexOf(plugin);
     if (index < 0)
         return;
-    scene()->removeItem(pluginItems_.at(index));
-    pluginItems_.removeAt(index);
+    if (scene())
+        scene()->removeItem(plugin->item());
+    else
+        plugin->item()->setParentItem(nullptr);
     plugins_.removeAt(index);
     buttonsChanged();
 }
@@ -167,7 +167,8 @@ void PageBoxDocItem::reset()
 void PageBoxDocItem::clear()
 {
     for(QGraphicsItem * item : pageCanvas_->childItems()) {
-        scene()->removeItem(item);
+        if (scene())
+            scene()->removeItem(item);
         itemBindings_->unbind(QVariant::fromValue(item));
         delete item;
     }
@@ -432,10 +433,10 @@ void PageBoxDocItem::restoreState(QByteArray data)
 
 void PageBoxDocItem::getToolButtons(QList<ToolButton *> &buttons, const QList<ToolButton *> &parents)
 {
+    ToolButtonProvider::getToolButtons(buttons, parents);
     for (PageBoxPlugin * plugin : plugins_) {
         plugin->getToolButtons(buttons, parents);
     }
-    ToolButtonProvider::getToolButtons(buttons, parents);
 }
 
 void PageBoxDocItem::getToolButtons(QList<ToolButton *> &buttons, ToolButton *parent)
