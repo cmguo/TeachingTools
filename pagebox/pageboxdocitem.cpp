@@ -3,6 +3,7 @@
 #include "pageboxitem.h"
 #include "pageboxplugin.h"
 #include "qpropertybindings.h"
+#include "pagenumberwidget.h"
 
 #include <Windows/Controls/inkcanvas.h>
 #include <Windows/Controls/inkevents.h>
@@ -28,10 +29,19 @@ PageBoxDocItem::PageBoxDocItem(QGraphicsItem * parent)
     , plugin_(nullptr)
     , pluginItem_(nullptr)
 {
+    setPen(QPen(Qt::NoPen));
+
     pageCanvas_ = new QGraphicsRectItem(this);
     pageCanvas_->setPen(QPen(Qt::NoPen));
 
-    setPen(QPen(Qt::NoPen));
+    pageNumber_ = new PageNumberWidget();
+    QObject::connect(pageNumber_, &PageNumberWidget::pageNumberChanged,
+                     this, &PageBoxDocItem::goToPage);
+}
+
+PageBoxDocItem::~PageBoxDocItem()
+{
+    delete pageNumber_;
 }
 
 void PageBoxDocItem::setPageSize(QSizeF size)
@@ -74,6 +84,8 @@ void PageBoxDocItem::setPlugin(PageBoxPlugin* plugin)
     if (plugin_) {
         pluginItem_ = plugin_->item();
         pluginItem_->setParentItem(this);
+        plugin_->onRelayout(pageCount(), curPage_);
+        plugin->onSizeChanged(rect().size(), pageSize2_, parentItem()->boundingRect().size());
     } else {
         pluginItem_ = nullptr;
     }
@@ -124,7 +136,9 @@ void PageBoxDocItem::setItems(QAbstractItemModel * model)
         QObject::connect(model_, &QAbstractItemModel::rowsMoved,
                          this, &PageBoxDocItem::resourceMoved);
     }
-    emit pageCountChanged(model_ ? model_->rowCount() : 0);
+    int n = model_ ? model_->rowCount() : 0;
+    pageNumber_->setTotal(n);
+    emit pageCountChanged(n);
     relayout();
     onCurrentPageChanged();
 }
@@ -164,7 +178,7 @@ void PageBoxDocItem::relayout()
     int oldPage = curPage_;
     if (curPage_ < 0)
         curPage_ = 0;
-    pageSize1_ = pageSize2_ = pageSize_;
+    pageSize2_ = pageSize_;
     if (direction_ == Vertical) {
         pos.setY(padding_);
         off.setY(pageSize_.height() + padding_);
@@ -237,12 +251,12 @@ void PageBoxDocItem::relayout()
         pos.setY(pageSize_.height());
     }
     setRect(QRectF(QPointF(0, 0), pos));
-    onSizeChanged(pageSize2_);
+    onPageSize2Changed(pageSize2_);
 }
 
-void PageBoxDocItem::onSizeChanged(const QSizeF &size)
+void PageBoxDocItem::onPageSize2Changed(const QSizeF &size)
 {
-    sizeChanged(size);
+    pageSize2Changed(size);
     if (plugin_)
         plugin_->onSizeChanged(rect().size(), size, parentItem()->boundingRect().size());
 }
@@ -265,6 +279,7 @@ void PageBoxDocItem::onVisibleCenterChanged(const QPointF &pos)
 
 void PageBoxDocItem::onCurrentPageChanged()
 {
+    pageNumber_->setNumber(curPage_);
     emit currentPageChanged(curPage_);
 }
 

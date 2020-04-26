@@ -40,30 +40,21 @@ PageBoxItem::PageBoxItem(QGraphicsItem * parent)
     setRect({-150, -300, 300, 600});
 
     document_ = new PageBoxDocItem(this);
-    QObject::connect(document_, &PageBoxDocItem::currentPageChanged,
-                     this, &PageBoxItem::documentPageChanged);
-    QObject::connect(document_, &PageBoxDocItem::sizeChanged,
+    QObject::connect(document_, &PageBoxDocItem::pageSize2Changed,
                      this, &PageBoxItem::documentSizeChanged);
     transform_ = new ResourceTransform(this);
     document_->setTransformations({new ControlTransform(*transform_)});
     QObject::connect(document_, &PageBoxDocItem::requestPosition,
                      this, &PageBoxItem::setDocumentPosition);
 
-    pageNumber_ = new PageNumberWidget();
     toolBar_ = new PageBoxToolBar;
     toolBarProxy_ = toolBar_->toGraphicsProxy(this);
-    QObject::connect(pageNumber_, &PageNumberWidget::pageNumberChanged,
-                     this, &PageBoxItem::documentPageChanged);
     setToolsString(toolsStr);
-
-    QObject::connect(document_, &PageBoxDocItem::pageCountChanged,
-                     pageNumber_, &PageNumberWidget::setTotal);
 }
 
 PageBoxItem::~PageBoxItem()
 {
     toolBar_->clear();
-    delete pageNumber_;
 }
 
 int PageBoxItem::pageNumber()
@@ -331,7 +322,7 @@ void PageBoxItem::getToolButtons(QList<ToolButton *> &buttons, ToolButton *paren
     if (parent == nullptr) {
         for (ToolButton * & b : buttons) {
             if (b->name() == "pages")
-                b = pageNumber_->toolButton();
+                b = document_->pageNumberWidget()->toolButton();
             if (sizeMode_ != LargeCanvas) {
                 if (b->name() == "scaleUp()"
                         || b->name() == "scaleDown()")
@@ -362,14 +353,6 @@ void PageBoxItem::updateToolButton(ToolButton *button)
     } else {
         ToolButtonProvider::updateToolButton(button);
     }
-}
-
-void PageBoxItem::documentPageChanged(int page)
-{
-    if (sender() == document_)
-        pageNumber_->setNumber(page);
-    else
-        document_->goToPage(page);
 }
 
 void PageBoxItem::documentSizeChanged(const QSizeF &pageSize2)

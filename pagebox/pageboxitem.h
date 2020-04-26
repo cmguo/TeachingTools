@@ -8,7 +8,6 @@
 class PageBoxDocItem;
 class ResourceTransform;
 class PageBoxToolBar;
-class PageNumberWidget;
 class PageBoxPlugin;
 
 class PageBoxItem : public ToolButtonProvider, public QGraphicsRectItem
@@ -121,8 +120,6 @@ private:
 
     QRectF visibleRect() const;
 
-    void documentPageChanged(int page);
-
     void documentSizeChanged(QSizeF const & size);
 
     void setDocumentPosition(QPointF const & pos);
@@ -146,7 +143,6 @@ private:
     ResourceTransform * transform_;
     PageBoxToolBar * toolBar_;
     QGraphicsItem * toolBarProxy_;
-    PageNumberWidget * pageNumber_;
 
 private:
     PageMode pageMode_;

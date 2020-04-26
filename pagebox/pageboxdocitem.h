@@ -9,6 +9,7 @@ class QAbstractItemModel;
 class QPropertyBindings;
 class PageBoxPlugin;
 class PageBoxPageItem;
+class PageNumberWidget;
 
 class TEACHINGTOOLS_EXPORT PageBoxDocItem : public QObject, public QGraphicsRectItem
 {
@@ -29,6 +30,8 @@ public:
 
 public:
     PageBoxDocItem(QGraphicsItem * parent = nullptr);
+
+    virtual ~PageBoxDocItem() override;
 
 public:
     void setPageSize(QSizeF size);
@@ -59,6 +62,8 @@ public:
     int curPage() const { return curPage_; }
 
     PageBoxPlugin * plugin() const { return plugin_; }
+
+    PageNumberWidget * pageNumberWidget() const { return pageNumber_; }
 
 public:
     qreal requestScale(QSizeF const & borderSize, bool whole);
@@ -98,7 +103,7 @@ signals:
 
     void currentPageChanged(int page);
 
-    void sizeChanged(QSizeF const & size);
+    void pageSize2Changed(QSizeF const & size);
 
     // request visible position in document, if x < 0, x is not changed, y same
     void requestPosition(QPointF const & pos);
@@ -109,6 +114,13 @@ protected:
     void clear();
 
     void relayout();
+
+protected:
+    virtual void onPageSize2Changed(QSizeF const & size);
+
+    virtual void onVisibleCenterChanged(QPointF const & pos);
+
+    virtual void onCurrentPageChanged();
 
 private slots:
     void resourceInserted(QModelIndex const &parent, int first, int last);
@@ -121,17 +133,10 @@ private slots:
 private:
     void setDefaultImage(PageBoxPageItem* pageItem1, PageBoxPageItem* pageItem2 = nullptr);
 
-    void onSizeChanged(QSizeF const & size);
-
-    void onVisibleCenterChanged(QPointF const & pos);
-
-    void onCurrentPageChanged();
-
 private:
     QAbstractItemModel * model_;
 
     QSizeF pageSize_;
-    QSizeF pageSize1_;
     QSizeF pageSize2_;
     Direction direction_;
     LayoutMode layoutMode_;
@@ -140,6 +145,7 @@ private:
 
 private:
     QGraphicsRectItem * pageCanvas_;
+    PageNumberWidget * pageNumber_;
     PageBoxPlugin * plugin_;
     QGraphicsItem * pluginItem_;
 
