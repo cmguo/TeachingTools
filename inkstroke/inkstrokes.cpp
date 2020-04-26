@@ -1,3 +1,4 @@
+#include "inkstrokerenderer.h"
 #include "inkstrokes.h"
 
 #include <core/resource.h>
@@ -55,67 +56,6 @@ QSharedPointer<StrokeCollection> InkStrokes::strokes()
 {
     return strokes_;
 }
-
-class InkStrokeRenderer : public StrokeRenderer
-{
-public:
-    InkStrokeRenderer(StrokeReader* reader, QSizeF const & maxSize, QSharedPointer<StrokeCollection> strokes, QSharedPointer<DrawingAttributes> attr, QObject * parent)
-        : StrokeRenderer(reader, parent)
-        , strokes_(strokes)
-        , da_(attr)
-        , stylusPoints_(new StylusPointCollection)
-        , destSize_(maxSize)
-    {
-    }
-
-public:
-    QSizeF size() const
-    {
-        return QSizeF(pointRange_[0], pointRange_[1]) * scale_;
-    }
-
-    // IDynamicRenderer interface
-protected:
-    virtual void setMaximun(const StrokePoint &max) override
-    {
-        pointRange_ = max;
-        scale_ = qMin(destSize_.width() / max[0], destSize_.height() / max[1]);
-        pressureScale_ = static_cast<float>(scale_ / max[2]);
-    }
-
-    virtual void addPoint(const StrokePoint &pt) override
-    {
-        StylusPoint point(pt[0] * scale_, pt[1] * scale_, pt[2] * pressureScale_);
-        stylusPoints_->AddItem(point);
-    }
-
-    virtual void endStroke() override
-    {
-        QSharedPointer<Stroke> stroke(new Stroke(stylusPoints_, da_));
-        //stroke->AddPropertyData(guid, 4.0);
-        strokes_->AddItem(stroke);
-        stylusPoints_.reset(new StylusPointCollection);
-    }
-
-    virtual void startDynamic() override
-    {
-    }
-
-    virtual void finish() override
-    {
-        if (stylusPoints_->size())
-            endStroke();
-    }
-
-private:
-    QSharedPointer<StrokeCollection> strokes_;
-    QSharedPointer<DrawingAttributes> da_;
-    QSharedPointer<StylusPointCollection> stylusPoints_;
-    StrokePoint pointRange_;
-    QSizeF destSize_;
-    qreal scale_;
-    float pressureScale_;
-};
 
 QtPromise::QPromise<void> InkStrokes::load(QSizeF const & maxSize, QSharedPointer<DrawingAttributes> attr)
 {
