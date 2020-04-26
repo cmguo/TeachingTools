@@ -27,12 +27,10 @@ void PageBoxPlugin::onPageChanged(int lastPage, int curPage)
     (void) curPage;
 }
 
-void PageBoxPlugin::onSizeChanged(const QSizeF &docSize, const QSizeF &pageSize,
-                                const QSizeF &viewSize)
+void PageBoxPlugin::onSizeChanged(const QSizeF &docSize, const QSizeF &pageSize)
 {
     (void) docSize;
     (void) pageSize;
-    (void) viewSize;
 }
 
 bool PageBoxPlugin::selectTest(const QPointF &pt)
@@ -50,7 +48,6 @@ PageBoxPlugin * PageBoxPlugin::clone() const
         return qobject_cast<PageBoxPlugin*>(clone);
     return new PageBoxPlugin;
 }
-
 
 PageBoxDocItem *PageBoxPlugin::document()
 {

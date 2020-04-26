@@ -79,14 +79,10 @@ void InkPadPlugin::onPageChanged(int lastPage, int curPage)
     inkCanvas_->SetStrokes(strokes);
 }
 
-void InkPadPlugin::onSizeChanged(const QSizeF &docSize, const QSizeF &pageSize, const QSizeF &viewSize)
+void InkPadPlugin::onSizeChanged(const QSizeF &, const QSizeF &pageSize)
 {
-    qreal sw = viewSize.width() / pageSize.width();
-    qreal sh = viewSize.height() / pageSize.height();
-    qreal s = qMin(sh, sw);
-    item_->setScale(1 / s);
-    QSizeF size(docSize.width() / pageSize.width() * viewSize.width(),
-                 docSize.height() / pageSize.height() * viewSize.height());
+    QSizeF size = document()->mapToScene(QRectF({0, 0}, pageSize)).boundingRect().size();
+    inkCanvas_->setScale(pageSize.width() / size.width());
     inkCanvas_->SetRenderSize(size);
 }
 

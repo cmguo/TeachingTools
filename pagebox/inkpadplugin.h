@@ -32,8 +32,7 @@ protected:
 
     virtual void onPageChanged(int lastPage, int curPage) override;
 
-    virtual void onSizeChanged(const QSizeF &docSize, const QSizeF &pageSize,
-                               const QSizeF &viewSize) override;
+    virtual void onSizeChanged(const QSizeF &docSize, const QSizeF &pageSize) override;
 
     virtual bool selectTest(const QPointF &pt) override;
 

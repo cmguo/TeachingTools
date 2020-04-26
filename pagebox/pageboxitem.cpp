@@ -121,9 +121,12 @@ void PageBoxItem::setPageBoxState(QByteArray state)
 
 bool PageBoxItem::selectTest(QPointF const & point)
 {
-    return (document_->plugin_ == nullptr
-                || document_->plugin_->selectTest(document_->pluginItem_->mapFromItem(this, point)))
-            && !toolBarProxy_->contains(mapToItem(toolBarProxy_, point));
+    int i = 0;
+    for (PageBoxPlugin * plugin : document_->plugins()) {
+        if (!plugin->selectTest(document_->pluginItems().at(i)->mapFromItem(this, point)))
+            return false;
+    }
+    return !toolBarProxy_->contains(mapToItem(toolBarProxy_, point));
 }
 
 void PageBoxItem::setPageMode(PageBoxItem::PageMode mode)
@@ -165,7 +168,10 @@ QRectF PageBoxItem::visibleRect() const
 void PageBoxItem::setPlugin(PageBoxPlugin *plugin)
 {
     attachSubProvider(plugin, true);
-    document_->setPlugin(plugin);
+    if (plugin)
+        document_->addPlugin(plugin);
+    else if (!document_->plugins().empty())
+        document_->removePlugin(document_->plugins().first());
 }
 
 void PageBoxItem::duplex()
@@ -175,7 +181,7 @@ void PageBoxItem::duplex()
 
 void PageBoxItem::single()
 {
-    document_->setLayoutMode(PageBoxDocItem::Single);
+    document_->setLayoutMode(PageBoxDocItem::DuplexSingle);
 }
 
 void PageBoxItem::scaleUp()

@@ -17,17 +17,16 @@ class TEACHINGTOOLS_EXPORT PageBoxPlugin : public ToolButtonProvider
 public:
     PageBoxPlugin(QObject * parent = nullptr);
 
-    virtual ~PageBoxPlugin();
+    virtual ~PageBoxPlugin() override;
 
 public:
     QGraphicsItem * item() { return item_; }
 
+    virtual void onSizeChanged(QSizeF const & docSize, QSizeF const & pageSize);
+
     virtual void onRelayout(int pageCount, int curPage);
 
     virtual void onPageChanged(int lastPage, int curPage);
-
-    virtual void onSizeChanged(QSizeF const & docSize, QSizeF const & pageSize,
-                               QSizeF const & viewSize);
 
     virtual bool selectTest(QPointF const & pt);
 
@@ -38,6 +37,9 @@ protected:
 
 protected:
     QGraphicsItem * item_;
+
+private:
+    Q_DISABLE_COPY(PageBoxPlugin)
 };
 
 #endif // PAGEBOXPLUGIN_H

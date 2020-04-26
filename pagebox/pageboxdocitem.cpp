@@ -1,9 +1,10 @@
 #include "pageboxdocitem.h"
 #include "pageboxpageitem.h"
-#include "pageboxitem.h"
 #include "pageboxplugin.h"
 #include "qpropertybindings.h"
 #include "pagenumberwidget.h"
+
+#include <core/toolbutton.h>
 
 #include <Windows/Controls/inkcanvas.h>
 #include <Windows/Controls/inkevents.h>
@@ -26,8 +27,6 @@ PageBoxDocItem::PageBoxDocItem(QGraphicsItem * parent)
     , layoutMode_(Continuous)
     , padding_(0)
     , curPage_(-1)
-    , plugin_(nullptr)
-    , pluginItem_(nullptr)
 {
     setPen(QPen(Qt::NoPen));
 
@@ -41,6 +40,10 @@ PageBoxDocItem::PageBoxDocItem(QGraphicsItem * parent)
 
 PageBoxDocItem::~PageBoxDocItem()
 {
+    for (QGraphicsItem * item : pluginItems_)
+        item->setParentItem(nullptr);
+    plugins_.clear();
+    pluginItems_.clear();
     delete pageNumber_;
 }
 
@@ -73,24 +76,6 @@ void PageBoxDocItem::setPadding(qreal pad)
     padding_ = pad;
 }
 
-void PageBoxDocItem::setPlugin(PageBoxPlugin* plugin)
-{
-    if (plugin == plugin_)
-        return;
-    if (plugin_) {
-        scene()->removeItem(pluginItem_);
-    }
-    plugin_ = plugin;
-    if (plugin_) {
-        pluginItem_ = plugin_->item();
-        pluginItem_->setParentItem(this);
-        plugin_->onRelayout(pageCount(), curPage_);
-        plugin->onSizeChanged(rect().size(), pageSize2_, parentItem()->boundingRect().size());
-    } else {
-        pluginItem_ = nullptr;
-    }
-}
-
 QSizeF PageBoxDocItem::documentSize() const
 {
     return rect().size();
@@ -99,6 +84,28 @@ QSizeF PageBoxDocItem::documentSize() const
 int PageBoxDocItem::pageCount() const
 {
     return model_ != nullptr ? model_->rowCount() : 0;
+}
+
+void PageBoxDocItem::addPlugin(PageBoxPlugin *plugin)
+{
+    QGraphicsItem* pluginItem = plugin->item();
+    pluginItem->setParentItem(this);
+    plugin->onRelayout(pageCount(), curPage_);
+    plugin->onSizeChanged(rect().size(), pageSize2_);
+    plugins_.append(plugin);
+    pluginItems_.append(pluginItem);
+    buttonsChanged();
+}
+
+void PageBoxDocItem::removePlugin(PageBoxPlugin *plugin)
+{
+    int index = plugins_.indexOf(plugin);
+    if (index < 0)
+        return;
+    scene()->removeItem(pluginItems_.at(index));
+    pluginItems_.removeAt(index);
+    plugins_.removeAt(index);
+    buttonsChanged();
 }
 
 qreal PageBoxDocItem::requestScale(const QSizeF &borderSize, bool whole)
@@ -160,11 +167,9 @@ void PageBoxDocItem::reset()
 void PageBoxDocItem::clear()
 {
     for(QGraphicsItem * item : pageCanvas_->childItems()) {
-        if (pluginItem_ != item) {
-            scene()->removeItem(item);
-            itemBindings_->unbind(QVariant::fromValue(item));
-            delete item;
-        }
+        scene()->removeItem(item);
+        itemBindings_->unbind(QVariant::fromValue(item));
+        delete item;
     }
 }
 
@@ -188,7 +193,7 @@ void PageBoxDocItem::relayout()
         off.setX(pageSize_.width() + padding_);
         pageSize2_.setWidth(pageSize_.width() + padding_ * 2);
     }
-    if (layoutMode_ == Single) {
+    if (layoutMode_ == Single || layoutMode_ == DuplexSingle) {
         QVariant item0 = model_->data(model_->index(curPage_, 0), Qt::UserRole + 1);
         PageBoxPageItem * pageItem = new PageBoxPageItem(pageCanvas_);
         setDefaultImage(pageItem);
@@ -197,7 +202,7 @@ void PageBoxDocItem::relayout()
         pageItem->setPos(pos);
         pos += off;
         // special case, transform attach prevent us to place single page at center
-        if (static_cast<PageBoxItem*>(parentItem())->sizeMode() == PageBoxItem::LargeCanvas) {
+        if (layoutMode_ == DuplexSingle) {
             pageItem->setPos(pos - off / 2);
             pos += off;
         }
@@ -238,13 +243,6 @@ void PageBoxDocItem::relayout()
             pos += off;
         }
     }
-    if (plugin_) {
-        if (oldPage < 0)
-            plugin_->onRelayout(pageCount(), curPage_);
-        else
-            plugin_->onPageChanged(-1, curPage_);
-    }
-    onCurrentPageChanged();
     if (direction_ == Vertical) {
         pos.setX(pageSize_.width());
     } else {
@@ -252,13 +250,20 @@ void PageBoxDocItem::relayout()
     }
     setRect(QRectF(QPointF(0, 0), pos));
     onPageSize2Changed(pageSize2_);
+    for (PageBoxPlugin * plugin : plugins_) {
+        if (oldPage < 0)
+            plugin->onRelayout(pageCount(), curPage_);
+        else
+            plugin->onPageChanged(-1, curPage_);
+    }
+    onCurrentPageChanged();
 }
 
 void PageBoxDocItem::onPageSize2Changed(const QSizeF &size)
 {
     pageSize2Changed(size);
-    if (plugin_)
-        plugin_->onSizeChanged(rect().size(), size, parentItem()->boundingRect().size());
+    for (PageBoxPlugin * plugin : plugins_)
+        plugin->onSizeChanged(rect().size(), size);
 }
 
 void PageBoxDocItem::onVisibleCenterChanged(const QPointF &pos)
@@ -271,8 +276,8 @@ void PageBoxDocItem::onVisibleCenterChanged(const QPointF &pos)
     else
         curPage_ = static_cast<int>(pos.x() / (pageSize_.width() + padding()));
     if (lastPage != curPage_) {
-        if (plugin_)
-            plugin_->onPageChanged(lastPage, curPage_);
+        for (PageBoxPlugin * plugin : plugins_)
+            plugin->onPageChanged(lastPage, curPage_);
         onCurrentPageChanged();
     }
 }
@@ -351,10 +356,10 @@ void PageBoxDocItem::goToPage(int page)
     }
     int lastPage = curPage_;
     curPage_ = page;
-    if (plugin_) {
-        plugin_->onPageChanged(lastPage, curPage_);
+    for (PageBoxPlugin * plugin : plugins_) {
+        plugin->onPageChanged(lastPage, curPage_);
     }
-    if (layoutMode_ == Single) {
+    if (layoutMode_ == Single || layoutMode_ == DuplexSingle) {
         QVariant item = model_->data(model_->index(page, 0), Qt::UserRole + 1);
         PageBoxPageItem * pageItem = static_cast<PageBoxPageItem *>(pageCanvas_->childItems().front());
         setDefaultImage(pageItem);
@@ -423,6 +428,25 @@ void PageBoxDocItem::restoreState(QByteArray data)
     char * p1 = reinterpret_cast<char *>(&pageSize_);
     char * p2 = reinterpret_cast<char *>(&pageCanvas_);
     memcpy(p1, data.data(), static_cast<size_t>(p2 - p1));
+}
+
+void PageBoxDocItem::getToolButtons(QList<ToolButton *> &buttons, const QList<ToolButton *> &parents)
+{
+    for (PageBoxPlugin * plugin : plugins_) {
+        plugin->getToolButtons(buttons, parents);
+    }
+    ToolButtonProvider::getToolButtons(buttons, parents);
+}
+
+void PageBoxDocItem::getToolButtons(QList<ToolButton *> &buttons, ToolButton *parent)
+{
+    ToolButtonProvider::getToolButtons(buttons, parent);
+    if (parent == nullptr) {
+        for (ToolButton * & b : buttons) {
+            if (b->name() == "pages")
+                b = pageNumber_->toolButton();
+        }
+    }
 }
 
 void PageBoxDocItem::resourceInserted(QModelIndex const &parent, int first, int last)

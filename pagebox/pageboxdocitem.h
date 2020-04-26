@@ -3,6 +3,8 @@
 
 #include "TeachingTools_global.h"
 
+#include <core/toolbuttonprovider.h>
+
 #include <QGraphicsRectItem>
 
 class QAbstractItemModel;
@@ -11,7 +13,7 @@ class PageBoxPlugin;
 class PageBoxPageItem;
 class PageNumberWidget;
 
-class TEACHINGTOOLS_EXPORT PageBoxDocItem : public QObject, public QGraphicsRectItem
+class TEACHINGTOOLS_EXPORT PageBoxDocItem : public ToolButtonProvider, public QGraphicsRectItem
 {
     Q_OBJECT
 public:
@@ -20,6 +22,7 @@ public:
         Single,
         Continuous,
         Duplex, // except first page
+        DuplexSingle,
     };
 
     enum Direction
@@ -42,8 +45,6 @@ public:
 
     void setPadding(qreal pad);
 
-    void setPlugin(PageBoxPlugin* plugin);
-
 public:
     QSizeF pageSize() const { return pageSize_; }
 
@@ -61,7 +62,14 @@ public:
 
     int curPage() const { return curPage_; }
 
-    PageBoxPlugin * plugin() const { return plugin_; }
+public:
+    void addPlugin(PageBoxPlugin* plugin);
+
+    void removePlugin(PageBoxPlugin* plugin);
+
+    QList<PageBoxPlugin *> plugins() const { return plugins_; }
+
+    QList<QGraphicsItem *> pluginItems() const { return pluginItems_; }
 
     PageNumberWidget * pageNumberWidget() const { return pageNumber_; }
 
@@ -109,6 +117,11 @@ signals:
     void requestPosition(QPointF const & pos);
 
 protected:
+    virtual void getToolButtons(QList<ToolButton *> &buttons, const QList<ToolButton *> &parents = {}) override;
+
+    virtual void getToolButtons(QList<ToolButton *> &buttons, ToolButton *parent) override;
+
+protected:
     friend class PageBoxItem;
 
     void clear();
@@ -146,8 +159,8 @@ private:
 private:
     QGraphicsRectItem * pageCanvas_;
     PageNumberWidget * pageNumber_;
-    PageBoxPlugin * plugin_;
-    QGraphicsItem * pluginItem_;
+    QList<PageBoxPlugin *> plugins_;
+    QList<QGraphicsItem *> pluginItems_;
 
 private:
     QPropertyBindings * itemBindings_;
