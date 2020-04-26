@@ -1,17 +1,17 @@
 #ifndef INKSTROKERENDERER_H
 #define INKSTROKERENDERER_H
 
-#include <stroke/strokerenderer.h>
+#include <stroke/strokesrenderer.h>
 
 #include <Windows/Ink/drawingattributes.h>
 #include <Windows/Ink/strokecollection.h>
 #include <Windows/Input/styluspointcollection.h>
 
-class InkStrokeRenderer : public StrokeRenderer
+class InkStrokeRenderer : public StrokesRenderer
 {
     Q_OBJECT
 public:
-    InkStrokeRenderer(StrokeReader* reader, QSizeF const & maxSize, QSharedPointer<StrokeCollection> strokes,
+    InkStrokeRenderer(StrokesReader* reader, QSizeF const & maxSize, QSharedPointer<StrokeCollection> strokes,
                       QSharedPointer<DrawingAttributes> attr, QObject * parent);
 
 public:

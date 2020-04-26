@@ -6,7 +6,7 @@
 #include <Windows/Ink/strokecollection.h>
 #include <Windows/Ink/stroke.h>
 #include <Windows/Input/styluspointcollection.h>
-#include <stroke/strokerenderer.h>
+#include <stroke/strokesrenderer.h>
 
 InkStrokes::InkStrokes(Resource *res)
     : Strokes(res)
@@ -61,7 +61,7 @@ QtPromise::QPromise<void> InkStrokes::load(QSizeF const & maxSize, QSharedPointe
 {
     if (strokes_ != nullptr)
         return QtPromise::QPromise<void>::resolve();
-    return Strokes::load().then([this, l = life(), attr, maxSize](StrokeReader * reader) {
+    return Strokes::load().then([this, l = life(), attr, maxSize](StrokesReader * reader) {
         //if (l.isNull())
         //    throw std::runtime_error("dead");
         strokes_.reset(new StrokeCollection);

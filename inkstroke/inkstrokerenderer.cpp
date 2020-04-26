@@ -2,9 +2,9 @@
 
 #include <Windows/Ink/stroke.h>
 
-InkStrokeRenderer::InkStrokeRenderer(StrokeReader* reader, QSizeF const & maxSize, QSharedPointer<StrokeCollection> strokes,
+InkStrokeRenderer::InkStrokeRenderer(StrokesReader* reader, QSizeF const & maxSize, QSharedPointer<StrokeCollection> strokes,
                                      QSharedPointer<DrawingAttributes> attr, QObject *parent)
-    : StrokeRenderer(reader, parent)
+    : StrokesRenderer(reader, parent)
     , strokes_(strokes)
     , da_(attr)
     , stylusPoints_(new StylusPointCollection)
