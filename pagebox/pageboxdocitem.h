@@ -119,6 +119,8 @@ signals:
 protected:
     virtual void getToolButtons(QList<ToolButton *> &buttons, const QList<ToolButton *> &parents = {}) override;
 
+    virtual bool handleToolButton(QList<ToolButton *> const & buttons);
+
     virtual void getToolButtons(QList<ToolButton *> &buttons, ToolButton *parent) override;
 
 protected:

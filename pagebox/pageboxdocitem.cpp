@@ -447,6 +447,17 @@ void PageBoxDocItem::getToolButtons(QList<ToolButton *> &buttons, const QList<To
     }
 }
 
+bool PageBoxDocItem::handleToolButton(const QList<ToolButton *> &buttons)
+{
+    if (ToolButtonProvider::handleToolButton(buttons))
+        return true;
+    for (PageBoxPlugin * plugin : plugins_) {
+        if (plugin->handleToolButton(buttons))
+            return true;
+    }
+    return false;
+}
+
 void PageBoxDocItem::getToolButtons(QList<ToolButton *> &buttons, ToolButton *parent)
 {
     ToolButtonProvider::getToolButtons(buttons, parent);
