@@ -15,10 +15,9 @@ PageBoxPlugin::~PageBoxPlugin()
         delete item_;
 }
 
-void PageBoxPlugin::onRelayout(int pageCount, int curPage)
+void PageBoxPlugin::onRelayout(int pageCount)
 {
     (void) pageCount;
-    (void) curPage;
 }
 
 void PageBoxPlugin::onPageChanged(int lastPage, int curPage)

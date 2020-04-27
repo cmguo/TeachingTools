@@ -61,11 +61,10 @@ void InkPadPlugin::eraser(const QString &)
     inkCanvas_->Strokes()->ClearItems();
 }
 
-void InkPadPlugin::onRelayout(int pageCount, int curPage)
+void InkPadPlugin::onRelayout(int pageCount)
 {
     pageStrokes_.clear();
     pageStrokes_.resize(pageCount);
-    onPageChanged(-1, curPage);
 }
 
 void InkPadPlugin::onPageChanged(int lastPage, int curPage)

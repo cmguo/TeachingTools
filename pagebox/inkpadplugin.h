@@ -28,7 +28,7 @@ public slots:
     void eraser(QString const & arg);
 
 protected:
-    virtual void onRelayout(int pageCount, int curPage) override;
+    virtual void onRelayout(int pageCount) override;
 
     virtual void onPageChanged(int lastPage, int curPage) override;
 

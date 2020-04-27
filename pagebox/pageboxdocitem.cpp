@@ -89,8 +89,9 @@ void PageBoxDocItem::addPlugin(PageBoxPlugin *plugin)
 {
     QGraphicsItem* pluginItem = plugin->item();
     pluginItem->setParentItem(this);
-    plugin->onRelayout(pageCount(), curPage_);
     plugin->onSizeChanged(rect().size(), pageSize2_);
+    plugin->onRelayout(pageCount());
+    plugin->onPageChanged(-1, curPage_);
     plugins_.append(plugin);
     buttonsChanged();
 }
@@ -147,7 +148,6 @@ void PageBoxDocItem::setItems(QAbstractItemModel * model)
     pageNumber_->setTotal(n);
     emit pageCountChanged(n);
     relayout();
-    onCurrentPageChanged();
 }
 
 void PageBoxDocItem::setItemBindings(QPropertyBindings * bindings)
@@ -162,6 +162,18 @@ void PageBoxDocItem::reset()
     model_ = nullptr;
     pageSize_ = QSizeF();
     curPage_ = -1;
+}
+
+void PageBoxDocItem::resetCurrent()
+{
+    if (layoutMode_ == Single) {
+        PageBoxPageItem * pageItem = static_cast<PageBoxPageItem *>(pageCanvas_->childItems().front());
+        itemBindings_->unbind(QVariant::fromValue(pageItem));
+        setDefaultImage(pageItem);
+        int lastPage = curPage_;
+        curPage_ = -1;
+        onCurrentPageChanged(lastPage, curPage_);
+    }
 }
 
 void PageBoxDocItem::clear()
@@ -253,11 +265,9 @@ void PageBoxDocItem::relayout()
     onPageSize2Changed(pageSize2_);
     for (PageBoxPlugin * plugin : plugins_) {
         if (oldPage < 0)
-            plugin->onRelayout(pageCount(), curPage_);
-        else
-            plugin->onPageChanged(-1, curPage_);
+            plugin->onRelayout(pageCount());
     }
-    onCurrentPageChanged();
+    onCurrentPageChanged(oldPage, curPage_);
 }
 
 void PageBoxDocItem::onPageSize2Changed(const QSizeF &size)
@@ -277,16 +287,17 @@ void PageBoxDocItem::onVisibleCenterChanged(const QPointF &pos)
     else
         curPage_ = static_cast<int>(pos.x() / (pageSize_.width() + padding()));
     if (lastPage != curPage_) {
-        for (PageBoxPlugin * plugin : plugins_)
-            plugin->onPageChanged(lastPage, curPage_);
-        onCurrentPageChanged();
+        onCurrentPageChanged(lastPage, curPage_);
     }
 }
 
-void PageBoxDocItem::onCurrentPageChanged()
+void PageBoxDocItem::onCurrentPageChanged(int last, int cur)
 {
-    pageNumber_->setNumber(curPage_);
-    emit currentPageChanged(curPage_);
+    for (PageBoxPlugin * plugin : plugins_) {
+        plugin->onPageChanged(last, cur);
+    }
+    pageNumber_->setNumber(cur);
+    emit currentPageChanged(cur);
 }
 
 bool PageBoxDocItem::hit(QPointF const & point)
@@ -352,14 +363,11 @@ void PageBoxDocItem::goToPage(int page)
             --page;
     }
     if (page < 0 || page >= model_->rowCount() || page == curPage_) { // after adjust
-        onCurrentPageChanged();
+        onCurrentPageChanged(curPage_, curPage_);
         return;
     }
     int lastPage = curPage_;
     curPage_ = page;
-    for (PageBoxPlugin * plugin : plugins_) {
-        plugin->onPageChanged(lastPage, curPage_);
-    }
     if (layoutMode_ == Single || layoutMode_ == DuplexSingle) {
         QVariant item = model_->data(model_->index(page, 0), Qt::UserRole + 1);
         PageBoxPageItem * pageItem = static_cast<PageBoxPageItem *>(pageCanvas_->childItems().front());
@@ -413,7 +421,7 @@ void PageBoxDocItem::goToPage(int page)
             off.setX((pageSize_.width() + padding_) * curPage_);
         emit requestPosition(off);
     }
-    onCurrentPageChanged();
+    onCurrentPageChanged(lastPage, curPage_);
 }
 
 QByteArray PageBoxDocItem::saveState()

@@ -24,7 +24,7 @@ public:
 
     virtual void onSizeChanged(QSizeF const & docSize, QSizeF const & pageSize);
 
-    virtual void onRelayout(int pageCount, int curPage);
+    virtual void onRelayout(int pageCount);
 
     virtual void onPageChanged(int lastPage, int curPage);
 

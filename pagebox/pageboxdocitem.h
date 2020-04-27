@@ -83,6 +83,8 @@ public:
 
     void reset();
 
+    void resetCurrent();
+
 public slots:
     void nextPage();
 
@@ -131,7 +133,7 @@ protected:
 
     virtual void onVisibleCenterChanged(QPointF const & pos);
 
-    virtual void onCurrentPageChanged();
+    virtual void onCurrentPageChanged(int last, int cur);
 
 private slots:
     void resourceInserted(QModelIndex const &parent, int first, int last);
