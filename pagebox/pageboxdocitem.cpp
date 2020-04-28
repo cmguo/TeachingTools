@@ -89,9 +89,11 @@ void PageBoxDocItem::addPlugin(PageBoxPlugin *plugin)
 {
     QGraphicsItem* pluginItem = plugin->item();
     pluginItem->setParentItem(this);
-    plugin->onSizeChanged(rect().size(), pageSize2_);
-    plugin->onRelayout(pageCount());
-    plugin->onPageChanged(-1, curPage_);
+    if (model_ && !pageSize2_.isEmpty()) {
+        plugin->onSizeChanged(rect().size(), pageSize2_);
+        plugin->onRelayout(pageCount());
+        plugin->onPageChanged(-1, curPage_);
+    }
     plugins_.append(plugin);
     buttonsChanged();
 }
@@ -160,13 +162,13 @@ void PageBoxDocItem::reset()
     clear();
     itemBindings_ = nullptr;
     model_ = nullptr;
-    pageSize_ = QSizeF();
+    pageSize_ = pageSize2_ = QSizeF();
     curPage_ = -1;
 }
 
 void PageBoxDocItem::resetCurrent()
 {
-    if (layoutMode_ == Single) {
+    if (layoutMode_ == Single && curPage_ >= 0) {
         PageBoxPageItem * pageItem = static_cast<PageBoxPageItem *>(pageCanvas_->childItems().front());
         itemBindings_->unbind(QVariant::fromValue(pageItem));
         setDefaultImage(pageItem);
