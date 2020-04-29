@@ -160,6 +160,8 @@ void InkStrokeControl::attached()
     }
     auto l = life();
     ink->DefaultDrawingAttributes()->SetFitToCurve(false);
+    ink->DefaultDrawingAttributes()->SetWidth(1.0);
+    ink->DefaultDrawingAttributes()->SetHeight(1.0);
     strokes->load(ink->scene()->sceneRect().size(), ink->DefaultDrawingAttributes()).then([l, this, strokes, ink]() {
         if (l.isNull())
             return;

@@ -21,7 +21,7 @@ void InkStrokeRenderer::setMaximun(const StrokePoint &max)
 {
     pointRange_ = max;
     scale_ = qMin(destSize_.width() / max[0], destSize_.height() / max[1]);
-    pressureScale_ = static_cast<float>(scale_ / max[2]);
+    pressureScale_ = static_cast<float>(1.0 / max[2]);
 }
 
 void InkStrokeRenderer::addPoint(const StrokePoint &pt)

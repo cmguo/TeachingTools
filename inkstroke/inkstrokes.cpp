@@ -62,8 +62,10 @@ QtPromise::QPromise<void> InkStrokes::load(QSizeF const & maxSize, QSharedPointe
     if (strokes_ != nullptr)
         return QtPromise::QPromise<void>::resolve();
     return Strokes::load().then([this, l = life(), attr, maxSize](StrokesReader * reader) {
-        if (l.isNull())
+        if (l.isNull()) {
+            delete reader;
             throw std::runtime_error("dead");
+        }
         strokes_.reset(new StrokeCollection);
         renderer_ = new InkStrokeRenderer(reader, maxSize, strokes_, attr, this);
         renderer_->start();

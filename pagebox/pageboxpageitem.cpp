@@ -27,6 +27,8 @@ static void del_res(int * p) {
 
 void PageBoxPageItem::setImage(const QUrl &image)
 {
+    if (image.isEmpty())
+        return;
     Resource * res = new Resource(nullptr, image);
     lifeToken_.reset(reinterpret_cast<int*>(res), del_res);
     QWeakPointer<int> life(lifeToken_);
