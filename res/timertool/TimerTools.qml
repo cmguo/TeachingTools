@@ -26,7 +26,7 @@ Rectangle {
         onRuningClick:{
             timeRunningView = Qt.createComponent("TimerRuning.qml").createObject(rootItem,
                                                                                 {
-                                                                                    totalTime:normal.totalTime,
+                                                                                    totalTime:normal.totalTime*10,
                                                                                     positiveTime:totalTime<=0})
             visible = false;
             timeRunningView.backBtnClick.connect(timeRuningViewClose)

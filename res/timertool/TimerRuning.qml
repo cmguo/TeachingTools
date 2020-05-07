@@ -105,17 +105,17 @@ Rectangle {
             }
             Timer{
                 id:timer
-                interval: 1000
+                interval: 100
                 repeat: true
                 triggeredOnStart: true
                 property int intervalTime: 0 ;
                 property int intervalTotalTime: 0
                 onTriggered: {
                     timeRuningItem.totalTime = positiveTime?timeRuningItem.totalTime+1:timeRuningItem.totalTime-1
-                    showTimeText.text = transformDate(timeRuningItem.totalTime)
+                    showTimeText.text = transformDate(timeRuningItem.totalTime/10)
                     intervalTime++;
 
-                    if(intervalTime == 5 && timeRuningItem.state == "runingTime"){
+                    if(intervalTime == 50 && timeRuningItem.state == "runingTime"){
                         timeRuningItem.state = "minizeTime"
                         intervalTime =0;
                         timeRuningItem.entryMinizeTimeState()
@@ -246,6 +246,7 @@ Rectangle {
     }
 
     function transformDate(total){
+        total = parseInt(total);
         var second = total%60;
         var minus = parseInt(total/60);
         return (minus > 9 ? minus : ("0" + minus)) +":" + (second > 9 ? second : ("0" + second))
