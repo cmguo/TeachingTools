@@ -60,10 +60,7 @@ void InkStrokeTools::attachToWhiteCanvas(WhiteCanvas *whiteCanvas)
     QObject::connect(package, &ResourcePackage::pageCreated, this, [](ResourcePage* page) {
         page->addResource(QUrl("inkstroke:"));
     });
-    QObject::connect(package, &ResourcePackage::currentPageChanged, this, [this](ResourcePage* page) {
-        switchPage(page);
-    });
-    QObject::connect(package, &ResourcePackage::currentSubPageChanged, this, [this](ResourcePage* page) {
+    QObject::connect(canvas_, &WhiteCanvas::currentPageChanged, this, [this](ResourcePage* page) {
         switchPage(page);
     });
     if (ResourcePage * page = whiteCanvas->page())
@@ -73,6 +70,14 @@ void InkStrokeTools::attachToWhiteCanvas(WhiteCanvas *whiteCanvas)
 void InkStrokeTools::switchPage(ResourcePage *page)
 {
     // detach active first, last control has dead
+    if (page == nullptr) {
+        inkControl_ = nullptr;
+        activeControl_ = outerControl_;
+        inkColor_ = &colorNormal_;
+        if (outerControl_ == nullptr)
+            activeColor_ = inkColor_;
+        return;
+    }
     InkStrokeControl * control = qobject_cast<InkStrokeControl*>(canvas_->topControl());
     if (control == nullptr) // sometimes sub page change goes first, we can safely ignore
         return;
@@ -122,7 +127,8 @@ void InkStrokeTools::setOuterControl(QObject *control)
         outerControl_->setProperty("color", colorOuter_);
         outerControl_->setProperty("width", width_);
         // avoid misunderstand
-        inkControl_->setEditingMode(InkCanvasEditingMode::None);
+        if (inkControl_)
+            inkControl_->setEditingMode(InkCanvasEditingMode::None);
         colorButtons.updateValue(*activeColor_);
         connect(outerControl_, &QObject::destroyed, this, [this] {
             setOuterControl(nullptr);
@@ -130,8 +136,10 @@ void InkStrokeTools::setOuterControl(QObject *control)
     } else {
         activeControl_ = inkControl_;
         activeColor_ = inkColor_;
-        inkControl_->setEditingMode(mode_);
-        inkControl_->setWidth(width_);
+        if (inkControl_) {
+            inkControl_->setEditingMode(mode_);
+            inkControl_->setWidth(width_);
+        }
         colorButtons.updateValue(*activeColor_);
     }
 }
