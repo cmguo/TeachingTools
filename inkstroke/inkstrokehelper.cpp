@@ -96,10 +96,16 @@ InkCanvas *InkStrokeHelper::createInkCanvas(QColor color, qreal lineWidth, QSize
     ink->DefaultDrawingAttributes()->SetColor(color);
     ink->DefaultDrawingAttributes()->SetWidth(lineWidth);
     ink->DefaultDrawingAttributes()->SetHeight(lineWidth);
+    ink->SetDefaultStylusPointDescription(Stylus::DefaultPointDescription());
     ink->SetEditingMode(InkCanvasEditingMode::None);
+    QSizeF stylusGroupSize(1.0 * QApplication::primaryScreen()->physicalDotsPerInchX(),
+                           1.618 * QApplication::primaryScreen()->physicalDotsPerInchY());
+    ink->setProperty("StylusGroupSize", stylusGroupSize);
     if (eraserSize.width() < 10) {
         eraserSize.setWidth(eraserSize.width() * QApplication::primaryScreen()->physicalDotsPerInchX());
         eraserSize.setHeight(eraserSize.height() * QApplication::primaryScreen()->physicalDotsPerInchY());
+    } else {
+        eraserSize = QssHelper::sizeScale(eraserSize);
     }
     StylusShape * shape = new StylusShape(StylusTip::Rectangle, eraserSize.width(), eraserSize.height(), 0);
     shape->setParent(ink);

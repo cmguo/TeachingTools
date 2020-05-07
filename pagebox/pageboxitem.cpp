@@ -350,7 +350,7 @@ void PageBoxItem::updateToolButton(ToolButton *button)
     if (button->name() == "duplex()") {
         button->setChecked(document_->layoutMode() == PageBoxDocItem::Duplex);
     } else if (button->name() == "single()") {
-        button->setChecked(document_->layoutMode() == PageBoxDocItem::Single);
+        button->setChecked(document_->layoutMode() == PageBoxDocItem::DuplexSingle);
     } else if (button->name() == "scaleUp()") {
         button->setEnabled(canStepScale(true));
     } else if (button->name() == "scaleDown()") {

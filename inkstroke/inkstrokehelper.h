@@ -17,7 +17,7 @@ class InkStrokeHelper
 public:
     static InkCanvas* createInkCanvas(QColor color = QColor("#FFF0F0F0"),
                                       qreal lineWidth = 4.0,
-                                      QSizeF eraserSize = {1, 1.618}); // unit inch or pixel ( w >= 10)
+                                      QSizeF eraserSize = {48, 80}); // unit inch or pixel ( w >= 10)
 
     static Control::SelectMode selectTest(InkCanvas* ink, QPointF const & pt,
                                           bool eatUnselect = true, bool mixSelect = false);
