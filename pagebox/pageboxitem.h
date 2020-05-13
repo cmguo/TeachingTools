@@ -14,18 +14,18 @@ class PageBoxItem : public ToolButtonProvider, public QGraphicsRectItem
 {
     Q_OBJECT
 
-    Q_PROPERTY(PageMode pageMode READ pageMode  WRITE setPageMode)
+    Q_PROPERTY(PagesMode pagesMode READ pagesMode  WRITE setPagesMode)
     Q_PROPERTY(SizeMode sizeMode READ sizeMode  WRITE setSizeMode)
     Q_PROPERTY(int pageNumber READ pageNumber  WRITE setPageNumber)
     Q_PROPERTY(QByteArray pageBoxState READ pageBoxState  WRITE setPageBoxState)
 
 public:
-    enum PageMode {
+    enum PagesMode {
         Paper,
         Book,
     };
 
-    Q_ENUM(PageMode)
+    Q_ENUM(PagesMode)
 
     enum SizeMode
     {
@@ -53,9 +53,9 @@ public:
 
     QGraphicsItem * toolBar() { return toolBarProxy_; }
 
-    PageMode pageMode() const { return pageMode_; }
+    PagesMode pagesMode() const { return pagesMode_; }
 
-    void setPageMode(PageMode mode);
+    void setPagesMode(PagesMode mode);
 
     SizeMode sizeMode() const { return sizeMode_; }
 
@@ -145,7 +145,7 @@ private:
     QGraphicsItem * toolBarProxy_;
 
 private:
-    PageMode pageMode_;
+    PagesMode pagesMode_;
     SizeMode sizeMode_;
     ScaleMode scaleMode_;
     qreal manualScale_;

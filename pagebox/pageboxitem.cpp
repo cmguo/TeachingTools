@@ -27,7 +27,7 @@ static constexpr char const * toolsStr =
 
 PageBoxItem::PageBoxItem(QGraphicsItem * parent)
     : QGraphicsRectItem(parent)
-    , pageMode_(Paper)
+    , pagesMode_(Paper)
     , sizeMode_(FixedSize)
     , scaleMode_(FitLayout)
     , scaleInterval_(1.2)
@@ -88,7 +88,7 @@ QByteArray PageBoxItem::pageBoxState()
 {
     qDebug() << "PageBoxItem saveState" << transform_->transform();
     pos_ = transform_->offset();
-    char * p1 = reinterpret_cast<char *>(&pageMode_);
+    char * p1 = reinterpret_cast<char *>(&pagesMode_);
     char * p2 = reinterpret_cast<char *>(&start_);
     QByteArray data(p1, static_cast<int>(p2 - p1));
     if (document_->transformations().empty()) {
@@ -104,7 +104,7 @@ QByteArray PageBoxItem::pageBoxState()
 
 void PageBoxItem::setPageBoxState(QByteArray state)
 {
-    char * p1 = reinterpret_cast<char *>(&pageMode_);
+    char * p1 = reinterpret_cast<char *>(&pagesMode_);
     char * p2 = reinterpret_cast<char *>(&start_);
     int n = static_cast<int>(p2 - p1);
     memcpy(p1, state.data(), static_cast<size_t>(n));
@@ -128,9 +128,9 @@ bool PageBoxItem::selectTest(QPointF const & point)
     return !toolBarProxy_->contains(mapToItem(toolBarProxy_, point));
 }
 
-void PageBoxItem::setPageMode(PageBoxItem::PageMode mode)
+void PageBoxItem::setPagesMode(PageBoxItem::PagesMode mode)
 {
-    pageMode_ = mode;
+    pagesMode_ = mode;
     switch (mode) {
     case Paper:
         document_->setLayoutMode(PageBoxDocItem::Continuous);
@@ -333,7 +333,7 @@ void PageBoxItem::getToolButtons(QList<ToolButton *> &buttons, ToolButton *paren
                         || b->name() == "scaleDown()")
                     b = nullptr;
             }
-            if (pageMode_ != Book) {
+            if (pagesMode_ != Book) {
                 if (b && (b->name() == "duplex()"
                         || b->name() == "single()"))
                     b = nullptr;

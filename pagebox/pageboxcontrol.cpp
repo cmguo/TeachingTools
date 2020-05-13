@@ -22,6 +22,10 @@ PageBoxControl::PageBoxControl(ResourceView * res, Flags flags, Flags clearFlags
     : Control(res, flags | KeepAspectRatio, clearFlags)
     , bottomTransform_(nullptr)
 {
+    if (res_->flags().testFlag(ResourceView::LargeCanvas)) {
+        flags_.setFlag(CanScale, false);
+        flags_.setFlag(CanMove, false);
+    }
     setMinSize({450.24, 0});
 }
 
@@ -61,7 +65,7 @@ void PageBoxControl::attaching()
     PageBoxItem * item = static_cast<PageBoxItem *>(item_);
     itemObj_ = item;
     if (flags_ & RestoreSession)
-        res_->setProperty("pageMode", QVariant()); // only apply once
+        res_->setProperty("pagesMode", QVariant()); // only apply once
 }
 
 void PageBoxControl::attached()
@@ -116,7 +120,7 @@ void PageBoxControl::attached()
     doc->setItemBindings(bindings);
     doc->setPageSize({1656.0, 2326.0});
     doc->setItems(model);
-    if (item->pageMode() == PageBoxItem::Paper)
+    if (item->pagesMode() == PageBoxItem::Paper)
         item->stepMiddleScale();
 }
 
@@ -256,7 +260,7 @@ void PageBoxControl::loadPages(PageBoxItem * item)
         }
     }
     if (!(flags_ & RestoreSession)) {
-        if (item->pageMode() == PageBoxItem::Paper)
+        if (item->pagesMode() == PageBoxItem::Paper)
             item->stepMiddleScale();
     }
     item->buttonsChanged();
