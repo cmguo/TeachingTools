@@ -26,7 +26,7 @@ PageBoxDocItem::PageBoxDocItem(QGraphicsItem * parent)
     , direction_(Vertical)
     , layoutMode_(Continuous)
     , padding_(0)
-    , curPage_(-1)
+    , curPage_(-2)
 {
     setPen(QPen(Qt::NoPen));
 
@@ -94,6 +94,8 @@ void PageBoxDocItem::addPlugin(PageBoxPlugin *plugin)
         plugin->onRelayout(pageCount());
         plugin->onPageChanged(-1, curPage_);
     }
+    connect(plugin, &PageBoxPlugin::buttonsChanged,
+            this, &PageBoxDocItem::buttonsChanged);
     plugins_.append(plugin);
     buttonsChanged();
 }
@@ -103,6 +105,7 @@ void PageBoxDocItem::removePlugin(PageBoxPlugin *plugin)
     int index = plugins_.indexOf(plugin);
     if (index < 0)
         return;
+    plugin->disconnect(this);
     if (scene())
         scene()->removeItem(plugin->item());
     else
@@ -163,7 +166,7 @@ void PageBoxDocItem::reset()
     itemBindings_ = nullptr;
     model_ = nullptr;
     pageSize_ = pageSize2_ = QSizeF();
-    curPage_ = -1;
+    curPage_ = -2;
 }
 
 void PageBoxDocItem::resetCurrent()
@@ -196,8 +199,8 @@ void PageBoxDocItem::relayout()
     QPointF pos;
     QPointF off;
     int oldPage = curPage_;
-    if (curPage_ < 0)
-        curPage_ = 0;
+    if (curPage_ < -1)
+        curPage_ = initialPage();
     pageSize2_ = pageSize_;
     if (direction_ == Vertical) {
         pos.setY(padding_);
@@ -270,6 +273,11 @@ void PageBoxDocItem::relayout()
             plugin->onRelayout(pageCount());
     }
     onCurrentPageChanged(oldPage, curPage_);
+}
+
+int PageBoxDocItem::initialPage()
+{
+    return model_->rowCount() > 0 ? 0 : -1;
 }
 
 void PageBoxDocItem::onPageSize2Changed(const QSizeF &size)

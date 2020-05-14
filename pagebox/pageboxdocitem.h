@@ -119,7 +119,7 @@ signals:
 protected:
     virtual void getToolButtons(QList<ToolButton *> &buttons, const QList<ToolButton *> &parents = {}) override;
 
-    virtual bool handleToolButton(QList<ToolButton *> const & buttons);
+    virtual bool handleToolButton(QList<ToolButton *> const & buttons) override;
 
     virtual void getToolButtons(QList<ToolButton *> &buttons, ToolButton *parent) override;
 
@@ -131,6 +131,8 @@ protected:
     void relayout();
 
 protected:
+    virtual int initialPage();
+
     virtual void onPageSize2Changed(QSizeF const & size);
 
     virtual void onVisibleCenterChanged(QPointF const & pos);
