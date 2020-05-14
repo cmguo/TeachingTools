@@ -35,12 +35,6 @@ private:
 
     void pull();
 
-    static QVariant getProp(QVariant & obj, char const * prop);
-
-    static void setProp(QVariant & obj, char const * prop, QVariant && value);
-
-    static QMetaObject const * getMeta(QVariant & obj);
-
 private slots:
     void onNotify();
 

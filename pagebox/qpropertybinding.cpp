@@ -1,4 +1,5 @@
 #include "qpropertybinding.h"
+#include "qproperty.h"
 
 #include <QMetaProperty>
 
@@ -81,15 +82,14 @@ void QPropertyBinding::onNotify()
 
 void QPropertyBinding::connect(QVariant & obj, char const * prop)
 {
-    QMetaObject const * meta = getMeta(obj);
+    QMetaObject const * meta = QProperty::getMeta(obj);
     if (meta && prop) {
         int index = meta->indexOfProperty(prop);
         if (index >= 0) {
             QMetaProperty prop = meta->property(index);
-            QMetaMethod sig = prop.notifySignal();
-            if (sig.isValid()) {
-                QObject::connect(obj.value<QObject *>(), sig,
-                                 this, metaObject()->method(0));
+            if (prop.hasNotifySignal()) {
+                QObject::connect(obj.value<QObject *>(), prop.notifySignal(),
+                                 this, metaObject()->method(metaObject()->methodCount() - 1));
             }
         }
     }
@@ -107,61 +107,14 @@ void QPropertyBinding::push()
 {
     if (src_.isNull() || !src_prop_ || dst_.isNull() || !dst_prop_)
         return;
-    QVariant value = getProp(src_, src_prop_);
-    setProp(dst_, dst_prop_, std::move(value));
+    QVariant value = QProperty::getProp(src_, src_prop_);
+    QProperty::setProp(dst_, dst_prop_, std::move(value));
 }
 
 void QPropertyBinding::pull()
 {
     if (src_.isNull() || !src_prop_ || dst_.isNull() || !dst_prop_)
         return;
-    QVariant value = getProp(dst_, dst_prop_);
-    setProp(src_, src_prop_, std::move(value));
-}
-
-QVariant QPropertyBinding::getProp(QVariant & obj, char const * prop)
-{
-    if (prop != nullptr && prop[0] == 0)
-        return obj;
-    QMetaObject const * meta = getMeta(obj);
-    if (meta) {
-        int index = meta->indexOfProperty(prop);
-        if (index >= 0) {
-            QMetaProperty p = meta->property(index);
-            if (meta->inherits(&QObject::staticQtMetaObject))
-                return p.read(obj.value<QObject *>());
-            else
-                return p.readOnGadget(*reinterpret_cast<void const * const *>(obj.constData()));
-        }
-    }
-    return QVariant();
-}
-
-void QPropertyBinding::setProp(QVariant & obj, char const * prop, QVariant && value)
-{
-    QMetaObject const * meta = getMeta(obj);
-    if (meta) {
-        int index = meta->indexOfProperty(prop);
-        if (index >= 0) {
-            QMetaProperty p = meta->property(index);
-            if (meta->inherits(&QObject::staticQtMetaObject))
-                p.write(obj.value<QObject *>(), value);
-            else
-                p.writeOnGadget(*reinterpret_cast<void * const *>(obj.data()), value);
-        }
-    }
-}
-
-QMetaObject const * QPropertyBinding::getMeta(QVariant & obj)
-{
-    if (obj.type() == QVariant::UserType) {
-        if (obj.userType() == QMetaType::QObjectStar)
-            return obj.value<QObject *>()->metaObject();
-        else {
-            const auto flags = QMetaType::typeFlags(obj.userType());
-            if (flags.testFlag(QMetaType::PointerToGadget))
-                return QMetaType::metaObjectForType(obj.userType());
-        }
-    }
-    return nullptr;
+    QVariant value = QProperty::getProp(dst_, dst_prop_);
+    QProperty::setProp(src_, src_prop_, std::move(value));
 }
