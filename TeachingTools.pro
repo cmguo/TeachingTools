@@ -83,3 +83,10 @@ else:unix: LIBS += -L$$OUT_PWD/../InkCanvas/ -lInkCanvas
 
 INCLUDEPATH += $$PWD/../InkCanvas
 DEPENDPATH += $$PWD/../InkCanvas
+
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../QtEventBus/release/ -lQtEventBus
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../QtEventBus/debug/ -lQtEventBusd
+else:unix: LIBS += -L$$OUT_PWD/../QtEventBus/ -lQtEventBus
+
+INCLUDEPATH += $$PWD/../QtEventBus
+DEPENDPATH += $$PWD/../QtEventBus
