@@ -25,6 +25,7 @@ PageBoxControl::PageBoxControl(ResourceView * res, Flags flags, Flags clearFlags
     if (res_->flags().testFlag(ResourceView::LargeCanvas)) {
         flags_.setFlag(CanScale, false);
         flags_.setFlag(CanMove, false);
+        flags_.setFlag(FullLayout);
     }
     setMinSize({450.24, 0});
 }
