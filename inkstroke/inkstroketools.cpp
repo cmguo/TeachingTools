@@ -39,7 +39,11 @@ InkStrokeTools::InkStrokeTools(QObject* parent, WhiteCanvas *whiteCanvas)
     , inkControl_(nullptr)
     , outerControl_(nullptr)
     , activeControl_(nullptr)
+    #ifdef QT_DEBUG
+    , mode_(InkCanvasEditingMode::None)
+    #else
     , mode_(InkCanvasEditingMode::Ink)
+    #endif
     , colorNormal_("#F0F0F0")
     , colorShow_("#FF6262")
     , colorOuter_("#FF6262")
