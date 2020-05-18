@@ -2,6 +2,7 @@
 #include "inkstrokes.h"
 #include "inkstrokehelper.h"
 
+#include <views/qsshelper.h>
 #include <views/whitecanvas.h>
 #include <core/resourcetransform.h>
 
@@ -12,8 +13,14 @@
 #include <Windows/Input/StylusPlugIns/stylusplugin.h>
 #include <Windows/Input/StylusPlugIns/rawstylusinput.h>
 
+#include <QElapsedTimer>
+#include <QFrame>
+#include <QGraphicsProxyWidget>
 #include <QGraphicsScene>
 #include <QGraphicsSceneEvent>
+#include <QLabel>
+#include <QPushButton>
+#include <QVBoxLayout>
 
 #ifndef QT_DEBUG
 #define ERASE_CLIP_SHAPE 1
@@ -69,10 +76,10 @@ void InkStrokeControl::setEditingMode(InkCanvasEditingMode mode)
         } else {
             teardownErasing();
         }
-        if (mode == InkCanvasEditingMode::Ink) {
+        item_->removeSceneEventFilter(filterItem_);
+        if (mode == InkCanvasEditingMode::None
+                || mode == InkCanvasEditingMode::Ink) {
             item_->installSceneEventFilter(filterItem_);
-        } else {
-            item_->removeSceneEventFilter(filterItem_);
         }
         editingModeChanged(mode);
     }
@@ -105,7 +112,13 @@ public:
     void paint(QPainter *, const QStyleOptionGraphicsItem *, QWidget *) override {}
     bool sceneEventFilter(QGraphicsItem *watched, QEvent *event) override;
 private:
+    void checkTip(QPointF const & pos);
+    void showTip(QPointF const & pos);
+private:
     QSharedPointer<int> life_;
+    QElapsedTimer timer_;
+    QGraphicsProxyWidget * tipItem_ = nullptr;
+    int tipSeq_ = 0;
 };
 
 QGraphicsItem * InkStrokeControl::create(ResourceView *res)
@@ -199,6 +212,10 @@ bool EventFilterItem::sceneEventFilter(QGraphicsItem *watched, QEvent *event)
     if (event->type() == QEvent::GraphicsSceneMousePress
             || event->type() == QEvent::GraphicsSceneMouseRelease) {
         QGraphicsSceneMouseEvent & me = static_cast<QGraphicsSceneMouseEvent&>(*event);
+        if (static_cast<InkCanvas*>(parentItem())->EditingMode() == InkCanvasEditingMode::None) {
+            checkTip(me.pos());
+            return false;
+        }
         QList<QGraphicsItem*> items = scene()->items(me.scenePos());
         items = items.mid(items.indexOf(watched) + 1);
         QGraphicsItem* whiteCanvas = watched->parentItem()->parentItem();
@@ -240,6 +257,49 @@ bool EventFilterItem::sceneEventFilter(QGraphicsItem *watched, QEvent *event)
         event->ignore();
     }
     return false;
+}
+
+void EventFilterItem::checkTip(QPointF const & pos)
+{
+    if (timer_.isValid() && timer_.elapsed() < 1000) {
+        showTip(pos);
+        timer_.invalidate();
+    } else {
+        timer_.restart();
+    }
+}
+
+void EventFilterItem::showTip(QPointF const & pos)
+{
+    if (tipItem_ == nullptr) {
+        QWidget* widget = new QFrame;
+        widget->setObjectName("inkstroketip");
+        widget->setWindowFlag(Qt::FramelessWindowHint);
+        widget->setStyleSheet(QssHelper(":/teachingtools/qss/inkstroketip.qss"));
+        QLayout* layout = new QVBoxLayout(widget);
+        widget->setLayout(layout);
+        layout->setSpacing(20);
+        layout->addWidget(new QLabel("是否切换到画笔?"));
+        QPushButton * button = new QPushButton;
+        button->setText("画笔");
+        QObject::connect(button, &QPushButton::clicked, [this]() {
+            qobject_cast<InkStrokeControl*>(Control::fromItem(parentItem()))
+                    ->setEditingMode(InkCanvasEditingMode::Ink);
+            tipItem_->hide();
+        });
+        layout->addWidget(button);
+        QGraphicsProxyWidget * item = new QGraphicsProxyWidget(parentItem());
+        item->setWidget(widget);
+        item->setFlag(ItemIsFocusable, false);
+        tipItem_ = item;
+    }
+    int tipSeq = ++tipSeq_;
+    tipItem_->setPos(pos);
+    tipItem_->show();
+    QTimer::singleShot(3000, tipItem_->widget(), [this, tipSeq]() {
+        if (tipSeq == tipSeq_)
+            tipItem_->hide();
+    });
 }
 
 class InputBroadcaster : public StylusPlugIn

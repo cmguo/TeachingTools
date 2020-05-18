@@ -45,5 +45,6 @@
         <file>icon/stroke.none.svg</file>
         <file>icon/stroke.stroke.svg</file>
         <file>qss/pagenumber.qss</file>
+        <file>qss/inkstroketip.qss</file>
     </qresource>
 </RCC>

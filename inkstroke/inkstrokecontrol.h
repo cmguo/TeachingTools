@@ -3,7 +3,7 @@
 
 #include "TeachingTools_global.h"
 
-#include <core/widgetcontrol.h>
+#include <core/control.h>
 #include <Windows/Controls/editingmode.h>
 
 #include <QColor>

@@ -1,0 +1,23 @@
+QPushButton,.QLabel {
+    color:white;
+    font-size:16pt; /* [size] */
+    font-family:'Microsoft YaHei';
+}
+
+.QLabel {
+    border:none;
+    background-color:#00000000;
+}
+
+QPushButton {
+    border-radius:6px; /* [size] */
+    padding: 6px; /* [size] */
+    background-color: #5D6C85;
+    qproperty-icon: url(":/teachingtools/icon/stroke.stroke.svg");
+}
+
+#inkstroketip {
+    background-color:#000000;
+    border-radius:6px; /* [size] */
+}
+
