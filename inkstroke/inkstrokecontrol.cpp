@@ -4,6 +4,7 @@
 
 #include <views/qsshelper.h>
 #include <views/whitecanvas.h>
+#include <views/itemselector.h>
 #include <core/resourcetransform.h>
 
 #include <Windows/Controls/inkcanvas.h>
@@ -77,9 +78,15 @@ void InkStrokeControl::setEditingMode(InkCanvasEditingMode mode)
             teardownErasing();
         }
         item_->removeSceneEventFilter(filterItem_);
-        if (mode == InkCanvasEditingMode::None
-                || mode == InkCanvasEditingMode::Ink) {
+        if (mode == InkCanvasEditingMode::Ink) {
             item_->installSceneEventFilter(filterItem_);
+        }
+        WhiteCanvas * canvas = whiteCanvas();
+        canvas->removeSceneEventFilter(filterItem_);
+        if (mode == InkCanvasEditingMode::None) {
+            canvas->installSceneEventFilter(filterItem_);
+            canvas->removeSceneEventFilter(canvas->selector());
+            canvas->installSceneEventFilter(canvas->selector());
         }
         editingModeChanged(mode);
     }
@@ -208,14 +215,17 @@ void InkStrokeControl::detaching()
 
 bool EventFilterItem::sceneEventFilter(QGraphicsItem *watched, QEvent *event)
 {
-    (void) watched;
+    if (watched != parentItem()) {
+        if (event->type() == QEvent::GraphicsSceneMousePress
+                && !event->isAccepted()) {
+            QGraphicsSceneMouseEvent & me = static_cast<QGraphicsSceneMouseEvent&>(*event);
+            checkTip(mapFromItem(watched, me.pos()));
+        }
+        return false;
+    }
     if (event->type() == QEvent::GraphicsSceneMousePress
             || event->type() == QEvent::GraphicsSceneMouseRelease) {
         QGraphicsSceneMouseEvent & me = static_cast<QGraphicsSceneMouseEvent&>(*event);
-        if (static_cast<InkCanvas*>(parentItem())->EditingMode() == InkCanvasEditingMode::None) {
-            checkTip(me.pos());
-            return false;
-        }
         QList<QGraphicsItem*> items = scene()->items(me.scenePos());
         items = items.mid(items.indexOf(watched) + 1);
         QGraphicsItem* whiteCanvas = watched->parentItem()->parentItem();
