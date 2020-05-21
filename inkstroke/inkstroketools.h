@@ -72,6 +72,7 @@ private:
     QObject * outerControl_;
     QObject * activeControl_;
     InkCanvasEditingMode mode_;
+    bool disable_ = false;
     QColor colorNormal_;
     QColor colorShow_;
     QColor colorOuter_;

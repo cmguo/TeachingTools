@@ -88,14 +88,20 @@ void InkStrokeTools::switchPage(ResourcePage *page)
     inkControl_ = nullptr;
     activeControl_ = outerControl_;
     inkColor_ = &colorNormal_;
+    disable_ = false;
     while (page->isSubPage())
         page = qobject_cast<ResourcePage*>(page->parent());
     if (page->isIndependentPage()) {
         inkColor_ = &colorShow_;
         if (!outerControl_) {
             QVariant editingMode = page->mainResource()->property("editingMode");
-            if (editingMode.isValid())
+            if (editingMode.isValid()) {
+                if (editingMode.toInt() < 0) {
+                    editingMode = 0;
+                    disable_ = true;
+                }
                 setMode(editingMode.value<InkCanvasEditingMode>());
+            }
         }
     }
     if (outerControl_ == nullptr) {
@@ -123,6 +129,7 @@ void InkStrokeTools::setOuterControl(QObject *control)
     if (outerControl_) {
         activeColor_ = &colorOuter_;
         activeControl_ = nullptr;
+        disable_ = false;
         QVariant editingMode = control->property("editingMode");
         setMode(editingMode.value<InkCanvasEditingMode>());
         activeControl_ = outerControl_;
@@ -160,6 +167,8 @@ void InkStrokeTools::setMode(InkCanvasEditingMode mode)
     buttons[0]->setChecked(mode_ == InkCanvasEditingMode::None);
     buttons[1]->setChecked(mode_ == InkCanvasEditingMode::Ink);
     buttons[2]->setChecked(mode_ == InkCanvasEditingMode::EraseByPoint);
+    buttons[1]->setDisabled(disable_);
+    buttons[2]->setDisabled(disable_);
 }
 
 void InkStrokeTools::setColor(QColor color)
