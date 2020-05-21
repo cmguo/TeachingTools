@@ -19,6 +19,8 @@ class TEACHINGTOOLS_EXPORT InkStrokeTools : public ToolButtonProvider
     Q_OBJECT
 
     Q_PROPERTY(InkCanvasEditingMode mode READ mode WRITE setMode)
+    Q_PROPERTY(bool enabled READ enabled WRITE setEnabled)
+    Q_PROPERTY(bool disabled READ disabled WRITE setDisabled)
     Q_PROPERTY(QColor color READ color WRITE setColor)
     Q_PROPERTY(qreal width READ width WRITE setWidth)
 
@@ -34,6 +36,14 @@ public:
     InkCanvasEditingMode mode() const { return mode_; }
 
     void setMode(InkCanvasEditingMode mode);
+
+    bool disabled() const { return disabled_; }
+
+    void setDisabled(bool b);
+
+    bool enabled() const { return !disabled_; }
+
+    void setEnabled(bool b);
 
     QColor color() { return *activeColor_; }
 
@@ -72,7 +82,7 @@ private:
     QObject * outerControl_;
     QObject * activeControl_;
     InkCanvasEditingMode mode_;
-    bool disable_ = false;
+    bool disabled_ = false;
     QColor colorNormal_;
     QColor colorShow_;
     QColor colorOuter_;
