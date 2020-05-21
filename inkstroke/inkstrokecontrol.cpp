@@ -26,7 +26,7 @@
 #ifndef QT_DEBUG
 #define ERASE_CLIP_SHAPE 1
 #else
-#define ERASE_CLIP_SHAPE 0
+#define ERASE_CLIP_SHAPE 1
 #endif
 
 InkStrokeControl::InkStrokeControl(ResourceView *res)
@@ -73,9 +73,9 @@ void InkStrokeControl::setEditingMode(InkCanvasEditingMode mode)
 #endif
         if (mode == InkCanvasEditingMode::EraseByPoint) {
             if (!whiteCanvas()->loading())
-                setupErasing();
+                setupMultiLayerErasing();
         } else {
-            teardownErasing();
+            teardownMultiLayerErasing();
         }
         item_->removeSceneEventFilter(filterItem_);
         if (mode == InkCanvasEditingMode::Ink) {
@@ -155,8 +155,8 @@ void InkStrokeControl::attached()
                 }
 #endif
                 if (!loading && ink->EditingMode() == InkCanvasEditingMode::EraseByPoint) {
-                    teardownErasing();
-                    setupErasing();
+                    teardownMultiLayerErasing();
+                    setupMultiLayerErasing();
                 }
             }
         });
@@ -209,7 +209,7 @@ Control::SelectMode InkStrokeControl::selectTest(QPointF const & pt)
 void InkStrokeControl::detaching()
 {
     if (res_->flags() & ResourceView::Splittable) {
-        teardownErasing();
+        teardownMultiLayerErasing();
     }
 }
 
@@ -312,69 +312,20 @@ void EventFilterItem::showTip(QPointF const & pos)
     });
 }
 
-class InputBroadcaster : public StylusPlugIn
-{
-public:
-    InputBroadcaster(InkCanvas* from, QList<InkCanvas*> to)
-        : from_(from)
-        , to_(to)
-    {
-        from_->StylusPlugIns().InsertItem(0, this);
-    }
-
-    virtual ~InputBroadcaster() override
-    {
-        from_->StylusPlugIns().RemoveItem(0);
-    }
-
-    virtual void OnStylusDown(RawStylusInput &rawStylusInput) override
-    {
-        broadcast(rawStylusInput);
-    }
-
-    virtual void OnStylusMove(RawStylusInput &rawStylusInput) override
-    {
-        broadcast(rawStylusInput);
-    }
-
-    virtual void OnStylusUp(RawStylusInput &rawStylusInput) override
-    {
-        broadcast(rawStylusInput);
-    }
-
-private:
-    void broadcast(RawStylusInput &rawStylusInput)
-    {
-        QEvent& e(rawStylusInput.inputEvent());
-        for (InkCanvas* ink : to_) {
-            ink->sceneEvent(&e);
-        }
-    }
-
-private:
-    InkCanvas* from_;
-    QList<InkCanvas*> to_;
-};
-
-Q_DECLARE_METATYPE(InputBroadcaster*)
-
-void InkStrokeControl::setupErasing()
+void InkStrokeControl::setupMultiLayerErasing()
 {
 #if ERASE_CLIP_SHAPE
     QPolygonF clipShape;
 #endif
-    QList<InkCanvas*> list;
     QList<QGraphicsItem*> items = item_->parentItem()->childItems();
     for (int i = items.size() - 1; i >= 0; --i) {
         Control * c = Control::fromItem(items[i]);
         if (InkStrokeControl* ic = qobject_cast<InkStrokeControl*>(c)) {
             if (ic != this) {
                 InkCanvas * ink = static_cast<InkCanvas*>(items[i]);
-                ink->SetEditingMode(InkCanvasEditingMode::EraseByPoint);
 #if ERASE_CLIP_SHAPE
                 ink->SetEraseClip(clipShape);
 #endif
-                list.append(ink);
             }
 #if ERASE_CLIP_SHAPE
         } else {
@@ -386,26 +337,8 @@ void InkStrokeControl::setupErasing()
 #endif
         }
     }
-    InkCanvas * ink = static_cast<InkCanvas*>(item_);
-    InputBroadcaster* ib = new InputBroadcaster(ink, list);
-    setProperty("InputBroadcaster", QVariant::fromValue(ib));
 }
 
-void InkStrokeControl::teardownErasing()
+void InkStrokeControl::teardownMultiLayerErasing()
 {
-    QVariant ib = property("InputBroadcaster");
-    if (!ib.isValid())
-        return;
-    delete ib.value<InputBroadcaster*>();
-    ib.clear();
-    setProperty("InputBroadcaster", ib);
-    for (QGraphicsItem* i : item_->parentItem()->childItems()) {
-        Control * c = Control::fromItem(i);
-        InkStrokeControl* ic = qobject_cast<InkStrokeControl*>(c);
-        if (ic) {
-            if (ic != this) {
-                ic->setEditingMode(InkCanvasEditingMode::None);
-            }
-        }
-    }
 }

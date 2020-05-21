@@ -54,9 +54,9 @@ protected:
     virtual void detaching() override;
 
 private:
-    void setupErasing();
+    void setupMultiLayerErasing();
 
-    void teardownErasing();
+    void teardownMultiLayerErasing();
 
 private:
     QGraphicsItem * filterItem_;
