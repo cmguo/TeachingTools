@@ -246,16 +246,13 @@ bool EventFilterItem::sceneEventFilter(QGraphicsItem *watched, QEvent *event)
                 scene()->sendEvent(item, event);
                 if (event->isAccepted()) {
                     setData(1000, QVariant::fromValue(item));
-                    setData(1001, QVariant::fromValue(pos));
                     break;
                 }
             }
         } else {
             QGraphicsItem * item = data(1000).value<QGraphicsItem *>();
-            QPointF dpos = data(1001).toPointF() - pos;
             setData(1000, QVariant());
-            setData(1001, QVariant());
-            if (items.contains(item) && qAbs(dpos.x()) + qAbs(dpos.y()) < 10) {
+            if (items.contains(item)) {
                 me.setPos(item->mapFromScene(me.scenePos()));
                 me.setLastPos(item->mapFromScene(me.lastScenePos()));
                 me.accept();
