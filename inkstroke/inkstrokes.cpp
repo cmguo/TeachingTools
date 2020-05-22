@@ -33,6 +33,8 @@ InkStrokes::InkStrokes(InkStrokes &o)
         strokes_.reset(new StrokeCollection);
         strokes_.swap(o.strokes_);
         strokes_->setParent(o.strokes().get());
+        for (QObject * s : strokes_->children())
+            s->setParent(o.strokes().get());
         if (o.next_)
             o.next_->prev_ = this;
         o.next_ = this;

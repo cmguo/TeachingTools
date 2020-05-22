@@ -5,6 +5,7 @@
 #include <views/qsshelper.h>
 #include <views/whitecanvas.h>
 #include <views/itemselector.h>
+#include <views/toolbarwidget.h>
 #include <core/resourcetransform.h>
 
 #include <Windows/Controls/inkcanvas.h>
@@ -114,18 +115,14 @@ void InkStrokeControl::clear()
 class EventFilterItem : public QGraphicsItem
 {
 public:
-    EventFilterItem(QGraphicsItem * parentItem) : QGraphicsItem(parentItem), life_(new int) {}
+    EventFilterItem(QGraphicsItem * parentItem);
     QRectF boundingRect() const override { return QRectF(); }
     void paint(QPainter *, const QStyleOptionGraphicsItem *, QWidget *) override {}
     bool sceneEventFilter(QGraphicsItem *watched, QEvent *event) override;
 private:
     void checkTip(QPointF const & pos);
-    void showTip(QPointF const & pos);
 private:
     QSharedPointer<int> life_;
-    QElapsedTimer timer_;
-    QGraphicsProxyWidget * tipItem_ = nullptr;
-    int tipSeq_ = 0;
 };
 
 QGraphicsItem * InkStrokeControl::create(ResourceView *res)
@@ -213,13 +210,19 @@ void InkStrokeControl::detaching()
     }
 }
 
+EventFilterItem::EventFilterItem(QGraphicsItem *parentItem)
+    : QGraphicsItem(parentItem)
+    , life_(new int)
+{
+}
+
 bool EventFilterItem::sceneEventFilter(QGraphicsItem *watched, QEvent *event)
 {
     if (watched != parentItem()) {
         if (event->type() == QEvent::GraphicsSceneMousePress
                 && !event->isAccepted()) {
             QGraphicsSceneMouseEvent & me = static_cast<QGraphicsSceneMouseEvent&>(*event);
-            checkTip(mapFromItem(watched, me.pos()));
+            checkTip(me.scenePos());
         }
         return false;
     }
@@ -269,20 +272,12 @@ bool EventFilterItem::sceneEventFilter(QGraphicsItem *watched, QEvent *event)
     return false;
 }
 
-void EventFilterItem::checkTip(QPointF const & pos)
+class TipItem : public QGraphicsProxyWidget
 {
-    if (timer_.isValid() && timer_.elapsed() < 1000) {
-        showTip(pos);
-        timer_.invalidate();
-    } else {
-        timer_.restart();
-    }
-}
-
-void EventFilterItem::showTip(QPointF const & pos)
-{
-    if (tipItem_ == nullptr) {
-        QWidget* widget = new QFrame;
+public:
+    TipItem()
+    {
+        QFrameEx* widget = new QFrameEx;
         widget->setObjectName("inkstroketip");
         widget->setWindowFlag(Qt::FramelessWindowHint);
         widget->setStyleSheet(QssHelper(":/teachingtools/qss/inkstroketip.qss"));
@@ -295,21 +290,50 @@ void EventFilterItem::showTip(QPointF const & pos)
         QObject::connect(button, &QPushButton::clicked, [this]() {
             qobject_cast<InkStrokeControl*>(Control::fromItem(parentItem()))
                     ->setEditingMode(InkCanvasEditingMode::Ink);
-            tipItem_->hide();
+            hide();
         });
         layout->addWidget(button);
-        QGraphicsProxyWidget * item = new QGraphicsProxyWidget(parentItem());
-        item->setWidget(widget);
-        item->setFlag(ItemIsFocusable, false);
-        tipItem_ = item;
+        setWidget(widget);
     }
-    int tipSeq = ++tipSeq_;
-    tipItem_->setPos(pos);
-    tipItem_->show();
-    QTimer::singleShot(3000, tipItem_->widget(), [this, tipSeq]() {
-        if (tipSeq == tipSeq_)
-            tipItem_->hide();
-    });
+    void check(QPointF const & pos)
+    {
+        if (!timer_.isValid() || timer_.elapsed() > 1000) {
+            timer_.restart();
+            return;
+        }
+        timer_.invalidate();
+        int tipSeq = ++tipSeq_;
+        setPos(pos);
+        show();
+        setFocus();
+        QTimer::singleShot(3000, widget(), [this, tipSeq]() {
+            if (tipSeq == tipSeq_)
+                hide();
+        });
+    }
+protected:
+    virtual bool sceneEvent(QEvent * event)
+    {
+        if (event->type() == QEvent::FocusOut)
+            hide();
+        return QGraphicsProxyWidget::sceneEvent(event);
+    }
+private:
+    QElapsedTimer timer_;
+    int tipSeq_ = 0;
+};
+
+void EventFilterItem::checkTip(const QPointF &pos)
+{
+    static TipItem * tipItem = nullptr;
+    if (tipItem == nullptr) {
+        tipItem = new TipItem;
+    }
+    if (tipItem->scene() != scene()) {
+        scene()->addItem(tipItem);
+        tipItem->hide();
+    }
+    tipItem->check(pos);
 }
 
 void InkStrokeControl::setupMultiLayerErasing()
@@ -324,7 +348,7 @@ void InkStrokeControl::setupMultiLayerErasing()
             if (ic != this) {
                 InkCanvas * ink = static_cast<InkCanvas*>(items[i]);
 #if ERASE_CLIP_SHAPE
-                ink->SetEraseClip(clipShape);
+                ink->SetEditMask(clipShape);
 #endif
             }
 #if ERASE_CLIP_SHAPE
