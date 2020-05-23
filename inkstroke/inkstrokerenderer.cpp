@@ -14,19 +14,19 @@ InkStrokeRenderer::InkStrokeRenderer(StrokesReader* reader, QSizeF const & maxSi
 
 QSizeF InkStrokeRenderer::size() const
 {
-    return QSizeF(pointRange_[0], pointRange_[1]) * scale_;
+    return QSizeF(pointRange_.x, pointRange_.y) * scale_;
 }
 
 void InkStrokeRenderer::setMaximun(const StrokePoint &max)
 {
     pointRange_ = max;
-    scale_ = qMin(destSize_.width() / max[0], destSize_.height() / max[1]);
-    pressureScale_ = static_cast<float>(1.0 / max[2]);
+    scale_ = qMin(destSize_.width() / max.x, destSize_.height() / max.y);
+    pressureScale_ = static_cast<float>(1.0 / max.p);
 }
 
 void InkStrokeRenderer::addPoint(const StrokePoint &pt)
 {
-    StylusPoint point(pt[0] * scale_, pt[1] * scale_, pt[2] * pressureScale_);
+    StylusPoint point(pt.x * scale_, pt.y * scale_, pt.p * pressureScale_);
     stylusPoints_->AddItem(point);
 }
 
