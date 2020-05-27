@@ -71,6 +71,9 @@ QtPromise::QPromise<void> InkStrokes::load(QSizeF const & maxSize, QSharedPointe
         }
         strokes_.reset(new StrokeCollection);
         renderer_ = new InkStrokeRenderer(reader, maxSize, strokes_, attr, this);
+        QVariant rate = property("playRate");
+        if (rate.isValid())
+            renderer_->setRate(rate.toFloat());
         renderer_->start();
     });
 }

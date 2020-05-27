@@ -21,19 +21,16 @@ public:
 protected:
     virtual void setMaximun(const StrokePoint &max) override;
 
+    virtual void startStroke(const StrokePoint &point) override;
+
     virtual void addPoint(const StrokePoint &pt) override;
 
     virtual void endStroke() override;
-
-    virtual void startDynamic() override;
-
-    virtual void finish() override;
 
 private:
     QSharedPointer<StrokeCollection> strokes_;
     QSharedPointer<DrawingAttributes> da_;
     QSharedPointer<StylusPointCollection> stylusPoints_;
-    StrokePoint pointRange_;
     QSizeF destSize_;
     qreal scale_;
     float pressureScale_;
