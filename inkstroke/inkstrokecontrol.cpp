@@ -281,18 +281,17 @@ public:
         widget->setObjectName("inkstroketip");
         widget->setWindowFlag(Qt::FramelessWindowHint);
         widget->setStyleSheet(QssHelper(":/teachingtools/qss/inkstroketip.qss"));
-        QLayout* layout = new QVBoxLayout(widget);
-        widget->setLayout(layout);
-        layout->setSpacing(20);
-        layout->addWidget(new QLabel("是否切换到画笔?"));
-        QPushButton * button = new QPushButton;
-        button->setText("画笔");
+//        QLayout* layout = new QVBoxLayout(widget);
+//        widget->setLayout(layout);
+//        layout->setSpacing(20);
+//        layout->addWidget(new QLabel("是否切换到画笔?"));
+        QPushButton * button = new QPushButton(widget);
         QObject::connect(button, &QPushButton::clicked, [this]() {
             qobject_cast<InkStrokeControl*>(Control::fromItem(parentItem()))
                     ->setEditingMode(InkCanvasEditingMode::Ink);
             hide();
         });
-        layout->addWidget(button);
+//        layout->addWidget(button);
         setWidget(widget);
     }
     void check(QPointF const & pos)

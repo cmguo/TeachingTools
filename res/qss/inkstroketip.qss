@@ -1,23 +1,27 @@
-QPushButton,.QLabel {
-    color:white;
-    font-size:16pt; /* [size] */
-    font-family:'Microsoft YaHei';
-}
-
-.QLabel {
-    border:none;
-    background-color:#00000000;
-}
-
 QPushButton {
-    border-radius:6px; /* [size] */
-    padding: 6px; /* [size] */
-    background-color: #5D6C85;
-    qproperty-icon: url(":/teachingtools/icon/stroke.stroke.svg");
+    color: white;
+    font-size: 14pt; /* [size] */
+    font-family: 'Microsoft YaHei';
+    border-radius: 8px; /* [size] */
+    padding: 4px; /* [size] */
+    margin: 8px; /* [size] */
+    background-color: transparent;
+    qproperty-text: '选择画笔';
+    qproperty-iconSize: 32px 32px; /* [size] */
+    qproperty-icon: url(":/teachingtools/icon/stroke.tip.svg");
+}
+
+QPushButton:hover {
+    background-color: #5856D6;
+}
+
+QPushButton:pressed {
+    background-color: #34329B;
 }
 
 #inkstroketip {
-    background-color:#000000;
-    border-radius:6px; /* [size] */
+    background-color: #2B3034;
+    border: 1px solid rgba(67,77,89,1)
+    border-radius: 6px; /* [size] */
 }
 
