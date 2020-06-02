@@ -1,6 +1,6 @@
 import QtQuick 2.12
 import QtQuick.Controls 2.12
-import Strings 1.0
+import "qrc:/uibase/qml/talwidget/TalConstant.js" as TalConstant
 
 Button {
     id: control
@@ -14,7 +14,7 @@ Button {
     contentItem: Text {
         text: control.text
         font.pixelSize: control.font.pixelSize
-        font.family: String.font
+        font.family: TalConstant.font
         horizontalAlignment: Text.AlignHCenter
         verticalAlignment: Text.AlignVCenter
         elide: Text.ElideRight

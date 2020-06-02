@@ -1,7 +1,7 @@
 ﻿import QtQuick 2.7
 import QtQuick.Controls 2.5
 import QtQuick.Controls.Styles 1.4
-import Strings 1.0
+import "qrc:/uibase/qml/talwidget/TalConstant.js" as TalConstant
 import TalDisplay 1.0
 
 
@@ -22,7 +22,7 @@ Rectangle {
             height: parent.height/4
             id:add
             font.pixelSize: Destiny.sp(40)
-            font.family: String.font
+            font.family: TalConstant.font
             text: "+"
             enabled: num < maxNum
             background: Rectangle{
@@ -38,7 +38,7 @@ Rectangle {
             color: "#2B2B2B"
             font.bold: true
             text: num
-            font.family: String.font
+            font.family: TalConstant.font
             horizontalAlignment: Text.AlignHCenter
             verticalAlignment: Text.AlignVCenter
         }
@@ -51,7 +51,7 @@ Rectangle {
             text: "-"
             enabled: num>0
             onClicked: num--;
-            font.family: String.font
+            font.family: TalConstant.font
             background: Rectangle{
                 color:"#00000000"
             }

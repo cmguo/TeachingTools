@@ -2,7 +2,7 @@ import QtQuick 2.12
 import QtQuick.Controls 2.5
 import TalDisplay 1.0
 import Colors 1.0
-import Strings 1.0
+import "qrc:/uibase/qml/talwidget/TalConstant.js" as TalConstant
 
 TabButton {
 
@@ -19,7 +19,7 @@ TabButton {
     bottomPadding: Destiny.dp(20)
 
     font.pixelSize: Destiny.sp(18)
-    font.family: String.font
+    font.family: TalConstant.font
 
     property bool talButtonActived: (this.down || this.checked)
     property int talButtonDuration: 100

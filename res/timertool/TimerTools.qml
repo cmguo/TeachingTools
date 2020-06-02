@@ -1,7 +1,7 @@
 ﻿import QtQuick 2.7
 import QtQuick.Controls 2.0
 import QtQuick.Layouts 1.12
-import Strings 1.0
+import "qrc:/uibase/qml/talwidget/TalConstant.js" as TalConstant
 import TalDisplay 1.0
 import "qrc:/qml/TalWidget"
 
