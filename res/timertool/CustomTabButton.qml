@@ -1,7 +1,7 @@
 import QtQuick 2.12
 import QtQuick.Controls 2.5
 import TalDisplay 1.0
-import Colors 1.0
+
 import "qrc:/uibase/qml/talwidget/TalConstant.js" as TalConstant
 
 TabButton {
