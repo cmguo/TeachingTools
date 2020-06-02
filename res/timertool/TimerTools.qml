@@ -3,7 +3,7 @@ import QtQuick.Controls 2.0
 import QtQuick.Layouts 1.12
 import "qrc:/uibase/qml/talwidget/TalConstant.js" as TalConstant
 import TalDisplay 1.0
-import "qrc:/qml/TalWidget"
+import "qrc:/uibase/qml/talwidget"
 
 Rectangle {
     id:rootItem
