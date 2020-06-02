@@ -4,6 +4,8 @@ import QtQuick.Layouts 1.12
 import "qrc:/uibase/qml/talwidget/TalConstant.js" as TalConstant
 import TalDisplay 1.0
 
+import "qrc:/uibase/qml/talwidget"
+import "qrc:/uibase/qml/talwidget/styles"
 
 Rectangle{
     id:timeNomal
@@ -187,19 +189,13 @@ Rectangle{
 
     }
 
-    CustomButton {
+    TalButton {
         id:startTimerBtn
-        font.pixelSize: Destiny.dp(18)
-        height: Destiny.dp(64)
-        width: Destiny.dp(256)
+        talStyle: TalButtonStylePrimary { size: TalButtonStyle.Size.L }
         anchors.horizontalCenter:   parent.horizontalCenter
         text: "开始计时"
         anchors.bottomMargin:  Destiny.dp(40)
         anchors.bottom: parent.bottom
-        fontColor: "white"
-        font.bold: true
-        radius: height/2
-        backgroudColor:"#008FFF"
         onClicked: {
             setTotalTime();
             if(totalTime !=0||swipeView.currentIndex==1)

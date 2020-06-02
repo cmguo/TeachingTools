@@ -4,6 +4,9 @@ import QtQuick.Layouts 1.12
 import "qrc:/uibase/qml/talwidget/TalConstant.js" as TalConstant
 import TalDisplay 1.0
 
+import "qrc:/uibase/qml/talwidget"
+import "qrc:/uibase/qml/talwidget/styles"
+
 Rectangle {
     id:timeRuningItem
     radius: Destiny.dp(8);
@@ -162,20 +165,12 @@ Rectangle {
     }
 
 
-    CustomButton { // 底部点击btn
+    TalButton { // 底部点击btn
         id:startTimerBtn
-        font.pixelSize: Destiny.sp(18)
-        height: Destiny.dp(64)
-        width: Destiny.dp(256)
+        talStyle: TalButtonStyleGhostPrimary { size: TalButtonStyle.Size.L; }
         anchors.horizontalCenter:   parent.horizontalCenter
         anchors.bottomMargin:  Destiny.dp(40)
         anchors.bottom: parent.bottom
-        fontColor: "white"
-        font.bold: true
-        radius: height/2
-        backgroudColor:"transparent"
-        borderColor: "white"
-        borderWidth: Destiny.dp(3)
         onClicked: {
             if(timeRuningItem.state == "timeout"||timeRuningItem.state == "stopTime"){
                 timeRuningItem.backBtnClick();
@@ -209,19 +204,12 @@ Rectangle {
         color: "transparent"
         anchors.fill: parent
         radius: parent.radius
-        CustomButton {
+        TalButton {
             id:stopButton
+            talStyle: TalButtonStyleGhostPrimary { size: TalButtonStyle.Size.S }
             anchors.left: parent.left
             anchors.leftMargin: Destiny.dp(24)
-            font.pixelSize: Destiny.sp(16)
-            width: Destiny.dp(83)
-            height: Destiny.dp(40)
             anchors.verticalCenter: minizeShowContent.verticalCenter
-            fontColor: "white"
-            radius: height/2
-            backgroudColor:"transparent"
-            borderColor: "white"
-            borderWidth: Destiny.dp(2)
             text:"停止"
             onClicked: {
                 timeRuningItem.state= "stopTime"
