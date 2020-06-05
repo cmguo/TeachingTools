@@ -34,6 +34,8 @@ static StateWidthToolButtons widthButtons({0, 4.0, 8.0, 12.0, 0});
 static QssHelper QSS_PEN(":/teachingtools/qss/inktoolspen.qss");
 static QssHelper QSS_ERASER(":/teachingtools/qss/inktoolseraser.qss");
 
+static InkStrokeTools * inst = nullptr;
+
 InkStrokeTools::InkStrokeTools(QObject* parent, WhiteCanvas *whiteCanvas)
     : ToolButtonProvider(parent)
     , inkControl_(nullptr)
@@ -55,6 +57,12 @@ InkStrokeTools::InkStrokeTools(QObject* parent, WhiteCanvas *whiteCanvas)
     followTrigger();
     if (whiteCanvas)
         attachToWhiteCanvas(whiteCanvas);
+    inst = this;
+}
+
+InkStrokeTools *InkStrokeTools::instance()
+{
+    return inst;
 }
 
 void InkStrokeTools::attachToWhiteCanvas(WhiteCanvas *whiteCanvas)

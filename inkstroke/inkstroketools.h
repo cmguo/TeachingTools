@@ -27,6 +27,8 @@ class TEACHINGTOOLS_EXPORT InkStrokeTools : public ToolButtonProvider
 public:
     InkStrokeTools(QObject* parent = nullptr, WhiteCanvas* whiteCanvas = nullptr);
 
+    static InkStrokeTools * instance();
+
 public:
     void attachToWhiteCanvas(WhiteCanvas* whiteCanvas);
 

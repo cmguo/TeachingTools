@@ -1,6 +1,8 @@
 #ifndef INKSTROKEHELPER_H
 #define INKSTROKEHELPER_H
 
+#include "TeachingTools_global.h"
+
 #include <core/control.h>
 
 class ToolButton;
@@ -12,7 +14,7 @@ class QssHelper;
 
 #define MIX_SELECT 1
 
-class InkStrokeHelper
+class TEACHINGTOOLS_EXPORT InkStrokeHelper
 {
 public:
     static InkCanvas* createInkCanvas(QColor color = QColor("#FFF0F0F0"),
