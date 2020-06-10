@@ -15,10 +15,12 @@
 #include <Windows/Input/StylusPlugIns/stylusplugin.h>
 #include <Windows/Input/StylusPlugIns/rawstylusinput.h>
 
+#include <QApplication>
 #include <QElapsedTimer>
 #include <QFrame>
 #include <QGraphicsProxyWidget>
 #include <QGraphicsScene>
+#include <QGraphicsView>
 #include <QGraphicsSceneEvent>
 #include <QLabel>
 #include <QPushButton>
@@ -116,6 +118,7 @@ class EventFilterItem : public QGraphicsItem
 {
 public:
     EventFilterItem(QGraphicsItem * parentItem);
+    virtual ~EventFilterItem() override;
     QRectF boundingRect() const override { return QRectF(); }
     void paint(QPainter *, const QStyleOptionGraphicsItem *, QWidget *) override {}
     bool sceneEventFilter(QGraphicsItem *watched, QEvent *event) override;
@@ -214,6 +217,8 @@ EventFilterItem::EventFilterItem(QGraphicsItem *parentItem)
     : QGraphicsItem(parentItem)
     , life_(new int)
 {
+    setFlag(ItemHasNoContents, true);
+    hide();
 }
 
 bool EventFilterItem::sceneEventFilter(QGraphicsItem *watched, QEvent *event)
@@ -286,15 +291,16 @@ public:
 //        layout->setSpacing(20);
 //        layout->addWidget(new QLabel("是否切换到画笔?"));
         QPushButton * button = new QPushButton(widget);
+        button->setAttribute(Qt::WA_AcceptTouchEvents);
         QObject::connect(button, &QPushButton::clicked, [this]() {
-            qobject_cast<InkStrokeControl*>(Control::fromItem(parentItem()))
+            qobject_cast<InkStrokeControl*>(Control::fromItem(inkCanvas_))
                     ->setEditingMode(InkCanvasEditingMode::Ink);
             hide();
         });
 //        layout->addWidget(button);
         setWidget(widget);
     }
-    void check(QPointF const & pos)
+    void check(QPointF const & pos, QGraphicsItem * inkCanvas)
     {
         if (!timer_.isValid() || timer_.elapsed() > 1000) {
             timer_.restart();
@@ -302,6 +308,7 @@ public:
         }
         timer_.invalidate();
         int tipSeq = ++tipSeq_;
+        inkCanvas_ = inkCanvas;
         setPos(pos);
         show();
         setFocus();
@@ -310,9 +317,15 @@ public:
                 hide();
         });
     }
+    void cancel()
+    {
+        hide();
+        inkCanvas_ = nullptr;
+    }
 protected:
     virtual bool sceneEvent(QEvent * event)
     {
+        qDebug() << "TipItem::sceneEvent" << event->type();
         if (event->type() == QEvent::FocusOut)
             hide();
         return QGraphicsProxyWidget::sceneEvent(event);
@@ -320,19 +333,27 @@ protected:
 private:
     QElapsedTimer timer_;
     int tipSeq_ = 0;
+    QGraphicsItem * inkCanvas_ = nullptr;
 };
+
+static TipItem * tipItem = nullptr;
+
+EventFilterItem::~EventFilterItem()
+{
+    if (tipItem)
+        tipItem->cancel();
+}
 
 void EventFilterItem::checkTip(const QPointF &pos)
 {
-    static TipItem * tipItem = nullptr;
     if (tipItem == nullptr) {
-        tipItem = new TipItem;
+        tipItem = new TipItem();
     }
     if (tipItem->scene() != scene()) {
         scene()->addItem(tipItem);
         tipItem->hide();
     }
-    tipItem->check(pos);
+    tipItem->check(pos, parentItem());
 }
 
 void InkStrokeControl::setupMultiLayerErasing()
