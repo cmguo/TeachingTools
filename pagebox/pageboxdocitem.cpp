@@ -174,6 +174,7 @@ void PageBoxDocItem::resetCurrent()
     if (layoutMode_ == Single && curPage_ >= 0) {
         PageBoxPageItem * pageItem = static_cast<PageBoxPageItem *>(pageCanvas_->childItems().front());
         itemBindings_->unbind(QVariant::fromValue(pageItem));
+        pageItem->setImage(QUrl());
         setDefaultImage(pageItem);
         int lastPage = curPage_;
         curPage_ = -1;
