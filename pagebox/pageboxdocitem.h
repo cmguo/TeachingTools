@@ -139,6 +139,8 @@ protected:
 
     virtual void onCurrentPageChanged(int last, int cur);
 
+    virtual QPixmap defaultImage(int item);
+
 private slots:
     void resourceInserted(QModelIndex const &parent, int first, int last);
 

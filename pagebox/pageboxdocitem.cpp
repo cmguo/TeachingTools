@@ -311,6 +311,13 @@ void PageBoxDocItem::onCurrentPageChanged(int last, int cur)
     emit currentPageChanged(cur);
 }
 
+QPixmap PageBoxDocItem::defaultImage(int item)
+{
+    static QPixmap loading1(":teachingtools/image/page1.png");
+    static QPixmap loading2(":teachingtools/image/page2.png");
+    return item == 0 ? loading1 : loading2;
+}
+
 bool PageBoxDocItem::hit(QPointF const & point)
 {
     for(QGraphicsItem * item : pageCanvas_->childItems()) {
@@ -506,10 +513,8 @@ void PageBoxDocItem::resourceMoved(QModelIndex const &parent, int start, int end
 
 void PageBoxDocItem::setDefaultImage(PageBoxPageItem *pageItem1, PageBoxPageItem *pageItem2)
 {
-    static QPixmap loading1(":teachingtools/image/page1.png");
-    static QPixmap loading2(":teachingtools/image/page2.png");
-    pageItem1->setPixmap(loading1);
+    pageItem1->setPixmap(defaultImage(0));
     if (pageItem2)
-        pageItem2->setPixmap(loading2);
+        pageItem2->setPixmap(defaultImage(1));
 }
 
