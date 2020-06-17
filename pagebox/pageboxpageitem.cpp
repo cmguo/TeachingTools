@@ -3,6 +3,7 @@
 
 #include <core/resourceview.h>
 #include <core/resource.h>
+#include <core/imagecache.h>
 
 PageBoxPageItem::PageBoxPageItem(QGraphicsItem * parent)
     : QGraphicsPixmapItem(parent)
@@ -21,9 +22,7 @@ PageBoxPageItem::PageBoxPageItem(QGraphicsItem * parent)
     }*/
 }
 
-static void del_res(int * p) {
-    delete reinterpret_cast<ResourceView *>(p);
-}
+static void nop(int *) {}
 
 void PageBoxPageItem::setImage(const QUrl &image)
 {
@@ -31,15 +30,13 @@ void PageBoxPageItem::setImage(const QUrl &image)
         lifeToken_.reset();
         return;
     }
-    Resource * res = new Resource(nullptr, image);
-    lifeToken_.reset(reinterpret_cast<int*>(res), del_res);
+    lifeToken_.reset(reinterpret_cast<int*>(1), nop);
     QWeakPointer<int> life(lifeToken_);
-    res->getData().then([this, life](QByteArray data) {
+    ImageCache::instance().getOrCreate(image).then(
+                [this, life](QSharedPointer<ImageData> const & data) {
         if (life.isNull())
             return;
-        QPixmap pixmap;
-        pixmap.loadFromData(data);
-        setPixmap(pixmap);
+        setPixmap(data->pixmap());
     }, [](std::exception & e) {
         qDebug() << e.what();
     });
