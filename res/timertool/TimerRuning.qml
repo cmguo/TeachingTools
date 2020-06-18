@@ -168,6 +168,7 @@ Rectangle {
     TalButton { // 底部点击btn
         id:startTimerBtn
         talStyle: TalButtonStyleGhostPrimary { size: TalButtonStyle.Size.L; }
+        width: Destiny.dp(256)
         anchors.horizontalCenter:   parent.horizontalCenter
         anchors.bottomMargin:  Destiny.dp(40)
         anchors.bottom: parent.bottom

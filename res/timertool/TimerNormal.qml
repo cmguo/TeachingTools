@@ -4,6 +4,7 @@ import QtQuick.Layouts 1.12
 import "qrc:/uibase/qml/talwidget/TalConstant.js" as TalConstant
 import TalDisplay 1.0
 
+import "qrc:/uibase/qml/talwidget/TalColor.js" as TalColors
 import "qrc:/uibase/qml/talwidget"
 import "qrc:/uibase/qml/talwidget/styles"
 
@@ -16,37 +17,60 @@ Rectangle{
     Rectangle{
         id:topRect
         width: parent.width
+        height: Destiny.dp(64)
         radius: Destiny.dp(8)
 
         gradient: Gradient {
             GradientStop{ position: 0.0; color: "#F9F9F9";}
             GradientStop{ position: 1.0; color: "#ECECEC";}
         }
+        Rectangle {
+            width: parent.width
+            height: Destiny.dp(8)
+            anchors.bottom: parent.bottom
+            color: "#ECECEC"
+        }
 
-        height: Destiny.dp(64)
-
-        TabBar {
-            height: parent.height
-            font.pointSize: Destiny.dp(14)
-            width: implicitWidth
-            anchors.centerIn:  parent
+        TalTabBar {
             id: tabBar
-            currentIndex: 1
+            anchors.horizontalCenter: parent.horizontalCenter
+            height: parent.height
             spacing: Destiny.dp(48)
-            background: Rectangle{
-                color: "transparent"
-            }
-            CustomTabButton{
-                text:qsTr("倒计时");
-            }
-            CustomTabButton{
-                text:qsTr("正计时");
+
+            model: countdownModel
+            delegate: TalButton {
+                id: itemBtn
+                height: parent.height
+
+                property bool isCurrentItem: {
+                    return ListView.isCurrentItem
+                }
+                talStyle: TalButtonStyleTabBar {
+                    fontPixelSize: Destiny.sp(18)
+                    textColor: itemBtn.isCurrentItem ? TalColors.colorConfigBrandPrimary : TalColors.colorGray900
+                }
+                text: name
+                onClicked: {
+                    tabBar.currentIndex = index
+                }
             }
 
-            Component.onCompleted: {
-                tabBar.currentIndex = 0;
+            ListModel {
+                id: countdownModel
+                ListElement {
+                    name: "倒计时"
+                    enabled: true
+                }
+                ListElement {
+                    name: "正计时"
+                    enabled: true
+                }
             }
 
+            TalTabBarIndicator {
+                anchors.bottom: parent.bottom
+                color: TalColors.colorConfigBrandSecondary
+            }
         }
 
         Button {
@@ -192,6 +216,7 @@ Rectangle{
     TalButton {
         id:startTimerBtn
         talStyle: TalButtonStylePrimary { size: TalButtonStyle.Size.L }
+        width: Destiny.dp(256)
         anchors.horizontalCenter:   parent.horizontalCenter
         text: "开始计时"
         anchors.bottomMargin:  Destiny.dp(40)
