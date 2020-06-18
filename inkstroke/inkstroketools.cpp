@@ -60,6 +60,11 @@ InkStrokeTools::InkStrokeTools(QObject* parent, WhiteCanvas *whiteCanvas)
     inst = this;
 }
 
+InkStrokeTools::~InkStrokeTools()
+{
+    setOuterControl(nullptr);
+}
+
 InkStrokeTools *InkStrokeTools::instance()
 {
     return inst;
@@ -128,12 +133,22 @@ void InkStrokeTools::switchPage(ResourcePage *page)
     });
 }
 
-void InkStrokeTools::setOuterControl(QObject *control)
+void InkStrokeTools::setOuterControl(QObject *control, bool sync)
 {
+    if (sync && control) {
+        SyncInkControl * syncControl = qobject_cast<SyncInkControl*>(outerControl_);
+        if (syncControl && syncControl->outerControl_ == control)
+            return;
+        control = new SyncInkControl(this, control);
+    }
     if (control == outerControl_)
         return;
-    if (outerControl_)
+    if (outerControl_) {
         outerControl_->disconnect(this);
+        SyncInkControl * syncControl = qobject_cast<SyncInkControl*>(outerControl_);
+        if (syncControl)
+            delete syncControl;
+    }
     outerControl_ = control;
     if (outerControl_) {
         activeColor_ = &colorOuter_;
@@ -341,3 +356,42 @@ QWidget *InkStrokeTools::createEraserWidget(ToolButton *button)
     return widget;
 }
 
+
+SyncInkControl::SyncInkControl(InkStrokeTools *tools, QObject *outerControl)
+    : tools_(tools)
+    , outerControl_(outerControl)
+{
+    connect(outerControl, &QObject::destroyed, this, [this] {
+        delete this;
+    });
+}
+
+void SyncInkControl::setEditingMode(int mode)
+{
+    outerControl_->setProperty("editingMode", mode);
+    tools_->inkControl_->setProperty("editingMode", mode);
+}
+
+int SyncInkControl::editingMode() const
+{
+    return outerControl_->property("editingMode").toInt();
+}
+
+void SyncInkControl::clear()
+{
+    outerControl_->metaObject()->invokeMethod(outerControl_, "clear");
+    tools_->inkControl_->metaObject()->invokeMethod(tools_->inkControl_, "clear");
+}
+
+void SyncInkControl::setWidth(qreal width)
+{
+    outerControl_->setProperty("width", width);
+    tools_->inkControl_->setProperty("width", width);
+}
+
+void SyncInkControl::setColor(const QColor &color)
+{
+    outerControl_->setProperty("color", color);
+    *tools_->inkColor_ = color;
+    tools_->inkControl_->setProperty("color", color);
+}

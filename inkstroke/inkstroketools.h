@@ -27,12 +27,14 @@ class TEACHINGTOOLS_EXPORT InkStrokeTools : public ToolButtonProvider
 public:
     InkStrokeTools(QObject* parent = nullptr, WhiteCanvas* whiteCanvas = nullptr);
 
+    virtual ~InkStrokeTools() override;
+
     static InkStrokeTools * instance();
 
 public:
     void attachToWhiteCanvas(WhiteCanvas* whiteCanvas);
 
-    Q_INVOKABLE void setOuterControl(QObject* control);
+    Q_INVOKABLE void setOuterControl(QObject* control, bool sync = false);
 
 public:
     InkCanvasEditingMode mode() const { return mode_; }
@@ -68,6 +70,8 @@ protected:
     virtual bool setOption(const QByteArray &key, QVariant value) override;
 
 private:
+    Q_DISABLE_COPY(InkStrokeTools)
+
     void switchPage(ResourcePage * page);
 
     void togglePopupMenu(ToolButton *button);
@@ -79,6 +83,7 @@ private:
     QWidget * createEraserWidget(ToolButton *button);
 
 private:
+    friend class SyncInkControl;
     WhiteCanvas * canvas_;
     InkStrokeControl * inkControl_;
     QObject * outerControl_;
@@ -91,6 +96,32 @@ private:
     QColor* inkColor_;
     QColor* activeColor_;
     qreal width_;
+};
+
+class SyncInkControl : public QObject
+{
+    Q_OBJECT
+    Q_PROPERTY(int editingMode READ editingMode WRITE setEditingMode)
+    Q_PROPERTY(QColor color WRITE setColor)
+    Q_PROPERTY(qreal width WRITE setWidth)
+public:
+    SyncInkControl(InkStrokeTools * tools, QObject * outerControl);
+
+protected:
+    void setEditingMode(int mode);
+
+    int editingMode() const;
+
+    void clear();
+
+    void setWidth(qreal width);
+
+    void setColor(const QColor &color);
+
+private:
+    friend class InkStrokeTools;
+    InkStrokeTools * tools_;
+    QObject * outerControl_;
 };
 
 #endif // INKSTROKETOOLS_H
