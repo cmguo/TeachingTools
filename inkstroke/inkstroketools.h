@@ -112,11 +112,12 @@ protected:
 
     int editingMode() const;
 
-    void clear();
-
     void setWidth(qreal width);
 
     void setColor(const QColor &color);
+
+protected slots:
+    void clear();
 
 private:
     friend class InkStrokeTools;
