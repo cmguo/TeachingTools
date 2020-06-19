@@ -1,3 +1,4 @@
+#include "inkstrokefilter.h"
 #include "inkstrokehelper.h"
 
 #include <core/optiontoolbuttons.h>
@@ -20,6 +21,7 @@
 #include <QPen>
 #include <QApplication>
 #include <QScreen>
+#include <QTimer>
 
 #ifndef QT_DEBUG
 #define STROKE_SELECT 0
@@ -209,6 +211,39 @@ void InkStrokeHelper::getToolButtons(InkCanvas* ink, QList<ToolButton *> &button
         }
         buttons.append(reinterpret_cast<ToolButton*>(eraseAllButton.value<ToolButton*>()));
     }
+}
+
+class ClickThroughtHelper : public QObject
+{
+public:
+    ClickThroughtHelper(InkCanvas *ink)
+        : ink_(ink)
+    {
+        filter_ = new InkStrokeFilter(ink);
+        ink->AddHandler(InkCanvas::EditingModeChangedEvent, RoutedEventHandlerT<
+                        ClickThroughtHelper, RoutedEventArgs, &ClickThroughtHelper::handle>(this));
+    }
+private:
+    void handle(RoutedEventArgs &)
+    {
+        if (ink_->EditingMode() == InkCanvasEditingMode::Ink) {
+            ink_->installSceneEventFilter(filter_);
+        } else if (filter_->sendingEvent()) {
+            QTimer::singleShot(0, this, [this]() {
+                ink_->removeSceneEventFilter(filter_);
+            });
+        } else {
+            ink_->removeSceneEventFilter(filter_);
+        }
+    }
+private:
+    InkCanvas *ink_;
+    InkStrokeFilter * filter_;
+};
+
+void InkStrokeHelper::enableClickThrought(InkCanvas *ink)
+{
+    new ClickThroughtHelper(ink);
 }
 
 QWidget *InkStrokeHelper::createEraserWidget(QssHelper const & qss)

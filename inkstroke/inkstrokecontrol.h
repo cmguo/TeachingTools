@@ -13,7 +13,7 @@ class InkCanvas;
 class InkCanvasStrokeCollectedEventArgs;
 class InkCanvasStrokeErasingEventArgs;
 
-class TEACHINGTOOLS_EXPORT InkStrokeControl : public Control
+class InkStrokeControl : public Control
 {
     Q_OBJECT
 

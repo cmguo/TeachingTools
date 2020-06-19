@@ -31,6 +31,8 @@ public:
     static void getToolButtons(InkCanvas* ink, QList<ToolButton *> & buttons,
                                 ToolButton * parent);
 
+    static void enableClickThrought(InkCanvas * canvas);
+
 public:
     static QWidget * createEraserWidget(QssHelper const & qss);
 };
