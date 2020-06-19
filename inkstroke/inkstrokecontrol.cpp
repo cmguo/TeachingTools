@@ -246,8 +246,9 @@ bool EventFilterItem::sceneEventFilter(QGraphicsItem *watched, QEvent *event)
             for (QGraphicsItem * item : items) {
                 if (item == whiteCanvas)
                     break;
+                // avoid leave point in another ink canvas
                 if (InkCanvas::fromItem(item))
-                    break;
+                    continue;
                 me.setPos(item->mapFromScene(me.scenePos()));
                 me.setLastPos(item->mapFromScene(me.lastScenePos()));
                 me.accept();
