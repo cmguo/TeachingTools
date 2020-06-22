@@ -20,12 +20,14 @@ public:
 
     bool sceneEventFilter(QGraphicsItem *watched, QEvent *event) override;
 
+    QVariant itemChange(GraphicsItemChange change, const QVariant &value) override;
+
 private:
     void checkTip(QPointF const & pos);
 
 private:
     QSharedPointer<int> life_;
-    QGraphicsItem * rootItem_;
+    QGraphicsItem * rootItem_ = nullptr;
     bool sending_ = false;
 };
 

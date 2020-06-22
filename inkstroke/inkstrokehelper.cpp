@@ -227,12 +227,16 @@ private:
     void handle(RoutedEventArgs &)
     {
         if (ink_->EditingMode() == InkCanvasEditingMode::Ink) {
+            // focus defeats click pass throught
+            ink_->setFlag(QGraphicsItem::ItemIsFocusable, false);
             ink_->installSceneEventFilter(filter_);
         } else if (filter_->sendingEvent()) {
+            ink_->setFlag(QGraphicsItem::ItemIsFocusable, true);
             QTimer::singleShot(0, this, [this]() {
                 ink_->removeSceneEventFilter(filter_);
             });
         } else {
+            ink_->setFlag(QGraphicsItem::ItemIsFocusable, true);
             ink_->removeSceneEventFilter(filter_);
         }
     }

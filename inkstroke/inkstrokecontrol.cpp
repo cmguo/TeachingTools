@@ -76,6 +76,9 @@ void InkStrokeControl::setEditingMode(InkCanvasEditingMode mode)
         } else {
             teardownMultiLayerErasing();
         }
+        // focus defeats click pass throught
+        item_->setFlag(QGraphicsItem::ItemIsFocusable,
+                       mode != InkCanvasEditingMode::Ink);
         item_->removeSceneEventFilter(filterItem_);
         if (mode == InkCanvasEditingMode::Ink) {
             item_->installSceneEventFilter(filterItem_);

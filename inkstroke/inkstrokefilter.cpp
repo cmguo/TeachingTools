@@ -19,10 +19,6 @@ InkStrokeFilter::InkStrokeFilter(QGraphicsItem *parentItem)
 {
     setFlag(ItemHasNoContents, true);
     hide();
-    rootItem_ = parentItem;
-    while (rootItem_->parentItem()) {
-        rootItem_ = rootItem_->parentItem();
-    }
 }
 
 bool InkStrokeFilter::sceneEventFilter(QGraphicsItem *watched, QEvent *event)
@@ -85,6 +81,19 @@ bool InkStrokeFilter::sceneEventFilter(QGraphicsItem *watched, QEvent *event)
         event->ignore();
     }
     return false;
+}
+
+QVariant InkStrokeFilter::itemChange(QGraphicsItem::GraphicsItemChange change, const QVariant &value)
+{
+    if (change == ItemSceneHasChanged) {
+        if (rootItem_ == nullptr) {
+            rootItem_ = parentItem();
+            while (rootItem_->parentItem()) {
+                rootItem_ = rootItem_->parentItem();
+            }
+        }
+    }
+    return value;
 }
 
 class TipItem : public QGraphicsProxyWidget
