@@ -9,9 +9,9 @@
 #include <QColor>
 #include <QPolygonF>
 
-class InkCanvas;
-class InkCanvasStrokeCollectedEventArgs;
-class InkCanvasStrokeErasingEventArgs;
+INKCANVAS_FORWARD_DECLARE_CLASS(InkCanvas);
+
+using INKCANVAS_NAMESPACE::InkCanvasEditingMode;
 
 class InkStrokeControl : public Control
 {

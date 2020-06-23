@@ -14,6 +14,8 @@ class Control;
 class InkStrokeControl;
 class ResourcePage;
 
+using INKCANVAS_NAMESPACE::InkCanvasEditingMode;
+
 class TEACHINGTOOLS_EXPORT InkStrokeTools : public ToolButtonProvider
 {
     Q_OBJECT

@@ -5,12 +5,14 @@
 
 #include <core/control.h>
 
-class ToolButton;
-class InkCanvas;
-class InkCanvasStrokeCollectedEventArgs;
-class QssHelper;
+#include <InkCanvas_global.h>
 
 #include <QColor>
+
+class ToolButton;
+class QssHelper;
+
+INKCANVAS_FORWARD_DECLARE_CLASS(InkCanvas);
 
 #define MIX_SELECT 1
 

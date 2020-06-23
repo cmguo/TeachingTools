@@ -3,11 +3,12 @@
 
 #include "TeachingTools_global.h"
 
-#include <Windows/Controls/inkcanvas.h>
+#include <InkCanvas_global.h>
 
 #include <QGraphicsObject>
 
-class InkCanvasStrokeCollectedEventArgs;
+INKCANVAS_FORWARD_DECLARE_CLASS(InkCanvas);
+INKCANVAS_FORWARD_DECLARE_CLASS(StrokeCollection);
 
 enum WritingGridType
 {

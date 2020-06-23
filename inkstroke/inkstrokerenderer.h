@@ -7,6 +7,10 @@
 #include <Windows/Ink/strokecollection.h>
 #include <Windows/Input/styluspointcollection.h>
 
+INKCANVAS_FORWARD_DECLARE_CLASS(StrokeCollection);
+INKCANVAS_FORWARD_DECLARE_CLASS(DrawingAttributes);
+INKCANVAS_FORWARD_DECLARE_CLASS(StylusPointCollection);
+
 class InkStrokeRenderer : public StrokesRenderer
 {
     Q_OBJECT

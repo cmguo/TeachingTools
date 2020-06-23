@@ -3,12 +3,13 @@
 
 #include "pageboxplugin.h"
 
+#include <InkCanvas_global.h>
+
 #include <QSharedPointer>
 #include <QVector>
 
-class InkCanvas;
-class StrokeCollection;
-class InkCanvasStrokeCollectedEventArgs;
+INKCANVAS_FORWARD_DECLARE_CLASS(InkCanvas);
+INKCANVAS_FORWARD_DECLARE_CLASS(StrokeCollection);
 
 class InkPadPlugin : public PageBoxPlugin
 {

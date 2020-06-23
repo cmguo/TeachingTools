@@ -11,6 +11,8 @@
 #include <QGraphicsProxyWidget>
 #include <QPen>
 
+INKCANVAS_USE_NAMESPACE
+
 InkPadPlugin::InkPadPlugin(QObject * parent)
     : PageBoxPlugin(parent)
 {

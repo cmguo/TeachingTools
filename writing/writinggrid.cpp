@@ -1,4 +1,4 @@
-﻿#include "writinggrid.h"
+#include "writinggrid.h"
 #include "writinggridcontrol.h"
 #include "inkstroke/inkstrokehelper.h"
 
@@ -9,7 +9,8 @@
 #include <QGraphicsProxyWidget>
 #include <core/control.h>
 #include <Windows/Controls/inkcanvas.h>
-#include <Windows/Controls/inkevents.h>
+
+INKCANVAS_USE_NAMESPACE
 
 WritingGrid::WritingGrid(QGraphicsItem *parent)
     : WritingGrid(300,WritingGridType::TinWordFormat,parent)

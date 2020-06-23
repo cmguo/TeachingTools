@@ -4,12 +4,16 @@
 #include "TeachingTools_global.h"
 
 #include <core/control.h>
+#include <InkCanvas_global.h>
+
 #include <qexport.h>
 
 #include <QGraphicsPixmapItem>
 #include <QSharedPointer>
 
+INKCANVAS_BEGIN_NAMESPACE
 class StrokeCollection;
+INKCANVAS_END_NAMESPACE
 
 class TEACHINGTOOLS_EXPORT WritingGridControl: public Control
 {

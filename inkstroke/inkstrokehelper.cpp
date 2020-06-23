@@ -31,6 +31,8 @@
 #define TOUCH_ENABLE 1
 #endif
 
+INKCANVAS_USE_NAMESPACE
+
 static constexpr char const * toolsStr =
         "stroke()||Checkable,UnionUpdate|:/teachingtools/icon/brush.svg,default;"
         "eraser()||Checkable,UnionUpdate|:/teachingtools/icon/eraser2.svg,default;";

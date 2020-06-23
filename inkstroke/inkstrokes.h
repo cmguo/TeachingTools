@@ -4,11 +4,13 @@
 #include "TeachingTools_global.h"
 
 #include <resources/strokes.h>
+#include <InkCanvas_global.h>
 
 #include <QSharedPointer>
 
-class StrokeCollection;
-class DrawingAttributes;
+INKCANVAS_FORWARD_DECLARE_CLASS(StrokeCollection);
+INKCANVAS_FORWARD_DECLARE_CLASS(DrawingAttributes);
+
 class InkStrokeRenderer;
 
 class TEACHINGTOOLS_EXPORT InkStrokes : public Strokes

@@ -2,6 +2,8 @@
 
 #include <Windows/Ink/stroke.h>
 
+INKCANVAS_USE_NAMESPACE
+
 InkStrokeRenderer::InkStrokeRenderer(StrokesReader* reader, QSizeF const & maxSize, QSharedPointer<StrokeCollection> strokes,
                                      QSharedPointer<DrawingAttributes> attr, QObject *parent)
     : StrokesRenderer(reader, parent)
