@@ -161,7 +161,7 @@ void InkStrokeTools::setOuterControl(QObject *control, bool sync)
         outerControl_->setProperty("color", colorOuter_);
         outerControl_->setProperty("width", width_);
         // avoid misunderstand
-        if (inkControl_)
+        if (inkControl_ && !sync)
             inkControl_->setEditingMode(InkCanvasEditingMode::None);
         colorButtons.updateValue(*activeColor_);
         connect(outerControl_, &QObject::destroyed, this, [this] {
