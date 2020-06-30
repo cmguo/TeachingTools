@@ -28,19 +28,19 @@ void InkStrokeRenderer::startStroke(const StrokePoint &pt)
 {
     stylusPoints_.reset(new StylusPointCollection);
     StylusPoint point(pt.x * scale_, pt.y * scale_, pt.p * pressureScale_);
-    stylusPoints_->AddItem(point);
+    stylusPoints_->Add(point);
 }
 
 void InkStrokeRenderer::addPoint(const StrokePoint &pt)
 {
     StylusPoint point(pt.x * scale_, pt.y * scale_, pt.p * pressureScale_);
-    stylusPoints_->AddItem(point);
+    stylusPoints_->Add(point);
 }
 
 void InkStrokeRenderer::endStroke()
 {
     QSharedPointer<Stroke> stroke(new Stroke(stylusPoints_, da_));
     //stroke->AddPropertyData(guid, 4.0);
-    strokes_->AddItem(stroke);
+    strokes_->Add(stroke);
     stylusPoints_.reset();
 }

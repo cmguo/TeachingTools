@@ -69,9 +69,9 @@ private:
         QSharedPointer<Stroke> stroke = e.GetStroke();
         QSharedPointer<StylusPointCollection> stylusPoints = stroke->StylusPoints()->Clone();
         int n = 16;
-        if (stylusPoints->size() > n) {
+        if (stylusPoints->Count() > n) {
             for (int i = 1; i < n; ++i) {
-                int m = stylusPoints->size() + i - n;
+                int m = stylusPoints->Count() + i - n;
                 StylusPoint point = (*stylusPoints)[m];
                 float d = static_cast<float>(i) / static_cast<float>(n);
                 point.SetPressureFactor(point.PressureFactor() * (1.0f - d * d));
@@ -112,7 +112,7 @@ InkCanvas *InkStrokeHelper::createInkCanvas(QColor color, qreal lineWidth, QSize
         eraserSize = QssHelper::sizeScale(eraserSize);
     }
     StylusShape * shape = new StylusShape(StylusTip::Rectangle, eraserSize.width(), eraserSize.height(), 0);
-    shape->setParent(ink);
+    //shape->setParent(ink);
     ink->SetEraserShape(shape);
     new PressureHelper(ink); // attached to InkCanvas
     return ink;
@@ -123,7 +123,7 @@ Control::SelectMode InkStrokeHelper::selectTest(InkCanvas *ink, const QPointF &p
     if (ink->EditingMode() == InkCanvasEditingMode::None) {
 #if STROKE_SELECT
         QSharedPointer<StrokeCollection> hits = ink->Strokes()->HitTest(pt);
-        if (hits && !hits->empty()) {
+        if (hits && hits->Count() != 0) {
             ink->Select(hits);
             ink->setProperty("tempSelect", true);
             return Control::NotSelect;
@@ -135,7 +135,7 @@ Control::SelectMode InkStrokeHelper::selectTest(InkCanvas *ink, const QPointF &p
         InkCanvasSelectionHitResult result = ink->HitTestSelection(pt);
         if (result == InkCanvasSelectionHitResult::None) {
             QSharedPointer<StrokeCollection> hits = ink->Strokes()->HitTest(pt);
-            if (hits && !hits->empty()) {
+            if (hits && hits->Count() != 0) {
                 ink->Select(hits);
                 return Control::NotSelect;
             }

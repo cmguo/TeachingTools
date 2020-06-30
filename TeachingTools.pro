@@ -65,12 +65,12 @@ INCLUDEPATH += $$PWD/../QtPromise/src
 INCLUDEPATH += $$PWD/../qtpromise/src/qtpromise $$PWD/../qtpromise/include
 #DEPENDPATH += $$PWD/../qtpromise/src/qtpromise
 
-win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../InkCanvas/release/ -lInkCanvas
-else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../InkCanvas/debug/ -lInkCanvasd
-else:unix: LIBS += -L$$OUT_PWD/../InkCanvas/ -lInkCanvas
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../InkCanvas2/release/ -lInkCanvasQt
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../InkCanvas2/debug/ -lInkCanvasQtd
+else:unix: LIBS += -L$$OUT_PWD/../InkCanvas2/ -lInkCanvasQt
 
-INCLUDEPATH += $$PWD/../InkCanvas
-DEPENDPATH += $$PWD/../InkCanvas
+INCLUDEPATH += $$PWD/../InkCanvas2
+DEPENDPATH += $$PWD/../InkCanvas2
 
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../QtEventBus/release/ -lQtEventBus
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../QtEventBus/debug/ -lQtEventBusd

@@ -93,7 +93,7 @@ void InkStrokes::clear()
 InkStrokes *InkStrokes::clone() const
 {
     if (flags_.testFlag(Splittable)) {
-        if (strokes_->empty())
+        if (strokes_->Count() == 0)
             return nullptr;
         InkStrokes* ink = new InkStrokes(const_cast<InkStrokes&>(*this));
         emit cloned();
