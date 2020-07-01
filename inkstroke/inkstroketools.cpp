@@ -98,7 +98,10 @@ void InkStrokeTools::switchPage(ResourcePage *page)
     InkStrokeControl * control = qobject_cast<InkStrokeControl*>(canvas_->topControl());
     if (control == nullptr) // sometimes sub page change goes first, we can safely ignore
         return;
-    inkControl_ = nullptr;
+    if (inkControl_) {
+        //inkControl_->disconnect(this); // old ink control is already destroyed
+        inkControl_ = nullptr;
+    }
     activeControl_ = outerControl_;
     inkColor_ = &colorNormal_;
     bool disabled = false;
@@ -127,10 +130,13 @@ void InkStrokeTools::switchPage(ResourcePage *page)
     control->setColor(*inkColor_);
     control->setWidth(width_);
     inkControl_ = control;
-    connect(inkControl_, &InkStrokeControl::editingModeChanged,
-            this, [this](InkCanvasEditingMode mode) {
-        setMode(mode);
-    });
+    if (outerControl_ == nullptr) {
+        connect(inkControl_, &InkStrokeControl::editingModeChanged,
+                this, [this](InkCanvasEditingMode mode) {
+            if (outerControl_ == nullptr)
+                setMode(mode);
+        });
+    }
 }
 
 void InkStrokeTools::setOuterControl(QObject *control, bool sync)
@@ -148,6 +154,8 @@ void InkStrokeTools::setOuterControl(QObject *control, bool sync)
         SyncInkControl * syncControl = qobject_cast<SyncInkControl*>(outerControl_);
         if (syncControl)
             delete syncControl;
+        if (control == nullptr)
+            sync = syncControl; // old is sync?
     }
     outerControl_ = control;
     if (outerControl_) {
@@ -170,7 +178,7 @@ void InkStrokeTools::setOuterControl(QObject *control, bool sync)
     } else {
         activeControl_ = inkControl_;
         activeColor_ = inkColor_;
-        if (inkControl_) {
+        if (inkControl_ && !sync) {
             inkControl_->setEditingMode(mode_);
             inkControl_->setWidth(width_);
         }
