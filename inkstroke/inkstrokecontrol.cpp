@@ -158,7 +158,14 @@ void InkStrokeControl::attached()
                 ink->itemChange(QGraphicsItem::ItemTransformHasChanged, QVariant());
             });
         }
-    }
+        WhiteCanvas * canvas = whiteCanvas();
+        if (editingMode() == InkCanvasEditingMode::None) {
+            canvas->installSceneEventFilter(filterItem_);
+            // selector first
+            canvas->removeSceneEventFilter(canvas->selector());
+            canvas->installSceneEventFilter(canvas->selector());
+        }
+    } // Splittable
     if (strokes->strokes()) {
         if (strokes->isClone())
             setEditingMode(InkCanvasEditingMode::None);
