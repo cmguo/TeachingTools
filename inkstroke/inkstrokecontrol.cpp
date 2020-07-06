@@ -88,8 +88,10 @@ void InkStrokeControl::setEditingMode(InkCanvasEditingMode mode)
         if (mode == InkCanvasEditingMode::None) {
             canvas->installSceneEventFilter(filterItem_);
             // selector first
-            canvas->removeSceneEventFilter(canvas->selector());
-            canvas->installSceneEventFilter(canvas->selector());
+            QTimer::singleShot(0, this, [canvas]() {
+                canvas->removeSceneEventFilter(canvas->selector());
+                canvas->installSceneEventFilter(canvas->selector());
+            });
         }
         editingModeChanged(mode);
     }
