@@ -20,9 +20,9 @@
 #include <QDebug>
 
 static constexpr char const * toolstr =
-        "nonStroke|选择|Checkable,NeedUpdate|:/uibase/drawable/navbar/uibase_nav_select.svg;"
-        "stroke|画笔|Checkable,NeedUpdate,OptionsGroup|:/uibase/drawable/navbar/uibase_nav_brush.svg;"
-        "eraser|橡皮|Checkable,NeedUpdate|:/uibase/drawable/navbar/uibase_nav_eraser.svg;"
+        "nonStroke|选择|Checkable,NeedUpdate|:/teachingtools/icon/stroke.none.svg;"
+        "stroke|画笔|Checkable,NeedUpdate,OptionsGroup|:/teachingtools/icon/stroke.stroke.svg;"
+        "eraser|橡皮|Checkable,NeedUpdate|:/teachingtools/icon/stroke.eraser.svg;"
         ;
 
 static StateColorToolButtons colorButtons(QList<QColor>({
