@@ -1,4 +1,4 @@
-#ifndef WRITINGGRID_H
+﻿#ifndef WRITINGGRID_H
 #define WRITINGGRID_H
 
 #include "TeachingTools_global.h"
@@ -21,7 +21,7 @@ class TEACHINGTOOLS_EXPORT WritingGrid : public QGraphicsObject
 {
     Q_OBJECT
 
-    Q_PROPERTY(QSharedPointer<StrokeCollection> strokes READ strokes WRITE setStrokes)
+    Q_PROPERTY(QSharedPointer<QtInkCanvas::StrokeCollection> strokes READ strokes WRITE setStrokes)
     Q_PROPERTY(int gridCount READ gridCount WRITE setGridCount)
 
 public:
