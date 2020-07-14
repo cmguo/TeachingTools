@@ -14,13 +14,13 @@ class Control;
 class InkStrokeControl;
 class ResourcePage;
 
-using INKCANVAS_NAMESPACE::InkCanvasEditingMode;
+using INKCANVAS_PREPEND_NAMESPACE(InkCanvasEditingMode);
 
 class TEACHINGTOOLS_EXPORT InkStrokeTools : public ToolButtonProvider
 {
     Q_OBJECT
 
-    Q_PROPERTY(InkCanvasEditingMode mode READ mode WRITE setMode)
+    Q_PROPERTY(INKCANVAS_PREPEND_NAMESPACE(InkCanvasEditingMode) mode READ mode WRITE setMode)
     Q_PROPERTY(bool enabled READ enabled WRITE setEnabled)
     Q_PROPERTY(bool disabled READ disabled WRITE setDisabled)
     Q_PROPERTY(QColor color READ color WRITE setColor)

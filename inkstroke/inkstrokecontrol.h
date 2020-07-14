@@ -11,13 +11,13 @@
 
 INKCANVAS_FORWARD_DECLARE_CLASS(InkCanvas);
 
-using INKCANVAS_NAMESPACE::InkCanvasEditingMode;
+using INKCANVAS_PREPEND_NAMESPACE(InkCanvasEditingMode);
 
 class InkStrokeControl : public Control
 {
     Q_OBJECT
 
-    Q_PROPERTY(InkCanvasEditingMode editingMode READ editingMode WRITE setEditingMode NOTIFY editingModeChanged)
+    Q_PROPERTY(INKCANVAS_PREPEND_NAMESPACE(InkCanvasEditingMode) editingMode READ editingMode WRITE setEditingMode NOTIFY editingModeChanged)
     Q_PROPERTY(QColor color READ color WRITE setColor)
     Q_PROPERTY(qreal width READ width WRITE setWidth)
 
@@ -30,13 +30,13 @@ public:
 
     qreal width();
 
-public slots:
     void setEditingMode(InkCanvasEditingMode mode);
 
     void setColor(QColor c);
 
     void setWidth(qreal w);
 
+public slots:
     void clear();
 
 signals:
