@@ -1,4 +1,4 @@
-#ifndef QPROPERTYBINDINGS_H
+﻿#ifndef QPROPERTYBINDINGS_H
 #define QPROPERTYBINDINGS_H
 
 #include "TeachingTools_global.h"
@@ -6,6 +6,7 @@
 #include <QObject>
 #include <QList>
 #include <QMap>
+#include <QVariant>
 
 class QPropertyBinding;
 
