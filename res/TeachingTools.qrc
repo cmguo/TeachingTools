@@ -47,5 +47,6 @@
         <file>qss/pagenumber.qss</file>
         <file>qss/inkstroketip.qss</file>
         <file>icon/stroke.tip.svg</file>
+        <file>icon/icon_feedback.svg</file>
     </qresource>
 </RCC>

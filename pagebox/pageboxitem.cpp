@@ -24,7 +24,7 @@ static constexpr char const * toolsStr =
         "duplex()|双页|Checkable,UnionUpdate|:/teachingtools/icon/double_page.svg;"
         "single()|单页|Checkable,UnionUpdate|:/teachingtools/icon/single_page.svg;"
         "pages||;"
-        "feedback()|反馈||;";
+        "feedback()|反馈||:/teachingtools/icon/icon_feedback.svg;";
 
 PageBoxItem::PageBoxItem(QGraphicsItem * parent)
     : QGraphicsRectItem(parent)
