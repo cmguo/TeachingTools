@@ -72,18 +72,11 @@ void PageBoxControl::attaching()
 void PageBoxControl::attached()
 {
     PageBoxItem * item = static_cast<PageBoxItem *>(item_);
-    if (item->toolBar()->transformations().empty()) { // maybe reload
-        if (res_->flags().testFlag(ResourceView::LargeCanvas)) {
-            // attach to canvas transform
-            QGraphicsItem* canvas = item_->parentItem()->parentItem();
-            QGraphicsTransform * ct = Control::fromItem(canvas)->transform();
-            ControlTransform * ct1 = new ControlTransform(static_cast<ControlTransform*>(ct), true, true, true);
-            QPointF pos(0, item_->scene()->sceneRect().bottom() - 46);
-            StaticTransform* ct2 = new StaticTransform(QTransform::fromTranslate(pos.x(), pos.y()), ct);
-            item->toolBar()->setTransformations({ct2, ct1});
-            item->setSizeMode(PageBoxItem::LargeCanvas);
-        } else {
-            item->setSizeMode((flags_ & FullLayout) ? PageBoxItem::FixedSize : PageBoxItem::MatchContent);
+    if (res_->flags().testFlag(ResourceView::LargeCanvas)) {
+        item->setSizeMode(PageBoxItem::LargeCanvas);
+    } else {
+        item->setSizeMode((flags_ & FullLayout) ? PageBoxItem::FixedSize : PageBoxItem::MatchContent);
+        if (item->toolBar()->transformations().empty()) { // maybe reload
             ControlTransform * ct1 = new ControlTransform(static_cast<ControlTransform*>(transform_), true, false, false);
             item->toolBar()->setTransformations({ct1});
             QPointF pos(0, item->boundingRect().bottom() - 46);
@@ -130,10 +123,12 @@ void PageBoxControl::detaching()
     PageBoxItem * item = static_cast<PageBoxItem *>(item_);
     attachSubProvider(nullptr);
     item->setPlugin(nullptr);
-    QList<QGraphicsTransform*> tfs(item->toolBar()->transformations());
-    item->toolBar()->setTransformations({});
-    for (QGraphicsTransform* tf : tfs) // must delete before item
-        delete tf;
+    if (!res_->flags().testFlag(ResourceView::LargeCanvas)) {
+        QList<QGraphicsTransform*> tfs(item->toolBar()->transformations());
+        item->toolBar()->setTransformations({});
+        for (QGraphicsTransform* tf : tfs) // must delete before item
+            delete tf;
+    }
 }
 
 void PageBoxControl::resize(QSizeF const & size)
@@ -237,7 +232,8 @@ void PageBoxControl::loadPages(PageBoxItem * item)
         //            item->rect().width() / item->document()->rect().width() / 1.3);
     }
     loadFinished(true);
-    item->toolBar()->show();
+    if (!res_->flags().testFlag(ResourceView::LargeCanvas))
+        item->toolBar()->show();
     //*
     if (res_->flags().testFlag(ResourceView::LargeCanvas)) {
         QGraphicsItem* canvas = item_->parentItem()->parentItem();

@@ -47,15 +47,15 @@ PageBoxItem::PageBoxItem(QGraphicsItem * parent)
     document_->setTransformations({new ControlTransform(*transform_)});
     QObject::connect(document_, &PageBoxDocItem::requestPosition,
                      this, &PageBoxItem::setDocumentPosition);
-
-    toolBar_ = new PageBoxToolBar;
-    toolBarProxy_ = toolBar_->toGraphicsProxy(this);
+    toolBar_ = nullptr;
+    toolBarProxy_ = nullptr;
     setToolsString(toolsStr);
 }
 
 PageBoxItem::~PageBoxItem()
 {
-    toolBar_->clear();
+    if (toolBar_)
+        toolBar_->attachProvider(nullptr);
 }
 
 int PageBoxItem::pageNumber()
@@ -150,8 +150,11 @@ void PageBoxItem::setPagesMode(PageBoxItem::PagesMode mode)
 void PageBoxItem::setSizeMode(PageBoxItem::SizeMode mode)
 {
     sizeMode_ = mode;
-    if (mode != LargeCanvas)
+    if (mode != LargeCanvas) {
+        toolBar_ = new PageBoxToolBar;
+        toolBarProxy_ = toolBar_->toGraphicsProxy(this);
         toolBar_->attachProvider(this);
+    }
 }
 
 void PageBoxItem::sizeChanged()
