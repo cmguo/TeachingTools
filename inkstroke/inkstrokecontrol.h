@@ -39,6 +39,10 @@ public:
 public slots:
     void clear();
 
+    void stylusTip();
+
+    void fitToCurve();
+
 signals:
     void editingModeChanged(InkCanvasEditingMode mode);
 

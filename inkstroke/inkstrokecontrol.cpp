@@ -22,6 +22,8 @@
 #include <QPushButton>
 #include <QVBoxLayout>
 
+INKCANVAS_USE_NAMESPACE
+
 #ifndef QT_DEBUG
 #define ERASE_CLIP_SHAPE 1
 #else
@@ -114,6 +116,28 @@ void InkStrokeControl::clear()
 {
     InkStrokes * strokes = qobject_cast<InkStrokes *>(res_);
     strokes->clear();
+}
+
+void InkStrokeControl::stylusTip()
+{
+    InkCanvas * ink = static_cast<InkCanvas*>(item_);
+    QSharedPointer<StrokeCollection> selection = ink->GetSelectedStrokes();
+    for (QSharedPointer<Stroke> s : *selection) {
+        if (s->GetDrawingAttributes()->GetStylusTip() == StylusTip::Ellipse)
+            s->GetDrawingAttributes()->SetStylusTip(StylusTip::Rectangle);
+        else
+            s->GetDrawingAttributes()->SetStylusTip(StylusTip::Ellipse);
+    }
+}
+
+void InkStrokeControl::fitToCurve()
+{
+    InkCanvas * ink = static_cast<InkCanvas*>(item_);
+    QSharedPointer<StrokeCollection> selection = ink->GetSelectedStrokes();
+    for (QSharedPointer<Stroke> s : *selection) {
+        s->GetDrawingAttributes()->SetFitToCurve(
+                    !s->GetDrawingAttributes()->FitToCurve());
+    }
 }
 
 QGraphicsItem * InkStrokeControl::create(ResourceView *res)

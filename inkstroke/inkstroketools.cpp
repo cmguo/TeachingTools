@@ -20,7 +20,7 @@
 #include <QDebug>
 
 static constexpr char const * toolstr =
-        "nonStroke|选择|Checkable,NeedUpdate|:/teachingtools/icon/stroke.none.svg;"
+        "nonStroke|选择|Checkable,NeedUpdate,OptionsGroup|:/teachingtools/icon/stroke.none.svg;"
         "stroke|画笔|Checkable,NeedUpdate,OptionsGroup|:/teachingtools/icon/stroke.stroke.svg;"
         "eraser|橡皮|Checkable,NeedUpdate|:/teachingtools/icon/stroke.eraser.svg;"
         ;
@@ -30,6 +30,19 @@ static StateColorToolButtons colorButtons(QList<QColor>({
     "#FF43CAFF", "#FF2FA8B3", "#FF506EB7", "#FF28417F", "#FF000000"
 }));
 static StateWidthToolButtons widthButtons({0, 4.0, 8.0, 12.0, 0});
+
+static class StyleToolButtons : public OptionToolButtons {
+public:
+    StyleToolButtons()
+        : OptionToolButtons({"stylusTip", "fitToCurve"})
+    {
+    }
+protected:
+    virtual QString buttonTitle(const QVariant &value) override
+    {
+        return value.toString();
+    }
+} styleButton;
 
 static QssHelper QSS_PEN(":/teachingtools/qss/inktoolspen.qss");
 static QssHelper QSS_ERASER(":/teachingtools/qss/inktoolseraser.qss");
@@ -245,7 +258,11 @@ bool InkStrokeTools::setOption(const QByteArray &key, QVariant value)
 {
     bool result = true;
     if (key == "nonStroke") {
-        setMode(InkCanvasEditingMode::None);
+        if (!value.isValid()) {
+            setMode(InkCanvasEditingMode::None);
+        } else {
+            inkControl_->metaObject()->invokeMethod(inkControl_, value.toByteArray());
+        }
     } else if (key == "stroke") {
         if (!value.isValid()) {
             if (mode_ == InkCanvasEditingMode::Ink)
@@ -258,6 +275,13 @@ bool InkStrokeTools::setOption(const QByteArray &key, QVariant value)
         } else {
             value.convert(QVariant::Double);
             setWidth(value.toDouble());
+        }
+    } else if (key == "select") {
+        if (!value.isValid()) {
+            if (mode_ == InkCanvasEditingMode::Select)
+                togglePopupMenu(getStringButton(0));
+            else
+                setMode(InkCanvasEditingMode::Select);
         }
     } else if (key == "eraser") {
         if (!value.isValid()) {
@@ -276,6 +300,9 @@ bool InkStrokeTools::setOption(const QByteArray &key, QVariant value)
             break;
         case InkCanvasEditingMode::Ink:
             setOption("stroke", QVariant());
+            break;
+        case InkCanvasEditingMode::Select:
+            setOption("select", QVariant());
             break;
         case InkCanvasEditingMode::EraseByPoint:
             setOption("eraser", QVariant());
@@ -296,6 +323,9 @@ void InkStrokeTools::getToolButtons(QList<ToolButton *> &buttons, ToolButton *pa
         colorButtons.getButtons(buttons, *activeColor_);
         buttons.append(&ToolButton::LINE_SPLITTER);
         widthButtons.getButtons(buttons, width_);
+        followTrigger(buttons, parent);
+    } else if (parent && parent->name() == "nonStroke") {
+        styleButton.getButtons(buttons, "");
         followTrigger(buttons, parent);
     }
     ToolButtonProvider::getToolButtons(buttons, parent);
@@ -336,9 +366,15 @@ void InkStrokeTools::togglePopupMenu(ToolButton *button)
 
 QWidget *InkStrokeTools::createWidget(ToolButton *button)
 {
-    QWidget * widget = button->name() == "stroke"
-            ? createPenWidget(button)
-            : createEraserWidget(button);
+    QWidget * widget = nullptr;
+    if (button->name() == "stroke")
+        widget = createPenWidget(button);
+    else if (button->name() == "nonStroke")
+        widget = createSelectWidget(button);
+    else if (button->name() == "eraser")
+        widget = createEraserWidget(button);
+    else
+        return nullptr;
     return new FrameWidget(widget);
 }
 
@@ -350,6 +386,17 @@ QWidget *InkStrokeTools::createPenWidget(ToolButton *button)
     QWidget * widget = bar.createPopup(buttons);
     widget->setObjectName("inktoolspen");
     widget->setStyleSheet(QSS_PEN);
+    return widget;
+}
+
+QWidget *InkStrokeTools::createSelectWidget(ToolButton *button)
+{
+    QList<ToolButton *> buttons;
+    ToolButtonProvider::getToolButtons(buttons, QList<ToolButton*>({button}));
+    ToolbarWidget bar;
+    QWidget * widget = bar.createPopup(buttons);
+    //widget->setObjectName("inktoolsselect");
+    //widget->setStyleSheet(QSS_PEN);
     return widget;
 }
 

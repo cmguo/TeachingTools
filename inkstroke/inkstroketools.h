@@ -82,6 +82,8 @@ private:
 
     QWidget * createPenWidget(ToolButton *button);
 
+    QWidget * createSelectWidget(ToolButton *button);
+
     QWidget * createEraserWidget(ToolButton *button);
 
 private:
