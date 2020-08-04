@@ -23,8 +23,11 @@ Rectangle {
     Image {
         id: bg
         anchors.fill: parent
-        fillMode: Image.PreserveAspectCrop
-        source: timer.running ? "./timer_bg_2.png":"./timer_bg_1.png"
+//        fillMode: Image.PreserveAspectFit
+        source: timer.running ? (timeRuningItem.state == "minizeTime"
+                                 ? "qrc:/teachingtools/timertool/mininus_bg.png"
+                                   : "qrc:/teachingtools/timertool/timer_bg_2.png")
+                              : "qrc:/teachingtools/timertool/timer_bg_1.png"
     }
 
     states: [
@@ -46,7 +49,7 @@ Rectangle {
             PropertyChanges {target: timer;running:true;}
             PropertyChanges {target: canvas;visible:false }
             PropertyChanges {target: minizeShowContent;visible:true}
-            PropertyChanges {target: timeRuningItem.parent;width:Destiny.dp(356);height:Destiny.dp(80)}
+            PropertyChanges {target: timeRuningItem.parent; width:Destiny.dp(356); height:Destiny.dp(80);}
             PropertyChanges {target: startTimerBtn;visible:false}
             PropertyChanges {target: closeBtn;visible:false }
             PropertyChanges {target: minizeBtn;visible:false }
@@ -248,7 +251,6 @@ Rectangle {
                 canvas.requestPaint()
             }
         }
-
 
         Text {
             font.pixelSize: Destiny.sp(60)

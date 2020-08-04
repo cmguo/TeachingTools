@@ -57,6 +57,7 @@
         <file>timertool/sub_disabled.png</file>
         <file>timertool/sub_normal.png</file>
         <file>timertool/sub_pressed.png</file>
+        <file>timertool/mininus_bg.png</file>
     </qresource>
     <qresource prefix="/"/>
 </RCC>
