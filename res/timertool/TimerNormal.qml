@@ -74,13 +74,13 @@ Rectangle{
         }
 
         Button {
-            width: Destiny.dp(40)
-            height: Destiny.dp(40)
+            width: Destiny.dp(32)
+            height: Destiny.dp(32)
             anchors.right: parent.right
-            anchors.rightMargin :  Destiny.dp(20)
+            anchors.rightMargin :  Destiny.dp(12)
             anchors.verticalCenter: parent.verticalCenter
             background: Image{
-                source: "./close.png"
+                source: "qrc:/teachingtools/timertool/close.png"
                 fillMode:Image.PreserveAspectFit
             }
             onClicked: timeNomal.closeBtnClick()

@@ -1,6 +1,7 @@
 ﻿import QtQuick 2.7
 import QtQuick.Controls 2.0
 import QtQuick.Layouts 1.12
+import QtMultimedia 5.12
 import "qrc:/uibase/qml/talwidget/TalConstant.js" as TalConstant
 import TalDisplay 1.0
 
@@ -9,7 +10,7 @@ import "qrc:/uibase/qml/talwidget/styles"
 
 Rectangle {
     id:timeRuningItem
-    radius: Destiny.dp(8);
+    radius: Destiny.dp(8)
     anchors.centerIn: parent
     property int totalTime: 0
     property bool  positiveTime: true
@@ -17,7 +18,7 @@ Rectangle {
     width: parent.width
     signal closeClick();
     signal backBtnClick();
-    signal entryMinizeTimeState()
+    signal entryMinizeTimeState();
 
     Image {
         id: bg
@@ -32,11 +33,13 @@ Rectangle {
             PropertyChanges {target: timer;running:true;}
             PropertyChanges {target: startTimerBtn;text:"停止计时";visible:true}
             PropertyChanges {target: closeBtn;visible:true}
+            PropertyChanges {target: minizeBtn;visible:true }
             PropertyChanges {target: timer;intervalTime:0}
         },
         State {
             name: "stopTime"
             PropertyChanges {target: startTimerBtn;text:"返回"}
+            PropertyChanges {target: minizeBtn;visible:false }
         },
         State {
             name: "minizeTime"
@@ -46,6 +49,7 @@ Rectangle {
             PropertyChanges {target: timeRuningItem.parent;width:Destiny.dp(356);height:Destiny.dp(80)}
             PropertyChanges {target: startTimerBtn;visible:false}
             PropertyChanges {target: closeBtn;visible:false }
+            PropertyChanges {target: minizeBtn;visible:false }
             PropertyChanges {target: showTimeText;visible:false }
         },
         State {
@@ -53,9 +57,16 @@ Rectangle {
             PropertyChanges {target: startTimerBtn;text:"知道了";visible:true}
             PropertyChanges {target: showTimeText;text:"时间到";}
             PropertyChanges {target: canvas;visible:true;}
+            PropertyChanges {target: minizeBtn;visible:false }
         }
     ]
 
+    SoundEffect {
+        id: soundEffect
+        source: "qrc:/teachingtools/timertool/countdown_timeout.wav"
+        loops: 10
+        volume: 1.0
+    }
 
     Item {
         anchors.top: parent.top
@@ -118,17 +129,19 @@ Rectangle {
                     showTimeText.text = transformDate(timeRuningItem.totalTime/10)
                     intervalTime++;
 
-                    if(intervalTime == 50 && timeRuningItem.state == "runingTime"){
-                        timeRuningItem.state = "minizeTime"
-                        intervalTime =0;
-                        timeRuningItem.entryMinizeTimeState()
-                    }
+//                    if(intervalTime == 50 && timeRuningItem.state == "runingTime"){
+//                        timeRuningItem.state = "minizeTime"
+//                        intervalTime =0;
+//                        timeRuningItem.entryMinizeTimeState()
+//                    }
 
                     if(!positiveTime){
                         canvas.angle = 90-timeRuningItem.totalTime/intervalTotalTime*90
                         canvas.requestPaint()
-                        if(totalTime<=0)
+                        if(totalTime<=0) {
+                            soundEffect.play()
                             timeRuningItem.state  = "timeout"
+                        }
                     }
                 }
             }
@@ -186,16 +199,34 @@ Rectangle {
         id:closeBtn
         anchors.right: parent.right
         anchors.top:parent.top
-        width: Destiny.dp(40)
-        height: Destiny.dp(40)
-        anchors.rightMargin :  Destiny.dp(24)
+        width: Destiny.dp(32)
+        height: Destiny.dp(32)
+        anchors.rightMargin :  Destiny.dp(12)
         anchors.topMargin :  Destiny.dp(12)
         background: Image{
-            source: "./close_white.png"
+            source: "qrc:/teachingtools/timertool/close_white.png"
             fillMode:Image.PreserveAspectFit
         }
         onClicked: {
             timeRuningItem.closeClick();
+        }
+    }
+
+    // 最小化按钮
+    Button {
+        id: minizeBtn
+        width: Destiny.dp(32)
+        height: Destiny.dp(32)
+        anchors.right: closeBtn.left
+        anchors.rightMargin: Destiny.dp(12)
+        anchors.verticalCenter: closeBtn.verticalCenter
+        background: Image{
+            source: "qrc:/teachingtools/timertool/minius_white.png"
+            fillMode:Image.PreserveAspectFit
+        }
+        onClicked: {
+            timeRuningItem.state = "minizeTime"
+            timeRuningItem.entryMinizeTimeState()
         }
     }
 
@@ -204,7 +235,7 @@ Rectangle {
         visible: false
         color: "transparent"
         anchors.fill: parent
-        radius: parent.radius
+        radius: Destiny.dp(8)
         TalButton {
             id:stopButton
             talStyle: TalButtonStyleGhostPrimary { size: TalButtonStyle.Size.S }

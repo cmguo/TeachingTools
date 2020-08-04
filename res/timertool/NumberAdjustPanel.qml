@@ -4,36 +4,53 @@ import QtQuick.Controls.Styles 1.4
 import "qrc:/uibase/qml/talwidget/TalConstant.js" as TalConstant
 import TalDisplay 1.0
 
+import "./"
 
 Rectangle {
-    radius: 8;
     property int num: 0
     property int maxNum: 9
     property bool canAdjustNum: true
-    color:canAdjustNum?"#F4F4F4":"transparent"
-    border.width: canAdjustNum?Destiny.dp(2):0
+
+    border.width: canAdjustNum ? Destiny.dp(2) : 0
     border.color: "#ECECEC"
-    Column{
+    radius: width / 2;
+    Item {
         width: parent.width
         height: parent.height
-        Button {
-            visible: canAdjustNum
-            width: parent.width
-            height: parent.height/4
+
+        AddOrSubButton {
             id:add
-            font.pixelSize: Destiny.sp(40)
-            font.family: TalConstant.font
-            text: "+"
-            enabled: num < maxNum
-            background: Rectangle{
-                color:"#00000000"
-            }
-            onClicked: num++
-        }
-        Text {
             width: parent.width
-            height: canAdjustNum?parent.height/2:parent.height
-            id:number
+            height: Destiny.dp(32)
+            anchors { top: parent.top; topMargin: Destiny.dp(26) }
+            visible: canAdjustNum
+            isAdd: true
+            enabled: num < maxNum
+
+            onClick: {
+                num++
+            }
+        }
+
+        AddOrSubButton {
+            id: dec
+            width: parent.width
+            height: Destiny.dp(32)
+            anchors { bottom: parent.bottom; bottomMargin: Destiny.dp(26) }
+            visible: canAdjustNum
+            isAdd: false
+            enabled: num > 0
+
+            onClick: {
+                num--
+            }
+        }
+
+        Text {
+            id: number
+            width: parent.width
+            height: canAdjustNum ? parent.height - add.height - add.anchors.topMargin - dec.height - dec.anchors.bottomMargin : parent.height
+            anchors { top: add.bottom; bottom: dec.top }
             font.pixelSize: Destiny.sp(120)
             color: "#2B2B2B"
             font.bold: true
@@ -41,20 +58,6 @@ Rectangle {
             font.family: TalConstant.font
             horizontalAlignment: Text.AlignHCenter
             verticalAlignment: Text.AlignVCenter
-        }
-        Button {
-            visible: canAdjustNum
-            width: parent.width
-            height: parent.height/4
-            id:dec
-            font.pixelSize: Destiny.sp(40)
-            text: "-"
-            enabled: num>0
-            onClicked: num--;
-            font.family: TalConstant.font
-            background: Rectangle{
-                color:"#00000000"
-            }
         }
     }
 }

@@ -48,5 +48,15 @@
         <file>qss/inkstroketip.qss</file>
         <file>icon/stroke.tip.svg</file>
         <file>icon/icon_feedback.svg</file>
+        <file>timertool/countdown_timeout.wav</file>
+        <file>timertool/minius_white.png</file>
+        <file>timertool/AddOrSubButton.qml</file>
+        <file>timertool/add_disabled.png</file>
+        <file>timertool/add_normal.png</file>
+        <file>timertool/add_pressed.png</file>
+        <file>timertool/sub_disabled.png</file>
+        <file>timertool/sub_normal.png</file>
+        <file>timertool/sub_pressed.png</file>
     </qresource>
+    <qresource prefix="/"/>
 </RCC>
