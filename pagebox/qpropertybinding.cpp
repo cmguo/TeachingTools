@@ -72,6 +72,11 @@ QPropertyBinding * QPropertyBinding::bind(QVariant const & dst, QVariant const &
     return b;
 }
 
+QVariant QPropertyBinding::value(const QVariant &src) const
+{
+    return QProperty::getProp(src, src_prop_);
+}
+
 void QPropertyBinding::onNotify()
 {
     if (sender() == src_.value<QObject *>())

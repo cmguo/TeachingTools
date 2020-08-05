@@ -194,9 +194,12 @@ void PageBoxControl::enableInkPad()
         whiteCanvas()->topControl()->setProperty("editingMode", 0);
 }
 
-void PageBoxControl::loadPages()
+void PageBoxControl::loadPages(int initialPage)
 {
     PageBoxItem * item = static_cast<PageBoxItem *>(item_);
+    item->document()->reset();
+    if (initialPage >= 0)
+        item->document()->setInitialPage(initialPage);
     loadPages(item);
 }
 
@@ -217,10 +220,6 @@ void PageBoxControl::loadPages(PageBoxItem * item)
         size = pageSize.toSizeF();
         QVariant pageBindings = property("pageBindings");
         bindings = pageBindings.value<QPropertyBindings *>();
-    }
-    if (!(flags_ & RestoreSession)) {
-        doc->reset();
-        item->setScaleMode(PageBoxItem::WholePage);
     }
     doc->setItemBindings(bindings);
     doc->setPageSize(size);

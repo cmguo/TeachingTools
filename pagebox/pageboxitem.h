@@ -9,15 +9,17 @@ class PageBoxDocItem;
 class ResourceTransform;
 class PageBoxToolBar;
 class PageBoxPlugin;
+class ResourceCache;
 
 class PageBoxItem : public ToolButtonProvider, public QGraphicsRectItem
 {
     Q_OBJECT
 
-    Q_PROPERTY(PagesMode pagesMode READ pagesMode  WRITE setPagesMode)
-    Q_PROPERTY(SizeMode sizeMode READ sizeMode  WRITE setSizeMode)
-    Q_PROPERTY(int pageNumber READ pageNumber  WRITE setPageNumber)
-    Q_PROPERTY(QByteArray pageBoxState READ pageBoxState  WRITE setPageBoxState)
+    Q_PROPERTY(PagesMode pagesMode READ pagesMode WRITE setPagesMode)
+    Q_PROPERTY(SizeMode sizeMode READ sizeMode WRITE setSizeMode)
+    Q_PROPERTY(int pageNumber READ pageNumber WRITE setPageNumber)
+    Q_PROPERTY(QByteArray pageBoxState READ pageBoxState WRITE setPageBoxState)
+    Q_PROPERTY(QSharedPointer<ResourceCache> resCache MEMBER resCache_)
 
 public:
     enum PagesMode {
@@ -143,6 +145,7 @@ private:
     ResourceTransform * transform_;
     PageBoxToolBar * toolBar_;
     QGraphicsItem * toolBarProxy_;
+    QSharedPointer<ResourceCache> resCache_;
 
 private:
     PagesMode pagesMode_;

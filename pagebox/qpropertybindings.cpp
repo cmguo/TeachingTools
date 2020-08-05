@@ -16,6 +16,16 @@ void QPropertyBindings::addBinding(char const * src_prop, char const * dst_prop)
     bindings_.append(b);
 }
 
+QPropertyBinding *QPropertyBindings::getBinding(const char *dst_prop)
+{
+    for (QPropertyBinding * b : bindings_) {
+        if (b->targetProperty() == dst_prop
+                || strcmp(b->targetProperty(), dst_prop) == 0)
+            return b;
+    }
+    return nullptr;
+}
+
 void QPropertyBindings::bind(QVariant const & dst, QVariant const & src)
 {
     QPropertyBindings * bindings = new QPropertyBindings(this);

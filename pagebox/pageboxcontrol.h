@@ -36,7 +36,7 @@ protected:
     void enableInkPad();
 
 protected:
-    void loadPages();
+    void loadPages(int initialPage = 0);
 
 private:
     void loadPages(PageBoxItem * item);

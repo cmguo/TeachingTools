@@ -24,7 +24,13 @@ public:
 
     void setTargetProperty(char const * prop);
 
+    char const * sourceProperty() const { return src_prop_; }
+
+    char const * targetProperty() const { return dst_prop_; }
+
     QPropertyBinding * bind(QVariant const & dst, QVariant const & src);
+
+    QVariant value(QVariant const & src) const;
 
 private:
     void connect(QVariant & obj, char const * prop);

@@ -3,7 +3,9 @@
 #include "pageboxplugin.h"
 #include "qpropertybindings.h"
 #include "pagenumberwidget.h"
+#include "qpropertybinding.h"
 
+#include <core/resourcecache.h>
 #include <core/toolbutton.h>
 
 #include <Windows/Controls/inkcanvas.h>
@@ -27,6 +29,7 @@ PageBoxDocItem::PageBoxDocItem(QGraphicsItem * parent)
     , layoutMode_(Continuous)
     , padding_(0)
     , curPage_(-2)
+    , resCache_(nullptr)
 {
     setPen(QPen(Qt::NoPen));
 
@@ -133,6 +136,12 @@ void PageBoxDocItem::visiblePositionHint(QGraphicsItem * from, const QPointF &po
     onVisibleCenterChanged(off);
 }
 
+void PageBoxDocItem::setInitialPage(int page)
+{
+    if (curPage_ < -1)
+        curPage_ = page;
+}
+
 void PageBoxDocItem::setItems(QAbstractItemModel * model)
 {
     if (model_ == model)
@@ -180,6 +189,11 @@ void PageBoxDocItem::resetCurrent()
         curPage_ = -1;
         onCurrentPageChanged(lastPage, curPage_);
     }
+}
+
+void PageBoxDocItem::setResourceCache(ResourceCache *cache)
+{
+    resCache_ = cache;
 }
 
 void PageBoxDocItem::clear()
@@ -306,6 +320,15 @@ void PageBoxDocItem::onCurrentPageChanged(int last, int cur)
 {
     for (PageBoxPlugin * plugin : plugins_) {
         plugin->onPageChanged(last, cur);
+    }
+    if (resCache_) {
+        resCache_->clear();
+        QPropertyBinding * binding = itemBindings_->getBinding("image");
+        int n = 6;
+        for (int i = cur + 1; n > 0 && i < pageCount(); ++i, --n) {
+            QVariant item = model_->data(model_->index(i, 0), Qt::UserRole + 1);
+            resCache_->add(binding->value(item).value<QUrl>());
+        }
     }
     pageNumber_->setNumber(cur);
     emit currentPageChanged(cur);
@@ -444,6 +467,8 @@ void PageBoxDocItem::goToPage(int page)
 
 QByteArray PageBoxDocItem::saveState()
 {
+    if (resCache_)
+        resCache_->moveBackground();
     char * p1 = reinterpret_cast<char *>(&pageSize_);
     char * p2 = reinterpret_cast<char *>(&pageCanvas_);
     QByteArray data(p1, static_cast<int>(p2 - p1));
@@ -455,6 +480,8 @@ void PageBoxDocItem::restoreState(QByteArray data)
     char * p1 = reinterpret_cast<char *>(&pageSize_);
     char * p2 = reinterpret_cast<char *>(&pageCanvas_);
     memcpy(p1, data.data(), static_cast<size_t>(p2 - p1));
+    if (resCache_)
+        resCache_->moveFront();
 }
 
 void PageBoxDocItem::getToolButtons(QList<ToolButton *> &buttons, const QList<ToolButton *> &parents)

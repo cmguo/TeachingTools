@@ -1,4 +1,4 @@
-﻿#ifndef QPROPERTYBINDINGS_H
+#ifndef QPROPERTYBINDINGS_H
 #define QPROPERTYBINDINGS_H
 
 #include "TeachingTools_global.h"
@@ -18,6 +18,8 @@ public:
 
 public:
     void addBinding(char const * src_prop, char const * dst_prop);
+
+    QPropertyBinding * getBinding(char const * dst_prop);
 
     void bind(QVariant const & dst, QVariant const & src);
 

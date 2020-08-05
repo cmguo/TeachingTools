@@ -12,6 +12,7 @@ class QPropertyBindings;
 class PageBoxPlugin;
 class PageBoxPageItem;
 class PageNumberWidget;
+class ResourceCache;
 
 class TEACHINGTOOLS_EXPORT PageBoxDocItem : public ToolButtonProvider, public QGraphicsRectItem
 {
@@ -77,6 +78,8 @@ public:
     void visiblePositionHint(QGraphicsItem * from, QPointF const & pos);
 
 public:
+    void setInitialPage(int page);
+
     void setItems(QAbstractItemModel * model);
 
     void setItemBindings(QPropertyBindings * bindings);
@@ -84,6 +87,8 @@ public:
     void reset();
 
     void resetCurrent();
+
+    void setResourceCache(ResourceCache * cache);
 
 public slots:
     void nextPage();
@@ -161,6 +166,7 @@ private:
     LayoutMode layoutMode_;
     qreal padding_; // Continuous mode
     int curPage_;
+    ResourceCache * resCache_;
 
 private:
     QGraphicsRectItem * pageCanvas_;

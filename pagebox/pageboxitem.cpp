@@ -1,4 +1,4 @@
-﻿#include "pageboxitem.h"
+#include "pageboxitem.h"
 #include "pageboxdocitem.h"
 #include "pageboxcontrol.h"
 #include "pageboxtoolbar.h"
@@ -10,6 +10,7 @@
 #include <core/resourceview.h>
 #include <core/resourcetransform.h>
 #include <core/controltransform.h>
+#include <core/resourcecache.h>
 
 #include <QGraphicsScene>
 #include <QGraphicsSceneMouseEvent>
@@ -29,6 +30,8 @@ static constexpr char const * toolsStr =
 #endif
             "";
 
+Q_DECLARE_METATYPE(QSharedPointer<ResourceCache>)
+
 PageBoxItem::PageBoxItem(QGraphicsItem * parent)
     : QGraphicsRectItem(parent)
     , pagesMode_(Paper)
@@ -38,6 +41,7 @@ PageBoxItem::PageBoxItem(QGraphicsItem * parent)
     , scaleLevel_(0)
     , maxScaleLevel_(0)
 {
+    qRegisterMetaType<QSharedPointer<ResourceCache>>();
     setFlags(ItemClipsToShape | ItemClipsChildrenToShape);
     setPen(QPen(Qt::NoPen));
     setBrush(QColor("#FFE2E3E4"));
@@ -68,7 +72,7 @@ int PageBoxItem::pageNumber()
 
 void PageBoxItem::setPageNumber(int n)
 {
-    document_->goToPage(n);
+    document_->setInitialPage(n);
 }
 
 struct TransformData
@@ -146,6 +150,8 @@ void PageBoxItem::setPagesMode(PageBoxItem::PagesMode mode)
         document_->setLayoutMode(PageBoxDocItem::Duplex);
         document_->setDirection(PageBoxDocItem::Horizontal);
         setScaleMode(WholePage);
+        resCache_.reset(new ResourceCache);
+        document_->setResourceCache(resCache_.get());
         break;
     }
 }
