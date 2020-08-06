@@ -16,6 +16,10 @@ class ResourcePage;
 
 using INKCANVAS_PREPEND_NAMESPACE(InkCanvasEditingMode);
 
+#ifndef INKSTORKE_DRAWING_SETTING
+#define INKSTORKE_DRAWING_SETTING 0
+#endif
+
 class TEACHINGTOOLS_EXPORT InkStrokeTools : public ToolButtonProvider
 {
     Q_OBJECT
@@ -90,6 +94,9 @@ private:
     friend class SyncInkControl;
     WhiteCanvas * canvas_;
     InkStrokeControl * inkControl_;
+#if INKSTORKE_DRAWING_SETTING
+    QObject * drawTool_;
+#endif
     QObject * outerControl_;
     QObject * activeControl_;
     InkCanvasEditingMode mode_;

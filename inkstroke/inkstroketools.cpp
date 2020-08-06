@@ -52,6 +52,9 @@ static InkStrokeTools * inst = nullptr;
 InkStrokeTools::InkStrokeTools(QObject* parent, WhiteCanvas *whiteCanvas)
     : ToolButtonProvider(parent)
     , inkControl_(nullptr)
+    #if INKSTORKE_DRAWING_SETTING
+    , drawTool_(nullptr)
+    #endif
     , outerControl_(nullptr)
     , activeControl_(nullptr)
     #ifdef QT_DEBUG
@@ -86,6 +89,9 @@ InkStrokeTools *InkStrokeTools::instance()
 void InkStrokeTools::attachToWhiteCanvas(WhiteCanvas *whiteCanvas)
 {
     canvas_ = whiteCanvas;
+#if INKSTORKE_DRAWING_SETTING
+    drawTool_ = whiteCanvas->getToolControl("drawing");
+#endif
     ResourcePackage * package = whiteCanvas->package();
     QObject::connect(package, &ResourcePackage::pageCreated, this, [](ResourcePage* page) {
         page->addResource(QUrl("inkstroke:"));
@@ -93,6 +99,10 @@ void InkStrokeTools::attachToWhiteCanvas(WhiteCanvas *whiteCanvas)
     QObject::connect(canvas_, &WhiteCanvas::currentPageChanged, this, [this](ResourcePage* page) {
         switchPage(page);
     });
+#if INKSTORKE_DRAWING_SETTING
+    drawTool_->setProperty("width", width_);
+    drawTool_->setProperty("color", *inkColor_);
+#endif
     if (ResourcePage * page = whiteCanvas->page())
         switchPage(page);
 }
@@ -194,6 +204,9 @@ void InkStrokeTools::setOuterControl(QObject *control, bool sync)
         if (inkControl_ && !sync) {
             inkControl_->setEditingMode(mode_);
             inkControl_->setWidth(width_);
+#if INKSTORKE_DRAWING_SETTING
+            drawTool_->setProperty("width", width_);
+#endif
         }
         colorButtons.updateValue(*activeColor_);
     }
@@ -235,6 +248,10 @@ void InkStrokeTools::setColor(QColor color)
     *activeColor_ = color;
     if (activeControl_)
         activeControl_->setProperty("color", *activeColor_);
+#if INKSTORKE_DRAWING_SETTING
+    if (activeControl_ == inkControl_)
+        drawTool_->setProperty("color", *activeColor_);
+#endif
     colorButtons.updateValue(*activeColor_);
 }
 
@@ -243,6 +260,10 @@ void InkStrokeTools::setWidth(qreal width)
     width_ = width;
     if (activeControl_)
         activeControl_->setProperty("width", width_);
+#if INKSTORKE_DRAWING_SETTING
+    if (activeControl_ == inkControl_)
+        drawTool_->setProperty("width", width_);
+#endif
     widthButtons.updateValue(width_);
 }
 
@@ -435,18 +456,24 @@ int SyncInkControl::editingMode() const
 void SyncInkControl::clear()
 {
     outerControl_->metaObject()->invokeMethod(outerControl_, "clear");
-    tools_->inkControl_->metaObject()->invokeMethod(tools_->inkControl_, "clear");
+    tools_->inkControl_->clear();
 }
 
 void SyncInkControl::setWidth(qreal width)
 {
     outerControl_->setProperty("width", width);
-    tools_->inkControl_->setProperty("width", width);
+    tools_->inkControl_->setWidth(width);
+#if INKSTORKE_DRAWING_SETTING
+    tools_->drawTool_->setProperty("width", width);
+#endif
 }
 
 void SyncInkControl::setColor(const QColor &color)
 {
     outerControl_->setProperty("color", color);
     *tools_->inkColor_ = color;
-    tools_->inkControl_->setProperty("color", color);
+    tools_->inkControl_->setColor(color);
+#if INKSTORKE_DRAWING_SETTING
+    tools_->drawTool_->setProperty("color", color);
+#endif
 }
