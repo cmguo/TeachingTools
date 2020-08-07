@@ -110,13 +110,12 @@ Rectangle{
                     id:minius1
                     width: swipeView.rowItemWidth
                     height: parent.height
-                    maxNum: 9
                 }
                 NumberAdjustPanel {
                     id:minius2
                     width: swipeView.rowItemWidth
                     height: parent.height
-
+                    num: 3
                 }
                 Text {
                     height: parent.height
@@ -137,7 +136,6 @@ Rectangle{
                     width: swipeView.rowItemWidth
                     height: parent.height
                     maxNum: 5
-
                 }
                 NumberAdjustPanel {
                     id:seconds2
