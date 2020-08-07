@@ -198,6 +198,7 @@ void PageBoxControl::loadPages(int initialPage)
 {
     PageBoxItem * item = static_cast<PageBoxItem *>(item_);
     item->document()->reset();
+    item->setScaleMode(PageBoxItem::WholePage); // restore from ManualScale
     if (initialPage >= 0)
         item->document()->setInitialPage(initialPage);
     loadPages(item);
