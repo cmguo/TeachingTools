@@ -191,6 +191,9 @@ Rectangle {
         onClicked: {
             if(timeRuningItem.state == "timeout"||timeRuningItem.state == "stopTime"){
                 timeRuningItem.backBtnClick();
+                if (soundEffect.playing) {
+                    soundEffect.stop()
+                }
             }else if(timeRuningItem.state == "runingTime"){
                 timeRuningItem.state = "stopTime"
             }
