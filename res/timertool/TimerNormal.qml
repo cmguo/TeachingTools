@@ -14,21 +14,26 @@ Rectangle{
     signal runingClick();
     signal closeBtnClick();
 
+    border.color: "#E2E3E4"
+    border.width: Destiny.dp(1)
     Rectangle{
         id:topRect
-        width: parent.width
+        width: parent.width - anchors.leftMargin - anchors.rightMargin
         height: Destiny.dp(64)
         radius: Destiny.dp(8)
+        anchors.top: parent.top
+        anchors.topMargin: Destiny.dp(1)
+        anchors.left: parent.left
+        anchors.leftMargin: Destiny.dp(1)
+        anchors.right: parent.right
+        anchors.rightMargin: Destiny.dp(1)
+        color: "#FAFAFA"
 
-        gradient: Gradient {
-            GradientStop{ position: 0.0; color: "#F9F9F9";}
-            GradientStop{ position: 1.0; color: "#ECECEC";}
-        }
         Rectangle {
             width: parent.width
             height: Destiny.dp(8)
             anchors.bottom: parent.bottom
-            color: "#ECECEC"
+            color: "#FAFAFA"
         }
 
         TalTabBar {
@@ -91,7 +96,10 @@ Rectangle{
         id: swipeView
         anchors.top: parent.top
         anchors.topMargin: Destiny.dp(64)
-        width: parent.width
+        anchors.left: parent.left
+        anchors.leftMargin: Destiny.dp(1)
+        anchors.right: parent.right
+        anchors.rightMargin: Destiny.dp(1)
         anchors.bottom: parent.bottom
         anchors.bottomMargin: Destiny.dp(104)
         currentIndex: tabBar.currentIndex
