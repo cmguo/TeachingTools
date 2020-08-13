@@ -3,7 +3,7 @@ QPushButton {
     font-size: 14pt; /* [size] */
     font-family: 'Microsoft YaHei';
     border-radius: 8px; /* [size] */
-    padding: 4px; /* [size] */
+    padding: 8px; /* [size] */
     margin: 8px; /* [size] */
     background-color: transparent;
     qproperty-text: '选择画笔';
@@ -21,7 +21,7 @@ QPushButton:pressed {
 
 #inkstroketip {
     background-color: #2B3034;
-    border: 1px solid rgba(67,77,89,1)
-    border-radius: 6px; /* [size] */
+    border: 1px solid rgba(67,77,89,1);
+    border-radius: 8px; /* [size] */
 }
 
