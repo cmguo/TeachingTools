@@ -322,13 +322,14 @@ void PageBoxDocItem::onCurrentPageChanged(int last, int cur)
         plugin->onPageChanged(last, cur);
     }
     if (resCache_) {
-        resCache_->clear();
+        QList<QUrl> list;
         QPropertyBinding * binding = itemBindings_->getBinding("image");
         int n = 6;
         for (int i = cur + 1; n > 0 && i < pageCount(); ++i, --n) {
             QVariant item = model_->data(model_->index(i, 0), Qt::UserRole + 1);
-            resCache_->add(binding->value(item).value<QUrl>());
+            list.append(binding->value(item).value<QUrl>());
         }
+        resCache_->reset(list);
     }
     pageNumber_->setNumber(cur);
     emit currentPageChanged(cur);
