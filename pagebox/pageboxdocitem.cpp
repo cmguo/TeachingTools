@@ -5,7 +5,7 @@
 #include "pagenumberwidget.h"
 #include "qpropertybinding.h"
 
-#include <core/resourcecache.h>
+#include <data/resourcecache.h>
 #include <core/toolbutton.h>
 
 #include <Windows/Controls/inkcanvas.h>

@@ -1,9 +1,7 @@
 #include "pageboxpageitem.h"
 #include "pageboxdocitem.h"
 
-#include <core/resourceview.h>
-#include <core/resource.h>
-#include <core/imagecache.h>
+#include <data/imagecache.h>
 
 PageBoxPageItem::PageBoxPageItem(QGraphicsItem * parent)
     : QGraphicsPixmapItem(parent)

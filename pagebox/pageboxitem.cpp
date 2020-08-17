@@ -10,7 +10,7 @@
 #include <core/resourceview.h>
 #include <core/resourcetransform.h>
 #include <core/controltransform.h>
-#include <core/resourcecache.h>
+#include <data/resourcecache.h>
 
 #include <QGraphicsScene>
 #include <QGraphicsSceneMouseEvent>
