@@ -84,3 +84,10 @@ else:unix: LIBS += -L$$OUT_PWD/../QtEventBus/ -lQtEventBus
 
 INCLUDEPATH += $$PWD/../QtEventBus
 DEPENDPATH += $$PWD/../QtEventBus
+
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../EventsLog/release/ -lEventsLog
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../EventsLog/debug/ -lEventsLogd
+else:unix: LIBS += -L$$OUT_PWD/../EventsLog/ -lEventsLog
+
+INCLUDEPATH += $$PWD/../EventsLog
+DEPENDPATH += $$PWD/../EventsLog

@@ -14,6 +14,7 @@
 #include <core/resourcepage.h>
 #include <core/resourceview.h>
 #include <core/toolbutton.h>
+#include <evlogapi/evlogrecorder.h>
 
 #include <QApplication>
 #include <QUrl>
@@ -284,18 +285,28 @@ bool InkStrokeTools::setOption(const QByteArray &key, QVariant value)
         } else {
             inkControl_->metaObject()->invokeMethod(inkControl_, value.toByteArray());
         }
+        EVLOG_CTX("Main:BottomTool", click, "typeId", (QString("Select")))
     } else if (key == "stroke") {
         if (!value.isValid()) {
             if (mode_ == InkCanvasEditingMode::Ink)
                 togglePopupMenu(getStringButton(1));
             else
                 setMode(InkCanvasEditingMode::Ink);
+            EVLOG_CTX("Main:BottomTool", click, "typeId", (QString("Pen")))
         } else if (value.toString().startsWith("#")) {
             value.convert(QVariant::Color);
             setColor(value.value<QColor>());
+
+            QString typeId("StrokeColor");
+            typeId.append(".").append(value.toString());
+            EVLOG_CTX("Main:BottomTool", click, "typeId", (typeId))
         } else {
             value.convert(QVariant::Double);
             setWidth(value.toDouble());
+
+            QString typeId("StrokeWidth");
+            typeId.append(".").append(value.toString());
+            EVLOG_CTX("Main:BottomTool", click, "typeId", (typeId))
         }
     } else if (key == "select") {
         if (!value.isValid()) {
@@ -310,6 +321,7 @@ bool InkStrokeTools::setOption(const QByteArray &key, QVariant value)
                 togglePopupMenu(getStringButton(2));
             else
                 setMode(InkCanvasEditingMode::EraseByPoint);
+            EVLOG_CTX("Main:BottomTool", click, "typeId", (QString("Eraser")))
         } else {
             clearInkStroke();
         }
