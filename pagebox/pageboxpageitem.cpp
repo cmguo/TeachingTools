@@ -2,6 +2,7 @@
 #include "pageboxdocitem.h"
 
 #include <data/imagecache.h>
+#include <core/resource.h>
 
 PageBoxPageItem::PageBoxPageItem(QGraphicsItem * parent)
     : QGraphicsPixmapItem(parent)
@@ -20,23 +21,26 @@ PageBoxPageItem::PageBoxPageItem(QGraphicsItem * parent)
     }*/
 }
 
-static void nop(int *) {}
-
 void PageBoxPageItem::setImage(const QUrl &image)
 {
     if (image.isEmpty()) {
         lifeToken_.reset();
         return;
     }
-    lifeToken_.reset(reinterpret_cast<int*>(1), nop);
-    QWeakPointer<int> life(lifeToken_);
-    ImageCache::instance().getOrCreate(image).then(
+    if (lifeToken_.isNull() || !lifeToken_->property("PageBoxPageItem").isNull())
+        lifeToken_.reset(new Resource("image", QUrl()));
+    lifeToken_->setProperty("PageBoxPageItem", QVariant::fromValue(this));
+    QWeakPointer<Resource> life(lifeToken_);
+    ImageCache::instance().getOrCreate(lifeToken_.get(), image).then(
                 [this, life](QSharedPointer<ImageData> const & data) {
         if (life.isNull())
             return;
         setPixmap(data->pixmap());
     }, [](std::exception & e) {
         qDebug() << e.what();
+    }).finally([life] () {
+        if (!life.isNull())
+            life.data()->setProperty("PageBoxPageItem", QVariant());
     });
 }
 

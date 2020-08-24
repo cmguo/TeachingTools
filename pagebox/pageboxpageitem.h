@@ -5,6 +5,8 @@
 #include <QUrl>
 #include <QList>
 
+class Resource;
+
 class PageBoxPageItem : public QGraphicsPixmapItem
 {
     Q_GADGET
@@ -31,7 +33,7 @@ public:
 private:
     QUrl image_;
     QList<QRectF> rects_;
-    QSharedPointer<int> lifeToken_;
+    QSharedPointer<Resource> lifeToken_;
 };
 
 #endif // PAGEBOXPAGEITEM_H
