@@ -1,13 +1,14 @@
-#ifndef PAGENOWIDGET_H
+﻿#ifndef PAGENOWIDGET_H
 #define PAGENOWIDGET_H
 
 #include <QWidget>
+#include "TeachingTools_global.h"
 
 class QPushButton;
 class QLabel;
 class ToolButton;
 
-class PageNumberWidget : public QWidget
+class TEACHINGTOOLS_EXPORT PageNumberWidget : public QWidget
 {
     Q_OBJECT
 public:
@@ -17,7 +18,6 @@ public:
 
 signals:
     void pageNumberChanged(int no);
-
 public:
     void setTotal(int n);
 
