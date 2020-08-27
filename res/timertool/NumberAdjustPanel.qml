@@ -12,7 +12,8 @@ Rectangle {
     property bool canAdjustNum: true
 
     border.width: canAdjustNum ? Destiny.dp(2) : 0
-    border.color: "#ECECEC"
+    border.color: "#E2E3E4"
+    color: "#FAFAFA"
     radius: width / 2;
     Item {
         width: parent.width

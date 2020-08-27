@@ -16,6 +16,7 @@ Rectangle{
 
     border.color: "#E2E3E4"
     border.width: Destiny.dp(1)
+    color: "#FAFAFA"
     Rectangle{
         id:topRect
         width: parent.width - anchors.leftMargin - anchors.rightMargin
@@ -92,10 +93,17 @@ Rectangle{
         }
     }
 
+    Rectangle {
+        id: divider
+        color: "#E2E3E4"
+        width: parent.width
+        height: Destiny.dp(1)
+        anchors.top: topRect.bottom
+    }
+
     StackLayout{
         id: swipeView
-        anchors.top: parent.top
-        anchors.topMargin: Destiny.dp(64)
+        anchors.top: divider.bottom
         anchors.left: parent.left
         anchors.leftMargin: Destiny.dp(1)
         anchors.right: parent.right
@@ -109,6 +117,7 @@ Rectangle{
             id:anticlockwise
             width: parent.width
             height: parent.height
+            color: "#FAFAFA"
             opacity: 1.0
             Row{
                 anchors.centerIn: parent
@@ -159,6 +168,7 @@ Rectangle{
             id:clockwise
             width: parent.width
             height: parent.height
+            color: "#FAFAFA"
             opacity: 0.0
             Row{
                 anchors.centerIn: parent
