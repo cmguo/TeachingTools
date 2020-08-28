@@ -1,4 +1,4 @@
-#include "inkstrokecontrol.h"
+﻿#include "inkstrokecontrol.h"
 #include "inkstrokefilter.h"
 
 #include <views/qsshelper.h>
@@ -50,6 +50,8 @@ bool InkStrokeFilter::sceneEventFilter(QGraphicsItem *watched, QEvent *event)
                 // avoid leave point in another ink canvas
                 if (InkCanvas::fromItem(item))
                     continue;
+                if(item->data(100000001).toInt()==1)
+                    continue;
                 me.setPos(item->mapFromScene(me.scenePos()));
                 me.setLastPos(item->mapFromScene(me.lastScenePos()));
                 me.accept();
@@ -69,6 +71,7 @@ bool InkStrokeFilter::sceneEventFilter(QGraphicsItem *watched, QEvent *event)
                 me.setLastPos(item->mapFromScene(me.lastScenePos()));
                 me.accept();
                 sending_ = true;
+                if(item->data(100000001).toInt()!=1)
                 scene()->sendEvent(item, event);
                 sending_ = false;
             }
