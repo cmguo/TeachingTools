@@ -49,7 +49,7 @@ PageBoxDocItem::~PageBoxDocItem()
     delete pageNumber_;
 }
 
-void PageBoxDocItem::setPageSize(QSizeF size)
+void PageBoxDocItem::setPageSize(QSizeF const & size)
 {
     pageSize_ = size;
     relayout();
@@ -76,6 +76,11 @@ void PageBoxDocItem::setLayoutMode(LayoutMode mode)
 void PageBoxDocItem::setPadding(qreal pad)
 {
     padding_ = pad;
+}
+
+void PageBoxDocItem::setBorderSize(const QRectF &border)
+{
+    borderSize_ = border;
 }
 
 QSizeF PageBoxDocItem::documentSize() const
@@ -117,16 +122,16 @@ void PageBoxDocItem::removePlugin(PageBoxPlugin *plugin)
     buttonsChanged();
 }
 
-qreal PageBoxDocItem::requestScale(const QSizeF &borderSize, bool whole)
+qreal PageBoxDocItem::requestScale(const QSizeF &boxSize, bool whole)
 {
     if (whole) {
-        qreal sw = borderSize.width() / pageSize2_.width();
-        qreal sh = borderSize.height() / pageSize2_.height();
+        qreal sw = boxSize.width() / pageSize2_.width();
+        qreal sh = boxSize.height() / pageSize2_.height();
         return qMin(sh, sw);
     } else if (direction_ == Vertical) { // FitLayout
-        return borderSize.width() / pageSize2_.width();
+        return boxSize.width() / pageSize2_.width();
     } else {
-        return borderSize.height() / pageSize2_.height();
+        return boxSize.height() / pageSize2_.height();
     }
 }
 
@@ -138,8 +143,8 @@ void PageBoxDocItem::visiblePositionHint(QGraphicsItem * from, const QPointF &po
 
 void PageBoxDocItem::setInitialPage(int page)
 {
-    if (curPage_ < -1)
-        curPage_ = page;
+    if (curPage_ == -2)
+        curPage_ = -3 - page;
 }
 
 void PageBoxDocItem::setItems(QAbstractItemModel * model)
@@ -211,11 +216,13 @@ void PageBoxDocItem::relayout()
     if (pageSize_.isEmpty() || !model_)
         return;
     clear();
-    QPointF pos;
-    QPointF off;
+    QPointF pos = -borderSize_.topLeft();
+    QPointF off; // offset of one page, with padding
     int oldPage = curPage_;
-    if (curPage_ < -1)
+    if (curPage_ == -2)
         curPage_ = initialPage();
+    else if (curPage_ < -2)
+        curPage_ = -curPage_ - 3;
     pageSize2_ = pageSize_;
     if (direction_ == Vertical) {
         pos.setY(padding_);
@@ -277,12 +284,19 @@ void PageBoxDocItem::relayout()
         }
     }
     if (direction_ == Vertical) {
-        pos.setX(pageSize_.width());
+        pos.setX(pos.x() + pageSize_.width());
     } else {
-        pos.setY(pageSize_.height());
+        pos.setY(pos.y() + pageSize_.height());
     }
+    pos += borderSize_.bottomRight();
     setRect(QRectF(QPointF(0, 0), pos));
     onPageSize2Changed(pageSize2_);
+    // Initial position; TODO:
+    if (oldPage < -1) {
+        pos = -borderSize_.topLeft();
+        pos.setX(-1); // not changed x pos
+        emit requestPosition(pos);
+    }
     for (PageBoxPlugin * plugin : plugins_) {
         if (oldPage < 0)
             plugin->onRelayout(pageCount());

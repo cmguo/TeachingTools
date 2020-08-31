@@ -33,6 +33,8 @@ protected:
 
     virtual void parseData();
 
+    virtual QSizeF pageSize();
+
     void enableInkPad();
 
 protected:

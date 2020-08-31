@@ -38,7 +38,7 @@ public:
     virtual ~PageBoxDocItem() override;
 
 public:
-    void setPageSize(QSizeF size);
+    void setPageSize(QSizeF const & size);
 
     void setDirection(Direction direction);
 
@@ -46,9 +46,14 @@ public:
 
     void setPadding(qreal pad);
 
+    void setBorderSize(QRectF const & border);
+
 public:
+    // single page size without padding
     QSizeF pageSize() const { return pageSize_; }
 
+    // single page size with both side padding
+    //  or duplex page size with both side and middle padding
     QSizeF pageSize2() const { return pageSize2_; }
 
     QSizeF documentSize() const;
@@ -73,8 +78,10 @@ public:
     PageNumberWidget * pageNumberWidget() const { return pageNumber_; }
 
 public:
-    qreal requestScale(QSizeF const & borderSize, bool whole);
+    // initial scale according to LayoutMode & Direction
+    qreal requestScale(QSizeF const & boxSize, bool whole);
 
+    // notify from outer box, to tell document current visible top-left pos
     void visiblePositionHint(QGraphicsItem * from, QPointF const & pos);
 
 public:
@@ -118,7 +125,8 @@ signals:
 
     void pageSize2Changed(QSizeF const & size);
 
-    // request visible position in document, if x < 0, x is not changed, y same
+    // request visible position in document,
+    //  if x < 0, x is not changed, y same
     void requestPosition(QPointF const & pos);
 
 protected:
@@ -165,6 +173,7 @@ private:
     Direction direction_;
     LayoutMode layoutMode_;
     qreal padding_; // Continuous mode
+    QRectF borderSize_;
     int curPage_;
     ResourceCache * resCache_;
 

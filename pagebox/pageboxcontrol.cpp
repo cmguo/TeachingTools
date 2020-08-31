@@ -112,7 +112,7 @@ void PageBoxControl::attached()
     bindings->addBinding("", "image");
     item->setScaleMode(PageBoxItem::WholePage);
     doc->setItemBindings(bindings);
-    doc->setPageSize({1656.0, 2326.0});
+    doc->setPageSize(pageSize());
     doc->setItems(model);
     if (item->pagesMode() == PageBoxItem::Paper)
         item->stepMiddleScale();
@@ -168,7 +168,6 @@ void PageBoxControl::loadData()
             }
             QPropertyBindings * bindings = new QPropertyBindings(res_);
             bindings->addBinding("", "image");
-            setProperty("pageSize", QSizeF(1656.0, 2326.0));
             setProperty("pageModel", QVariant::fromValue(model));
             setProperty("pageBindings", QVariant::fromValue(bindings));
         }
@@ -177,6 +176,11 @@ void PageBoxControl::loadData()
 
 void PageBoxControl::parseData()
 {
+}
+
+QSizeF PageBoxControl::pageSize()
+{
+    return QSizeF(1656.0, 2326.0);
 }
 
 void PageBoxControl::enableInkPad()
@@ -209,7 +213,6 @@ void PageBoxControl::loadPages(PageBoxItem * item)
     PageBoxDocItem * doc = item->document();
     QStandardItemModel * model = nullptr;
     QPropertyBindings * bindings = nullptr;
-    QSizeF size;
     QVariant pageModel = property("pageModel");
     if (!pageModel.isValid()) {
         parseData();
@@ -217,13 +220,11 @@ void PageBoxControl::loadPages(PageBoxItem * item)
     }
     if (pageModel.isValid()) {
         model = pageModel.value<QStandardItemModel *>();
-        QVariant pageSize = property("pageSize");
-        size = pageSize.toSizeF();
         QVariant pageBindings = property("pageBindings");
         bindings = pageBindings.value<QPropertyBindings *>();
     }
     doc->setItemBindings(bindings);
-    doc->setPageSize(size);
+    doc->setPageSize(pageSize()); // page size may changed
     doc->setItems(model);
     if (flags_ & RestoreSession) {
         item->restorePosition();

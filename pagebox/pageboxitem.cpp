@@ -52,8 +52,9 @@ PageBoxItem::PageBoxItem(QGraphicsItem * parent)
                      this, &PageBoxItem::documentSizeChanged);
     transform_ = new ResourceTransform(this);
     document_->setTransformations({new ControlTransform(*transform_)});
+    // QueuedConnection: we should adjust document border offset after detachTransform
     QObject::connect(document_, &PageBoxDocItem::requestPosition,
-                     this, &PageBoxItem::setDocumentPosition);
+                     this, &PageBoxItem::setDocumentPosition, Qt::QueuedConnection);
     toolBar_ = nullptr;
     toolBarProxy_ = nullptr;
     setToolsString(toolsStr);
@@ -150,6 +151,7 @@ void PageBoxItem::setPagesMode(PageBoxItem::PagesMode mode)
         document_->setLayoutMode(PageBoxDocItem::Duplex);
         document_->setDirection(PageBoxDocItem::Horizontal);
         setScaleMode(WholePage);
+        document_->setBorderSize({0, -500, 0, 1000});
         resCache_.reset(new ResourceCache);
         document_->setResourceCache(resCache_.get());
         break;
@@ -422,22 +424,20 @@ void PageBoxItem::onTransformChanged()
 QSizeF PageBoxItem::calcSize(QSizeF const &pageSize2)
 {
     QRectF rect = this->rect();
+    QSizeF docSize = document_->documentSize();
     if (sizeMode_ == LargeCanvas) {
-        QSizeF docSize = document_->documentSize();
         rescale();
         transferToManualScale();
-        if (document_->direction() == PageBoxDocItem::Horizontal) {
-            qreal s = pageSize2.width() / rect.width();
-            return QSizeF(docSize.width() / s, rect.height());
-        } else {
-            qreal s = pageSize2.height() / rect.height();
-            return QSizeF(rect.width(), docSize.height() / s);
-        }
+        docSize *= scale();
+        QRectF docRect{{0, 0}, docSize};
+        docRect.moveCenter(rect.center());
+        docSize = rect.united(docRect).size();
     } else {
         qreal s = document_->direction() == PageBoxDocItem::Horizontal
                 ? rect.height() / pageSize2.height() : rect.width() / pageSize2.width();
-        return pageSize2 * s;
+        docSize *= s;
     }
+    return docSize;
 }
 
 void PageBoxItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
