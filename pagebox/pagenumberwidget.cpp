@@ -63,6 +63,28 @@ void PageNumberWidget::setNumber(int n)
     nextBtn_->setEnabled(no_ + 1 < total_);
 }
 
+bool PageNumberWidget::gotoPrev()
+{
+    if (no_ > 0) {
+        setNumber(no_ - 1);
+        emit pageNumberChanged(no_);
+        return true;
+    } else {
+        return false;
+    }
+}
+
+bool PageNumberWidget::gotoNext()
+{
+    if (no_ + 1 < total_) {
+        setNumber(no_ + 1);
+        emit pageNumberChanged(no_);
+        return true;
+    } else {
+        return false;
+    }
+}
+
 ToolButton *PageNumberWidget::toolButton()
 {
     if (toolButton_ == nullptr)
@@ -74,13 +96,8 @@ ToolButton *PageNumberWidget::toolButton()
 void PageNumberWidget::buttonClicked()
 {
     if (sender() == preBtn_) {
-        if (no_ > 0) {
-            setNumber(no_ - 1);
-        }
+        gotoPrev();
     } else if (sender() == nextBtn_) {
-        if (no_ + 1 < total_) {
-            setNumber(no_ + 1);
-        }
+        gotoNext();
     }
-    emit pageNumberChanged(no_);
 }

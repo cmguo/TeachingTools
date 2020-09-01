@@ -1,5 +1,6 @@
 #include "pageboxcontrol.h"
 #include "pageboxitem.h"
+#include "pagenumberwidget.h"
 #include "pageboxdocitem.h"
 #include "qpropertybindings.h"
 #include "inkpadplugin.h"
@@ -28,6 +29,18 @@ PageBoxControl::PageBoxControl(ResourceView * res, Flags flags, Flags clearFlags
         flags_.setFlag(FullLayout);
     }
     setMinSize({450.24, 0});
+}
+
+bool PageBoxControl::next()
+{
+    PageBoxItem * item = static_cast<PageBoxItem *>(item_);
+    return item->document()->pageNumberWidget()->gotoNext();
+}
+
+bool PageBoxControl::prev()
+{
+    PageBoxItem * item = static_cast<PageBoxItem *>(item_);
+    return item->document()->pageNumberWidget()->gotoPrev();
 }
 
 QGraphicsItem* PageBoxControl::create(ResourceView *res)

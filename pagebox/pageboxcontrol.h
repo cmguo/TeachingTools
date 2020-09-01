@@ -15,6 +15,11 @@ public:
 
     using Control::sizeChanged;
 
+public slots:
+    bool next();
+
+    bool prev();
+
 protected:
     virtual QGraphicsItem * create(ResourceView *res) override;
 
