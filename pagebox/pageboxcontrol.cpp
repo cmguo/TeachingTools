@@ -20,11 +20,11 @@
 #include <QDir>
 
 PageBoxControl::PageBoxControl(ResourceView * res, Flags flags, Flags clearFlags)
-    : Control(res, flags | KeepAspectRatio, clearFlags)
+    : Control(res, flags | KeepAspectRatio | Touchable, clearFlags)
     , bottomTransform_(nullptr)
 {
     if (res_->flags().testFlag(ResourceView::LargeCanvas)) {
-        flags_.setFlag(CanScale, false);
+        //flags_.setFlag(CanScale, false);
         flags_.setFlag(CanMove, false);
         flags_.setFlag(FullLayout);
     }
@@ -98,8 +98,10 @@ void PageBoxControl::attached()
         item->toolBar()->hide();
     }
     // ToolbarWidget has update problem, we do this later
-    if (res_->flags().testFlag(ResourceView::LargeCanvas))
+    if (res_->flags().testFlag(ResourceView::LargeCanvas)) {
         attachSubProvider(item);
+        Control::fromItem(whiteCanvas())->setProperty("noScaleButton", true);
+    }
     PageBoxDocItem * doc = item->document();
     if (res_->flags().testFlag(ResourceView::ListOfPages)) {
         QObject::connect(doc, &PageBoxDocItem::currentPageChanged, this, [this](int page) {
