@@ -79,6 +79,8 @@ public:
 
     void stepMiddleScale();
 
+    void updateStepScale();
+
 public:
     // called from PageBoxControl
     void sizeChanged();
@@ -152,6 +154,7 @@ private:
     SizeMode sizeMode_;
     ScaleMode scaleMode_;
     qreal manualScale_;
+    qreal minScale_;
     qreal scaleInterval_;
     int scaleLevel_;
     int maxScaleLevel_;

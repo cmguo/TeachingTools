@@ -37,6 +37,7 @@ PageBoxItem::PageBoxItem(QGraphicsItem * parent)
     , pagesMode_(Paper)
     , sizeMode_(FixedSize)
     , scaleMode_(FitLayout)
+    , minScale_(1.0)
     , scaleInterval_(1.2)
     , scaleLevel_(0)
     , maxScaleLevel_(0)
@@ -248,6 +249,7 @@ void PageBoxItem::transferToManualScale()
     scaleInterval_ = d;
     manualScale_ = scale();
     scaleLevel_ = 0;
+    minScale_ = sMin;
     sMin *= scaleInterval_;
     while (sMin < manualScale_) {
         sMin *= scaleInterval_;
@@ -290,6 +292,21 @@ void PageBoxItem::stepMiddleScale()
     QPointF off = transform_->offset();
     off.setY(boundingRect().top());
     transform_->translateTo(off);
+}
+
+void PageBoxItem::updateStepScale()
+{
+    manualScale_ = scale();
+    qreal s = minScale_;
+    int l = 0;
+    while (s < manualScale_) {
+        s *= scaleInterval_;
+        ++l;
+    }
+    if (l != scaleLevel_) {
+        scaleLevel_ = l;
+        buttonsChanged();
+    }
 }
 
 void PageBoxItem::rescale()
@@ -419,6 +436,7 @@ void PageBoxItem::onTransformChanged()
     qDebug() << "PageBoxItem onTransformChanged" << transform_->transform();
     QPointF center = mapFromScene(scene()->sceneRect()).boundingRect().center();
     document_->visiblePositionHint(this, center);
+    updateStepScale();
 }
 
 QSizeF PageBoxItem::calcSize(QSizeF const &pageSize2)
