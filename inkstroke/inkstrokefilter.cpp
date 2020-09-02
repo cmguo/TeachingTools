@@ -12,6 +12,7 @@
 #include <QGraphicsScene>
 #include <QElapsedTimer>
 #include <QTimer>
+#include <QApplication>
 
 InkStrokeFilter::InkStrokeFilter(QGraphicsItem *parentItem)
     : QGraphicsItem(parentItem)
@@ -26,55 +27,64 @@ bool InkStrokeFilter::sceneEventFilter(QGraphicsItem *watched, QEvent *event)
     if (watched != parentItem()) {
         // filtering WhiteCanvas
         if ((event->type() == QEvent::GraphicsSceneMousePress
-                && !event->isAccepted())
+             && !event->isAccepted())
                 || event->type() == QEvent::GraphicsSceneMouseDoubleClick) {
             QGraphicsSceneMouseEvent & me = static_cast<QGraphicsSceneMouseEvent&>(*event);
             checkTip(me.scenePos());
         }
         return false;
     }
-    if (event->type() == QEvent::GraphicsSceneMousePress
-            || event->type() == QEvent::GraphicsSceneMouseRelease) {
+
+    if(event->type() == QEvent::GraphicsSceneMousePress){
+        setData(1000, true);
+    }else if(event->type() == QEvent::GraphicsSceneMouseMove){
+        setData(1000, false);
+    }else if( event->type() == QEvent::GraphicsSceneMouseRelease && data(1000).toBool()) {
+
         QGraphicsSceneMouseEvent & me = static_cast<QGraphicsSceneMouseEvent&>(*event);
-        QList<QGraphicsItem*> items = scene()->items(me.scenePos());
-        items = items.mid(items.indexOf(watched) + 1);
         Qt::MouseEventSource source = me.source();
         me.setSource(Qt::MouseEventNotSynthesized);
         QPointF pos = me.pos();
         QPointF lastPos = me.lastPos();
         QWeakPointer<int> l = life_; // may switch page and destroyed
-        if (event->type() == QEvent::GraphicsSceneMousePress) {
-            for (QGraphicsItem * item : items) {
-                if (item == rootItem_)
-                    break;
-                // avoid leave point in another ink canvas
-                if (InkCanvas::fromItem(item))
-                    continue;
-                if(item->data(100000001).toInt()==1)
-                    continue;
-                me.setPos(item->mapFromScene(me.scenePos()));
-                me.setLastPos(item->mapFromScene(me.lastScenePos()));
-                me.accept();
-                sending_ = true;
-                scene()->sendEvent(item, event);
-                sending_ = false;
-                if (event->isAccepted()) {
-                    setData(1000, QVariant::fromValue(item));
-                    break;
-                }
+
+        QList<QGraphicsItem*> items = scene()->items(me.scenePos());
+        items = items.mid(items.indexOf(watched) + 1);
+        for (QGraphicsItem * item : items) {
+            if (item == rootItem_)
+                break;
+            // avoid leave point in another ink canvas
+            if (InkCanvas::fromItem(item))
+                continue;
+            if(item->data(100000001).toInt() == 1) //support filter press & release
+                continue;
+
+            me.setPos(item->mapFromScene(me.scenePos()));
+            me.setLastPos(item->mapFromScene(me.lastScenePos()));
+            me.accept();
+
+            QGraphicsSceneMouseEvent m(QEvent::GraphicsSceneMousePress);
+            m.setPos(me.pos());
+            m.setSource(me.source());
+            m.setModifiers(me.modifiers());
+            m.setFlags(me.flags());
+            m.setButtons(me.buttons());
+            m.setButton(me.button());
+            m.setLastPos(me.lastPos());
+            m.setScenePos(me.scenePos());
+            m.setScreenPos(me.screenPos());
+            m.accept();
+            sending_ = true;
+            scene()->sendEvent(item, &m);
+            sending_ = false;
+
+            if (m.isAccepted()) {
+                break;
             }
-        } else {
-            QGraphicsItem * item = data(1000).value<QGraphicsItem *>();
-            setData(1000, QVariant());
-            if (items.contains(item)) {
-                me.setPos(item->mapFromScene(me.scenePos()));
-                me.setLastPos(item->mapFromScene(me.lastScenePos()));
-                me.accept();
-                sending_ = true;
-                if(item->data(100000001).toInt()!=1)
-                scene()->sendEvent(item, event);
-                sending_ = false;
-            }
+
+            sending_ = true;
+            scene()->sendEvent(item, event);
+            sending_ = false;
         }
         if (l.isNull())
             return true;
@@ -82,6 +92,7 @@ bool InkStrokeFilter::sceneEventFilter(QGraphicsItem *watched, QEvent *event)
         me.setPos(pos);
         me.setLastPos(lastPos);
         event->ignore();
+
     }
     return false;
 }
