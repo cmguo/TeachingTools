@@ -1,4 +1,4 @@
-#include "pageboxcontrol.h"
+﻿#include "pageboxcontrol.h"
 #include "pageboxitem.h"
 #include "pagenumberwidget.h"
 #include "pageboxdocitem.h"
@@ -41,6 +41,12 @@ bool PageBoxControl::prev()
 {
     PageBoxItem * item = static_cast<PageBoxItem *>(item_);
     return item->document()->pageNumberWidget()->gotoPrev();
+}
+
+void PageBoxControl::switchPage(int index)
+{
+    PageBoxItem * item = static_cast<PageBoxItem *>(item_);
+    item->document()->goToPage(index);
 }
 
 QGraphicsItem* PageBoxControl::create(ResourceView *res)

@@ -1,4 +1,4 @@
-#ifndef PAGEBOXCONTROL_H
+﻿#ifndef PAGEBOXCONTROL_H
 #define PAGEBOXCONTROL_H
 
 #include "TeachingTools_global.h"
@@ -19,6 +19,8 @@ public slots:
     bool next();
 
     bool prev();
+
+    void switchPage(int);
 
 protected:
     virtual QGraphicsItem * create(ResourceView *res) override;
