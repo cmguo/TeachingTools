@@ -78,7 +78,7 @@ bool InkStrokeFilter::sceneEventFilter(QGraphicsItem *watched, QEvent *event)
             scene()->sendEvent(item, &m);
             sending_ = false;
 
-            if (m.isAccepted()) {
+            if (!m.isAccepted()) {
                 break;
             }
 
