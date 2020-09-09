@@ -19,6 +19,7 @@
 #include <QGraphicsProxyWidget>
 
 #include <cmath>
+#include <guidehelper.h>
 
 #define DUPLEX_FIX_SIZE 1
 
@@ -411,6 +412,9 @@ void PageBoxDocItem::backPage()
 
 void PageBoxDocItem::goToPage(int page)
 {
+    bool guided = GuideHelper::sendGuideEvent(GestureType::TurnPage);
+    if (guided) return;
+
     if (!model_ || page == curPage_)
         return;
     if (layoutMode_ == Duplex && page != 0 && page % 2 == 1) {

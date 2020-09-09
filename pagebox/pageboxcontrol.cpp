@@ -175,6 +175,11 @@ Control::SelectMode PageBoxControl::selectTest(QPointF const & point)
     }
 }
 
+void PageBoxControl::loadEnd(bool ok)
+{
+    Control::loadFinished(ok);
+}
+
 void PageBoxControl::loadData()
 {
     if (res_->url().isLocalFile()) {
@@ -253,7 +258,7 @@ void PageBoxControl::loadPages(PageBoxItem * item)
         //doc->setManualScale(
         //            item->rect().width() / item->document()->rect().width() / 1.3);
     }
-    loadFinished(true);
+    loadEnd(true);
     if (!res_->flags().testFlag(ResourceView::LargeCanvas))
         item->toolBar()->show();
     //*

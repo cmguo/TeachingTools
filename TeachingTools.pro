@@ -91,3 +91,17 @@ else:unix: LIBS += -L$$OUT_PWD/../EventsLog/ -lEventsLog
 
 INCLUDEPATH += $$PWD/../EventsLog
 DEPENDPATH += $$PWD/../EventsLog
+
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../UiBase/release/ -lUiBase
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../UiBase/debug/ -lUiBased
+else:unix: LIBS += -L$$OUT_PWD/../UiBase/ -lUiBase
+
+INCLUDEPATH += $$PWD/../UiBase
+DEPENDPATH += $$PWD/../UiBase
+
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../Assistant/Guide/ -lGuide
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../Assistant/Guide/ -lGuided
+else:unix: LIBS += -L$$OUT_PWD/../Assistant/Guide/ -lGuide
+
+INCLUDEPATH += $$PWD/../Assistant/Guide
+DEPENDPATH += $$PWD/../Assistant/Guide

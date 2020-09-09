@@ -17,6 +17,7 @@
 #include <QGraphicsProxyWidget>
 #include <QPen>
 #include <QDebug>
+#include <guidehelper.h>
 
 static constexpr char const * toolsStr =
         "scaleUp()||UnionUpdate|:/teachingtools/icon/zoom_in.svg,default;"
@@ -260,6 +261,9 @@ void PageBoxItem::transferToManualScale()
 
 void PageBoxItem::stepScale(bool up)
 {
+    bool guided = GuideHelper::sendGuideEvent(GestureType::Scale);
+    if (guided) return ;
+
     if (up) {
         if (scaleLevel_ < maxScaleLevel_) {
             ++scaleLevel_;

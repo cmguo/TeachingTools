@@ -19,6 +19,7 @@
 #include <QApplication>
 #include <QUrl>
 #include <QDebug>
+#include <guidehelper.h>
 
 static constexpr char const * toolstr =
         "nonStroke|选择|Checkable,NeedUpdate,OptionsGroup|:/teachingtools/icon/stroke.none.svg;"
@@ -316,6 +317,13 @@ bool InkStrokeTools::setOption(const QByteArray &key, QVariant value)
                 setMode(InkCanvasEditingMode::Select);
         }
     } else if (key == "eraser") {
+        if (mode_ == InkCanvasEditingMode::Ink) {
+            QWidget *widget = qobject_cast<QWidget*>(parent());
+            bool result = GuideHelper::instance()->checkGuide(widget, GestureType::Earser);
+            if (result) {
+                return ToolButtonProvider::setOption(key, value);
+            }
+        }
         if (!value.isValid()) {
             if (mode_ == InkCanvasEditingMode::EraseByPoint)
                 togglePopupMenu(getStringButton(2));

@@ -35,6 +35,8 @@ protected:
 
     virtual SelectMode selectTest(QPointF const & point) override;
 
+    virtual void loadEnd(bool ok);
+
 protected:
     virtual void loadData();
 
