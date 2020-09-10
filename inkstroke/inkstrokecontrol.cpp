@@ -147,7 +147,8 @@ QGraphicsItem * InkStrokeControl::create(ResourceView *res)
     if (!ink->acceptTouchEvents())
         flags_.setFlag(Touchable, false);
     ink->DefaultDrawingAttributes()->SetColor(Qt::white);
-    filterItem_ = new InkStrokeFilter(ink);
+    if (res_->flags().testFlag(ResourceView::Splittable))
+        filterItem_ = new InkStrokeFilter(ink);
     return ink;
 }
 

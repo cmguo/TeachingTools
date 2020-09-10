@@ -10,7 +10,10 @@
 #include <Windows/Ink/strokecollection.h>
 #include <Windows/Ink/stylusshape.h>
 #include <Windows/Input/stylusdevice.h>
+#include <Windows/Input/styluseventargs.h>
 #include <views/qsshelper.h>
+#include <views/whitecanvas.h>
+#include <views/itemselector.h>
 
 #include <QFile>
 #include <QDebug>
@@ -40,54 +43,25 @@ static constexpr char const * toolsStr =
 class PressureHelper : public QObject
 {
 public:
-    PressureHelper(InkCanvas* ink)
-        : QObject(ink)
-        , ink_(ink)
-    {
-        ink_->AddHandler(InkCanvas::StrokeCollectedEvent, RoutedEventHandlerT<
-                        PressureHelper, InkCanvasStrokeCollectedEventArgs, &PressureHelper::applyPressure>(this));
-        QObject::connect(ink_, &InkCanvas::StrokesReplaced,
-                         this, &PressureHelper::strokesReplaced);
-   }
-
-    ~PressureHelper()
-    {
-        // InkCanvas already destoryed
-        //ink_->RemoveHandler(InkCanvas::StrokeCollectedEvent, RoutedEventHandlerT<
-        //                PressureHelper, InkCanvasStrokeCollectedEventArgs, &PressureHelper::applyPressure>(this));
-    }
-
+    PressureHelper(InkCanvas* ink);
+    ~PressureHelper();
 private:
-    void strokesReplaced(InkCanvasStrokesReplacedEventArgs &e)
-    {
-        (void) e;
-        ink_->SetDefaultStylusPointDescription(Stylus::DefaultPointDescription());
-    }
-
-    void applyPressure(InkCanvasStrokeCollectedEventArgs &e)
-    {
-        QSharedPointer<Stroke> stroke = e.GetStroke();
-        QSharedPointer<StylusPointCollection> stylusPoints = stroke->StylusPoints()->Clone();
-        int n = 16;
-        if (stylusPoints->Count() > n) {
-            for (int i = 1; i < n; ++i) {
-                int m = stylusPoints->Count() + i - n;
-                StylusPoint point = (*stylusPoints)[m];
-                float d = static_cast<float>(i) / static_cast<float>(n);
-                point.SetPressureFactor(point.PressureFactor() * (1.0f - d * d));
-                stylusPoints->SetItem(m, point);
-            }
-            --n;
-        } else {
-            n = 0;
-        }
-        //QUuid guid("52053C24-CBDD-4547-AAA1-DEFEBF7FD1E1");
-        //stroke->AddPropertyData(guid, 2.0);
-        stroke->SetStylusPoints(stylusPoints);
-    }
-
+    void strokesReplaced(InkCanvasStrokesReplacedEventArgs &e);
+    void applyPressure(InkCanvasStrokeCollectedEventArgs &e);
 private:
     InkCanvas * ink_;
+};
+
+class StylusGuestureHelper : public QObject
+{
+public:
+    StylusGuestureHelper(InkCanvas *ink);
+private:
+    void handle(StylusEventArgs & args);
+private:
+    InkCanvas *ink_ = nullptr;
+    WhiteCanvas * canvas_ = nullptr;
+    bool installed_ = false;
 };
 
 InkCanvas *InkStrokeHelper::createInkCanvas(QColor color, qreal lineWidth, QSizeF eraserSize)
@@ -115,6 +89,7 @@ InkCanvas *InkStrokeHelper::createInkCanvas(QColor color, qreal lineWidth, QSize
     //shape->setParent(ink);
     ink->SetEraserShape(shape);
     new PressureHelper(ink); // attached to InkCanvas
+    new StylusGuestureHelper(ink);
     return ink;
 }
 
@@ -146,7 +121,8 @@ Control::SelectMode InkStrokeHelper::selectTest(InkCanvas *ink, const QPointF &p
             return Control::NotSelect;
         }
 #if MIX_SELECT
-    } else if (mixSelect && ink->EditingMode() == InkCanvasEditingMode::Ink) {
+    } else if (mixSelect && (ink->EditingMode() == InkCanvasEditingMode::Ink
+                             || ink->EditingMode() == InkCanvasEditingMode::EraseByPoint)) {
         return Control::PassSelect2;
 #endif
     } else {
@@ -219,7 +195,8 @@ class ClickThroughtHelper : public QObject
 {
 public:
     ClickThroughtHelper(InkCanvas *ink)
-        : ink_(ink)
+        : QObject(ink)
+        , ink_(ink)
     {
         filter_ = new InkStrokeFilter(ink);
         ink->AddHandler(InkCanvas::EditingModeChangedEvent, RoutedEventHandlerT<
@@ -297,4 +274,90 @@ QWidget *InkStrokeHelper::createEraserWidget(QssHelper const & qss)
         pSliter->setSliderPosition(0);
     });
     return widget;
+}
+
+PressureHelper::PressureHelper(InkCanvas *ink)
+    : QObject(ink)
+    , ink_(ink)
+{
+    ink_->AddHandler(InkCanvas::StrokeCollectedEvent, RoutedEventHandlerT<
+                     PressureHelper, InkCanvasStrokeCollectedEventArgs, &PressureHelper::applyPressure>(this));
+    QObject::connect(ink_, &InkCanvas::StrokesReplaced,
+                     this, &PressureHelper::strokesReplaced);
+}
+
+PressureHelper::~PressureHelper()
+{
+    // InkCanvas already destoryed
+    //ink_->RemoveHandler(InkCanvas::StrokeCollectedEvent, RoutedEventHandlerT<
+    //                PressureHelper, InkCanvasStrokeCollectedEventArgs, &PressureHelper::applyPressure>(this));
+}
+
+void PressureHelper::strokesReplaced(InkCanvasStrokesReplacedEventArgs &e)
+{
+    (void) e;
+    ink_->SetDefaultStylusPointDescription(Stylus::DefaultPointDescription());
+}
+
+void PressureHelper::applyPressure(InkCanvasStrokeCollectedEventArgs &e)
+{
+    QSharedPointer<Stroke> stroke = e.GetStroke();
+    QSharedPointer<StylusPointCollection> stylusPoints = stroke->StylusPoints()->Clone();
+    int n = 16;
+    if (stylusPoints->Count() > n) {
+        for (int i = 1; i < n; ++i) {
+            int m = stylusPoints->Count() + i - n;
+            StylusPoint point = (*stylusPoints)[m];
+            float d = static_cast<float>(i) / static_cast<float>(n);
+            point.SetPressureFactor(point.PressureFactor() * (1.0f - d * d));
+            stylusPoints->SetItem(m, point);
+        }
+        --n;
+    } else {
+        n = 0;
+    }
+    //QUuid guid("52053C24-CBDD-4547-AAA1-DEFEBF7FD1E1");
+    //stroke->AddPropertyData(guid, 2.0);
+    stroke->SetStylusPoints(stylusPoints);
+}
+
+StylusGuestureHelper::StylusGuestureHelper(InkCanvas *ink)
+    : QObject(ink)
+    , ink_(ink)
+{
+    ink->AddHandler(Stylus::StylusDownEvent, RoutedEventHandlerT<
+                    StylusGuestureHelper, StylusEventArgs, &StylusGuestureHelper::handle>(this));
+    ink->AddHandler(Stylus::StylusMoveEvent, RoutedEventHandlerT<
+                    StylusGuestureHelper, StylusEventArgs, &StylusGuestureHelper::handle>(this));
+    ink->AddHandler(Stylus::StylusUpEvent, RoutedEventHandlerT<
+                    StylusGuestureHelper, StylusEventArgs, &StylusGuestureHelper::handle>(this));
+}
+
+void StylusGuestureHelper::handle(StylusEventArgs &args)
+{
+    if (!canvas_)
+        canvas_ = static_cast<WhiteCanvas*>(ink_->parentItem()->parentItem());
+    StylusDevice * device = qobject_cast<StylusDevice*>(args.Device());
+    auto & groups = device->StylusGroups();
+    bool inkMode = ink_->EditingMode() == InkCanvasEditingMode::Ink;
+    if (&args.GetRoutedEvent() != &Stylus::StylusUpEvent
+            && groups.size() == 1 && (inkMode
+                                      ? groups.first().pointIds.size() == 2
+                                      : groups.first().pointIds.size() >= 2)) {
+        if (!installed_) {
+            ink_->installSceneEventFilter(canvas_->selector());
+            QTouchEvent & o = *args.event();
+            QTouchEvent e(QEvent::TouchBegin, device->device(), o.modifiers(), o.touchPointStates(), o.touchPoints());
+            canvas_->selector()->sceneEventFilter(ink_, &e);
+            installed_ = true;
+        }
+    } else {
+        if (installed_) {
+            ink_->removeSceneEventFilter(canvas_->selector());
+            QTouchEvent & o = *args.event();
+            QTouchEvent e(QEvent::TouchEnd, device->device(), o.modifiers(), o.touchPointStates(), o.touchPoints());
+            canvas_->selector()->sceneEventFilter(ink_, &e);
+            installed_ = false;
+        }
+    }
 }
