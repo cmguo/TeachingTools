@@ -35,6 +35,8 @@ public:
 
     static void enableClickThrought(InkCanvas * canvas);
 
+    static void enableStylusGusture(InkCanvas * canvas);
+
 public:
     static QWidget * createEraserWidget(QssHelper const & qss);
 };

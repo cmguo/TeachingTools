@@ -147,8 +147,10 @@ QGraphicsItem * InkStrokeControl::create(ResourceView *res)
     if (!ink->acceptTouchEvents())
         flags_.setFlag(Touchable, false);
     ink->DefaultDrawingAttributes()->SetColor(Qt::white);
-    if (res_->flags().testFlag(ResourceView::Splittable))
+    if (res_->flags().testFlag(ResourceView::Splittable)) {
         filterItem_ = new InkStrokeFilter(ink);
+        InkStrokeHelper::enableStylusGusture(ink);
+    }
     return ink;
 }
 

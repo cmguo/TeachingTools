@@ -25,6 +25,7 @@
 #include <QApplication>
 #include <QScreen>
 #include <QTimer>
+#include <QElapsedTimer>
 
 #ifndef QT_DEBUG
 #define STROKE_SELECT 0
@@ -52,18 +53,6 @@ private:
     InkCanvas * ink_;
 };
 
-class StylusGuestureHelper : public QObject
-{
-public:
-    StylusGuestureHelper(InkCanvas *ink);
-private:
-    void handle(StylusEventArgs & args);
-private:
-    InkCanvas *ink_ = nullptr;
-    WhiteCanvas * canvas_ = nullptr;
-    bool installed_ = false;
-};
-
 InkCanvas *InkStrokeHelper::createInkCanvas(QColor color, qreal lineWidth, QSizeF eraserSize)
 {
     InkCanvas * ink = new InkCanvas;
@@ -89,7 +78,6 @@ InkCanvas *InkStrokeHelper::createInkCanvas(QColor color, qreal lineWidth, QSize
     //shape->setParent(ink);
     ink->SetEraserShape(shape);
     new PressureHelper(ink); // attached to InkCanvas
-    new StylusGuestureHelper(ink);
     return ink;
 }
 
@@ -194,31 +182,9 @@ void InkStrokeHelper::getToolButtons(InkCanvas* ink, QList<ToolButton *> &button
 class ClickThroughtHelper : public QObject
 {
 public:
-    ClickThroughtHelper(InkCanvas *ink)
-        : QObject(ink)
-        , ink_(ink)
-    {
-        filter_ = new InkStrokeFilter(ink);
-        ink->AddHandler(InkCanvas::EditingModeChangedEvent, RoutedEventHandlerT<
-                        ClickThroughtHelper, RoutedEventArgs, &ClickThroughtHelper::handle>(this));
-    }
+    ClickThroughtHelper(InkCanvas *ink);
 private:
-    void handle(RoutedEventArgs &)
-    {
-        if (ink_->EditingMode() == InkCanvasEditingMode::Ink) {
-            // focus defeats click pass throught
-            ink_->setFlag(QGraphicsItem::ItemIsFocusable, false);
-            ink_->installSceneEventFilter(filter_);
-        } else if (filter_->sendingEvent()) {
-            ink_->setFlag(QGraphicsItem::ItemIsFocusable, true);
-            QTimer::singleShot(0, this, [this]() {
-                ink_->removeSceneEventFilter(filter_);
-            });
-        } else {
-            ink_->setFlag(QGraphicsItem::ItemIsFocusable, true);
-            ink_->removeSceneEventFilter(filter_);
-        }
-    }
+    void handle(RoutedEventArgs &);
 private:
     InkCanvas *ink_;
     InkStrokeFilter * filter_;
@@ -227,6 +193,25 @@ private:
 void InkStrokeHelper::enableClickThrought(InkCanvas *ink)
 {
     new ClickThroughtHelper(ink);
+}
+
+class StylusGuestureHelper : public QObject
+{
+public:
+    StylusGuestureHelper(InkCanvas *ink);
+private:
+    void handle(StylusEventArgs & args);
+private:
+    InkCanvas *ink_ = nullptr;
+    WhiteCanvas * canvas_ = nullptr;
+    bool installed_ = false;
+    QElapsedTimer timer_;
+    bool failed_ = false;
+};
+
+void InkStrokeHelper::enableStylusGusture(InkCanvas *canvas)
+{
+    new StylusGuestureHelper(canvas);
 }
 
 QWidget *InkStrokeHelper::createEraserWidget(QssHelper const & qss)
@@ -340,7 +325,12 @@ void StylusGuestureHelper::handle(StylusEventArgs &args)
     StylusDevice * device = qobject_cast<StylusDevice*>(args.Device());
     auto & groups = device->StylusGroups();
     bool inkMode = ink_->EditingMode() == InkCanvasEditingMode::Ink;
+    if (&args.GetRoutedEvent() == &Stylus::StylusDownEvent) {
+        timer_.restart();
+        failed_ = false;
+    }
     if (&args.GetRoutedEvent() != &Stylus::StylusUpEvent
+            && !failed_ && (installed_ || timer_.elapsed() < 100)
             && groups.size() == 1 && (inkMode
                                       ? groups.first().pointIds.size() == 2
                                       : groups.first().pointIds.size() >= 2)) {
@@ -351,6 +341,9 @@ void StylusGuestureHelper::handle(StylusEventArgs &args)
             canvas_->selector()->sceneEventFilter(ink_, &e);
             installed_ = true;
         }
+    } else if (!failed_ && (groups.size() > 1
+               || (groups.size() == 1 && groups.first().pointIds.size() > 2))) {
+        failed_ = true;
     } else {
         if (installed_) {
             ink_->removeSceneEventFilter(canvas_->selector());
@@ -359,5 +352,31 @@ void StylusGuestureHelper::handle(StylusEventArgs &args)
             canvas_->selector()->sceneEventFilter(ink_, &e);
             installed_ = false;
         }
+    }
+}
+
+ClickThroughtHelper::ClickThroughtHelper(InkCanvas *ink)
+    : QObject(ink)
+    , ink_(ink)
+{
+    filter_ = new InkStrokeFilter(ink);
+    ink->AddHandler(InkCanvas::EditingModeChangedEvent, RoutedEventHandlerT<
+                    ClickThroughtHelper, RoutedEventArgs, &ClickThroughtHelper::handle>(this));
+}
+
+void ClickThroughtHelper::handle(RoutedEventArgs &)
+{
+    if (ink_->EditingMode() == InkCanvasEditingMode::Ink) {
+        // focus defeats click pass throught
+        ink_->setFlag(QGraphicsItem::ItemIsFocusable, false);
+        ink_->installSceneEventFilter(filter_);
+    } else if (filter_->sendingEvent()) {
+        ink_->setFlag(QGraphicsItem::ItemIsFocusable, true);
+        QTimer::singleShot(0, this, [this]() {
+            ink_->removeSceneEventFilter(filter_);
+        });
+    } else {
+        ink_->setFlag(QGraphicsItem::ItemIsFocusable, true);
+        ink_->removeSceneEventFilter(filter_);
     }
 }
