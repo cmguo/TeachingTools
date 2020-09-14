@@ -209,9 +209,9 @@ void PageBoxItem::scaleDown()
     stepScale(false);
 }
 
-qreal PageBoxItem::scale() const
+qreal PageBoxItem::zoom() const
 {
-    return transform_->scale().m11();
+    return transform_->zoom();
 }
 
 void PageBoxItem::setScaleMode(ScaleMode mode)
@@ -247,7 +247,7 @@ void PageBoxItem::transferToManualScale()
         d = sqrt(d);
     }
     scaleInterval_ = d;
-    manualScale_ = scale();
+    manualScale_ = zoom();
     scaleLevel_ = 0;
     minScale_ = sMin;
     sMin *= scaleInterval_;
@@ -263,12 +263,12 @@ void PageBoxItem::stepScale(bool up)
     if (up) {
         if (scaleLevel_ < maxScaleLevel_) {
             ++scaleLevel_;
-            setManualScale(scale() * scaleInterval_);
+            setManualScale(zoom() * scaleInterval_);
         }
     } else {
         if (scaleLevel_ > 0) {
             --scaleLevel_;
-            setManualScale(scale() / scaleInterval_);
+            setManualScale(zoom() / scaleInterval_);
         }
     }
 }
@@ -283,7 +283,7 @@ bool PageBoxItem::canStepScale(bool up)
 
 void PageBoxItem::stepMiddleScale()
 {
-    qreal s = scale();
+    qreal s = zoom();
     for (; scaleLevel_ < maxScaleLevel_ / 2; ++scaleLevel_)
         s *= scaleInterval_;
     for (; scaleLevel_ > maxScaleLevel_ / 2; --scaleLevel_)
@@ -296,7 +296,7 @@ void PageBoxItem::stepMiddleScale()
 
 void PageBoxItem::updateStepScale()
 {
-    manualScale_ = scale();
+    manualScale_ = zoom();
     qreal s = minScale_;
     int l = 0;
     while (s < manualScale_) {
@@ -423,11 +423,11 @@ void PageBoxItem::setDocumentPosition(const QPointF &pos)
     if (p.x() < 0)
         p.setX(transform_->translate().dx());
     else
-        p.setX(tl.x() - p.x() * scale());
+        p.setX(tl.x() - p.x() * zoom());
     if (p.y() < 0)
         p.setY(transform_->translate().dy());
     else
-        p.setY(tl.y() - p.y() * scale());
+        p.setY(tl.y() - p.y() * zoom());
     transform_->translateTo(p);
 }
 
@@ -446,7 +446,7 @@ QSizeF PageBoxItem::calcSize(QSizeF const &pageSize2)
     if (sizeMode_ == LargeCanvas) {
         rescale();
         transferToManualScale();
-        docSize *= scale();
+        docSize *= zoom();
         QRectF docRect{{0, 0}, docSize};
         docRect.moveCenter(rect.center());
         docSize = rect.united(docRect).size();

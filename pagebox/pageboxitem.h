@@ -67,9 +67,9 @@ public:
 
     void setScaleMode(ScaleMode mode);
 
-    qreal scale() const;
+    qreal zoom() const;
 
-    void setManualScale(qreal scale, bool changeMode = true);
+    void setManualScale(qreal zoom, bool changeMode = true);
 
     void transferToManualScale();
 
