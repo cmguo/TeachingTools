@@ -1,4 +1,4 @@
-#ifndef PAGENOWIDGET_H
+﻿#ifndef PAGENOWIDGET_H
 #define PAGENOWIDGET_H
 
 #include <QWidget>
@@ -27,6 +27,9 @@ public:
     bool gotoPrev();
 
     bool gotoNext();
+
+    bool isFirstPage();
+    bool isLastPage();
 
     ToolButton* toolButton();
 
