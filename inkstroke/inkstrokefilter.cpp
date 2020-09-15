@@ -1,4 +1,4 @@
-﻿#include "inkstrokecontrol.h"
+#include "inkstrokecontrol.h"
 #include "inkstrokefilter.h"
 
 #include <views/qsshelper.h>
@@ -30,7 +30,7 @@ bool InkStrokeFilter::sceneEventFilter(QGraphicsItem *watched, QEvent *event)
              && !event->isAccepted())
                 || event->type() == QEvent::GraphicsSceneMouseDoubleClick) {
             QGraphicsSceneMouseEvent & me = static_cast<QGraphicsSceneMouseEvent&>(*event);
-            checkTip(me.scenePos());
+            checkTip(me.scenePos(), event->type() == QEvent::GraphicsSceneMouseDoubleClick);
         }
         return false;
     }
@@ -133,9 +133,9 @@ public:
 //        layout->addWidget(button);
         setWidget(widget);
     }
-    void check(QPointF const & pos, QGraphicsItem * inkCanvas)
+    void check(QPointF const & pos, bool dblClick, QGraphicsItem * inkCanvas)
     {
-        if (!timer_.isValid() || timer_.elapsed() > 1000) {
+        if (!dblClick && (!timer_.isValid() || timer_.elapsed() > 1000)) {
             timer_.restart();
             return;
         }
@@ -176,7 +176,7 @@ InkStrokeFilter::~InkStrokeFilter()
         tipItem->cancel();
 }
 
-void InkStrokeFilter::checkTip(const QPointF &pos)
+void InkStrokeFilter::checkTip(const QPointF &pos, bool dblClick)
 {
     if (tipItem == nullptr) {
         tipItem = new TipItem();
@@ -185,7 +185,7 @@ void InkStrokeFilter::checkTip(const QPointF &pos)
         scene()->addItem(tipItem);
         tipItem->hide();
     }
-    tipItem->check(pos, parentItem());
+    tipItem->check(pos, dblClick, parentItem());
 }
 
 void InkStrokeFilter::paint(QPainter *, const QStyleOptionGraphicsItem *, QWidget *)

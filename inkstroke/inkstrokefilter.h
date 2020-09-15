@@ -23,7 +23,7 @@ public:
     QVariant itemChange(GraphicsItemChange change, const QVariant &value) override;
 
 private:
-    void checkTip(QPointF const & pos);
+    void checkTip(QPointF const & pos, bool dblClick);
 
 private:
     QSharedPointer<int> life_;
