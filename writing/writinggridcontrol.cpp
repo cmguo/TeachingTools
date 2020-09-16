@@ -15,6 +15,7 @@
 #include <QUrl>
 #include <Windows/Controls/inkcanvas.h>
 #include <QGuiApplication>
+#include <QMimeData>
 #include <QScreen>
 
 WritingGridControl::WritingGridControl(ResourceView * res)
@@ -73,6 +74,12 @@ void WritingGridControl::afterClone(Control * control)
     QSharedPointer<StrokeCollection> strokes(new StrokeCollection);
     qobject_cast<WritingGridControl*>(control)->item_
             ->toGraphicsObject()->setProperty("strokes", QVariant::fromValue(strokes));
+}
+
+void WritingGridControl::copy(QMimeData &data)
+{
+    Control::copy(data);
+    data.findChild<ResourceView*>()->setProperty("strokes", QVariant());
 }
 
 void WritingGridControl::changeGridType()
