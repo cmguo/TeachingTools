@@ -163,7 +163,7 @@ private slots:
                        QModelIndex const &destination, int row);
 
 private:
-    void setDefaultImage(PageBoxPageItem* pageItem1, PageBoxPageItem* pageItem2 = nullptr);
+    void setPageImage(PageBoxPageItem* pageItem, int index = -1, bool second = false);
 
 private:
     QAbstractItemModel * model_;

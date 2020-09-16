@@ -5,6 +5,8 @@
 #include "pagenumberwidget.h"
 #include "qpropertybinding.h"
 
+#include <guidehelper.h>
+
 #include <data/resourcecache.h>
 #include <core/toolbutton.h>
 
@@ -17,9 +19,6 @@
 #include <QGraphicsScene>
 #include <QGraphicsItem>
 #include <QGraphicsProxyWidget>
-
-#include <cmath>
-#include <guidehelper.h>
 
 #define DUPLEX_FIX_SIZE 1
 
@@ -188,9 +187,7 @@ void PageBoxDocItem::resetCurrent()
 {
     if (layoutMode_ == Single && curPage_ >= 0) {
         PageBoxPageItem * pageItem = static_cast<PageBoxPageItem *>(pageCanvas_->childItems().front());
-        itemBindings_->unbind(QVariant::fromValue(pageItem));
-        pageItem->setImage(QUrl());
-        setDefaultImage(pageItem);
+        setPageImage(pageItem);
         int lastPage = curPage_;
         curPage_ = -1;
         onCurrentPageChanged(lastPage, curPage_);
@@ -207,7 +204,7 @@ void PageBoxDocItem::clear()
     for(QGraphicsItem * item : pageCanvas_->childItems()) {
         if (scene())
             scene()->removeItem(item);
-        itemBindings_->unbind(QVariant::fromValue(item));
+        setPageImage(static_cast<PageBoxPageItem*>(item));
         delete item;
     }
 }
@@ -235,11 +232,8 @@ void PageBoxDocItem::relayout()
         pageSize2_.setWidth(pageSize_.width() + padding_ * 2);
     }
     if (layoutMode_ == Single || layoutMode_ == DuplexSingle) {
-        QVariant item0 = model_->data(model_->index(curPage_, 0), Qt::UserRole + 1);
         PageBoxPageItem * pageItem = new PageBoxPageItem(pageCanvas_);
-        setDefaultImage(pageItem);
-        //pageItem->stackBefore(selBox_);
-        itemBindings_->bind(QVariant::fromValue(pageItem), item0);
+        setPageImage(pageItem, curPage_);
         pageItem->setPos(pos);
         pos += off;
         // special case, transform attach prevent us to place single page at center
@@ -252,18 +246,15 @@ void PageBoxDocItem::relayout()
             ++curPage_;
         PageBoxPageItem * pageItem1 = new PageBoxPageItem(pageCanvas_);
         PageBoxPageItem * pageItem2 = new PageBoxPageItem(pageCanvas_);
-        setDefaultImage(pageItem1, pageItem2);
         pageItem1->setPos(pos);
         pos += off;
         pageItem2->setPos(pos);
-        QVariant item1 = model_->data(model_->index((curPage_ == 0 || (curPage_ & 1)) ? curPage_ : curPage_ - 1, 0), Qt::UserRole + 1);
-        itemBindings_->bind(QVariant::fromValue(pageItem1), item1);
+        setPageImage(pageItem1, (curPage_ == 0 || (curPage_ & 1)) ? curPage_ : curPage_ - 1);
         if (curPage_) {
             pos += off;
             pageSize2_ += QSizeF(off.x(), off.y());
             if ((curPage_ & 1) == 0) {
-                QVariant item2 = model_->data(model_->index(curPage_, 0), Qt::UserRole + 1);
-                itemBindings_->bind(QVariant::fromValue(pageItem2), item2);
+                setPageImage(pageItem2, curPage_, true);
             }
         } else {
 #if DUPLEX_FIX_SIZE
@@ -275,11 +266,8 @@ void PageBoxDocItem::relayout()
         }
     } else {
         for (int i = 0; i < model_->rowCount(); ++i) {
-            QVariant item = model_->data(model_->index(i, 0), Qt::UserRole + 1);
             PageBoxPageItem * pageItem = new PageBoxPageItem(pageCanvas_);
-            setDefaultImage(pageItem);
-            //pageItem->stackBefore(selBox_);
-            itemBindings_->bind(QVariant::fromValue(pageItem), item);
+            setPageImage(pageItem, i);
             pageItem->setPos(pos);
             pos += off;
         }
@@ -429,22 +417,18 @@ void PageBoxDocItem::goToPage(int page)
     int lastPage = curPage_;
     curPage_ = page;
     if (layoutMode_ == Single || layoutMode_ == DuplexSingle) {
-        QVariant item = model_->data(model_->index(page, 0), Qt::UserRole + 1);
         PageBoxPageItem * pageItem = static_cast<PageBoxPageItem *>(pageCanvas_->childItems().front());
-        setDefaultImage(pageItem);
-        itemBindings_->bind(QVariant::fromValue(pageItem), item);
+        setPageImage(pageItem, page);
     } else if (layoutMode_ == Duplex) {
-        QVariant item1 = model_->data(model_->index((curPage_ == 0 || (curPage_ & 1)) ? curPage_ : curPage_ - 1, 0), Qt::UserRole + 1);
         PageBoxPageItem * pageItem1 = static_cast<PageBoxPageItem *>(pageCanvas_->childItems()[0]);
         PageBoxPageItem * pageItem2 = static_cast<PageBoxPageItem *>(pageCanvas_->childItems()[1]);
-        setDefaultImage(pageItem1, pageItem2);
         QSizeF off;
         if (direction_ == Vertical) {
             off.setHeight(pageSize_.height() + padding_);
         } else {
             off.setWidth(pageSize_.width() + padding_);
         }
-        itemBindings_->bind(QVariant::fromValue(pageItem1), item1);
+        setPageImage(pageItem1, (page == 0 || (page & 1)) ? page : page - 1);
 #if !DUPLEX_FIX_SIZE
         QSizeF& size = pageSize2_;
 #endif
@@ -464,12 +448,12 @@ void PageBoxDocItem::goToPage(int page)
 #endif
             pageItem2->setVisible(true);
             if ((curPage_ & 1) == 0) {
-                QVariant item2 = model_->data(model_->index(curPage_, 0), Qt::UserRole + 1);
-                itemBindings_->bind(QVariant::fromValue(pageItem2), item2);
+                setPageImage(pageItem2, curPage_, true);
             }
         }
 #if !DUPLEX_FIX_SIZE
         setRect(QRectF(QPointF(0, 0), size));
+        pageSize_ = size;
         onSizeChanged(pageSize2_);
         rescale();
 #endif
@@ -557,10 +541,15 @@ void PageBoxDocItem::resourceMoved(QModelIndex const &parent, int start, int end
     (void) row;
 }
 
-void PageBoxDocItem::setDefaultImage(PageBoxPageItem *pageItem1, PageBoxPageItem *pageItem2)
+void PageBoxDocItem::setPageImage(PageBoxPageItem *pageItem, int index, bool second)
 {
-    pageItem1->setPixmap(defaultImage(0));
-    if (pageItem2)
-        pageItem2->setPixmap(defaultImage(1));
+    if (pageItem->parentItem())
+        pageItem->setPixmap(defaultImage(second ? 1 : 0));
+    if (index >= 0) {
+        QVariant item1 = model_->data(model_->index(index, 0), Qt::UserRole + 1);
+        itemBindings_->bind(QVariant::fromValue(pageItem), item1);
+    } else {
+        itemBindings_->unbind(QVariant::fromValue(pageItem));
+        pageItem->setImage(QUrl());
+    }
 }
-
