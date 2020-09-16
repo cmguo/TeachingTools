@@ -53,6 +53,7 @@ static InkStrokeTools * inst = nullptr;
 
 InkStrokeTools::InkStrokeTools(QObject* parent, WhiteCanvas *whiteCanvas)
     : ToolButtonProvider(parent)
+    , lastPage_(nullptr)
     , inkControl_(nullptr)
     #if INKSTORKE_DRAWING_SETTING
     , drawTool_(nullptr)
@@ -118,6 +119,7 @@ void InkStrokeTools::switchPage(ResourcePage *page)
         inkColor_ = &colorNormal_;
         if (outerControl_ == nullptr)
             activeColor_ = inkColor_;
+        lastPage_ = nullptr;
         return;
     }
     InkStrokeControl * control = qobject_cast<InkStrokeControl*>(canvas_->topControl());
@@ -134,7 +136,7 @@ void InkStrokeTools::switchPage(ResourcePage *page)
         page = qobject_cast<ResourcePage*>(page->parent());
     if (page->isIndependentPage()) {
         inkColor_ = &colorShow_;
-        if (!outerControl_) {
+        if (!outerControl_ && page != lastPage_) {
             QVariant editingMode = page->mainResource()->property("editingMode");
             if (editingMode.isValid()) {
                 if (editingMode.toInt() < 0) {
@@ -145,6 +147,7 @@ void InkStrokeTools::switchPage(ResourcePage *page)
             }
         }
     }
+    lastPage_ = page;
     setDisabled(disabled);
     if (outerControl_ == nullptr) {
         activeColor_ = inkColor_;

@@ -93,6 +93,7 @@ private:
 private:
     friend class SyncInkControl;
     WhiteCanvas * canvas_;
+    ResourcePage * lastPage_;
     InkStrokeControl * inkControl_;
 #if INKSTORKE_DRAWING_SETTING
     QObject * drawTool_;
