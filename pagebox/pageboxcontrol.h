@@ -37,6 +37,8 @@ protected:
 
     virtual void loadEnd(bool ok);
 
+    virtual bool event(QEvent *event) override;
+
 protected:
     virtual void loadData();
 

@@ -13,6 +13,7 @@ class PageBoxPlugin;
 class PageBoxPageItem;
 class PageNumberWidget;
 class ResourceCache;
+class PageAnimCanvas;
 
 class TEACHINGTOOLS_EXPORT PageBoxDocItem : public ToolButtonProvider, public QGraphicsRectItem
 {
@@ -106,7 +107,7 @@ public slots:
 
     void backPage();
 
-    void goToPage(int page);
+    void goToPage(int page, bool anim = false);
 
 public:
     bool hit(QPointF const & point);
@@ -129,12 +130,16 @@ signals:
     //  if x < 0, x is not changed, y same
     void requestPosition(QPointF const & pos);
 
+    void requestItemPosition(QPointF const & pos);
+
 protected:
     virtual void getToolButtons(QList<ToolButton *> &buttons, const QList<ToolButton *> &parents = {}) override;
 
     virtual bool handleToolButton(QList<ToolButton *> const & buttons) override;
 
     virtual void getToolButtons(QList<ToolButton *> &buttons, ToolButton *parent) override;
+
+    bool event(QEvent *event) override;
 
 protected:
     friend class PageBoxItem;
@@ -163,9 +168,17 @@ private slots:
                        QModelIndex const &destination, int row);
 
 private:
+    friend class PageAnimCanvas;
+
+    int adjustPageIndex(int page);
+
     QRectF layoutPage(QGraphicsItem * canvas, int page);
 
     void setPageImage(PageBoxPageItem* pageItem, int index = -1, bool second = false);
+
+    bool createAnimCanvas(int page, bool afterPageSwitch);
+
+    void destroyAnimCanvas(PageAnimCanvas * anim, bool finish);
 
 private:
     QAbstractItemModel * model_;
@@ -186,6 +199,7 @@ private:
 
 private:
     QPropertyBindings * itemBindings_;
+    PageAnimCanvas * animCanvas_ = nullptr;
 };
 
 #endif // PAGEBOXDOCITEM_H

@@ -1,5 +1,6 @@
 HEADERS += \
     $$PWD/inkpadplugin.h \
+    $$PWD/pageanimcanvas.h \
     $$PWD/pageboxcontrol.h \
     $$PWD/pageboxdocitem.h \
     $$PWD/pageboxitem.h \
@@ -12,6 +13,7 @@ HEADERS += \
 
 SOURCES += \
     $$PWD/inkpadplugin.cpp \
+    $$PWD/pageanimcanvas.cpp \
     $$PWD/pageboxcontrol.cpp \
     $$PWD/pageboxdocitem.cpp \
     $$PWD/pageboxitem.cpp \

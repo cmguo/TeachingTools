@@ -4,11 +4,13 @@
 #include "qpropertybindings.h"
 #include "pagenumberwidget.h"
 #include "qpropertybinding.h"
+#include "pageanimcanvas.h"
 
 #include <guidehelper.h>
 
 #include <data/resourcecache.h>
 #include <core/toolbutton.h>
+#include <views/pageswitchevent.h>
 
 #include <Windows/Controls/inkcanvas.h>
 #include <Windows/Controls/inkevents.h>
@@ -38,7 +40,9 @@ PageBoxDocItem::PageBoxDocItem(QGraphicsItem * parent)
 
     pageNumber_ = new PageNumberWidget();
     QObject::connect(pageNumber_, &PageNumberWidget::pageNumberChanged,
-                     this, &PageBoxDocItem::goToPage);
+                     this,[=](int page){
+        goToPage(page, true);
+    });
 }
 
 PageBoxDocItem::~PageBoxDocItem()
@@ -231,7 +235,7 @@ void PageBoxDocItem::relayout()
     // Initial position; TODO:
     if (oldPage < -1) {
         QPointF pos = -borderSize_.topLeft();
-        pos.setX(-1); // not changed x pos
+        pos.setX(-100000001.0); // not changed x pos
         emit requestPosition(pos);
     }
     for (PageBoxPlugin * plugin : plugins_) {
@@ -346,45 +350,57 @@ void PageBoxDocItem::backPage()
     goToPage(model_->rowCount() - 1);
 }
 
-void PageBoxDocItem::goToPage(int page)
+int PageBoxDocItem::adjustPageIndex(int page)
 {
-    bool guided = GuideHelper::sendGuideEvent(GestureType::TurnPage);
-    if (guided) return;
-
-    if (!model_ || page == curPage_)
-        return;
     if (layoutMode_ == Duplex && page != 0 && page % 2 == 1) {
         page = (page == curPage_ - 1) ? page - 1 : page + 1;
         if (page == model_->rowCount())
             --page;
     }
-    if (page < 0 || page >= model_->rowCount() || page == curPage_) { // after adjust
+    if (page < 0 || page >= model_->rowCount() || page == curPage_)
+        page = -1;
+    return page;
+}
+
+void PageBoxDocItem::goToPage(int page, bool anim)
+{
+    bool guided = GuideHelper::sendGuideEvent(GestureType::TurnPage);
+    if (guided) return;
+    if (!model_ || page == curPage_)
+        return;
+    page = adjustPageIndex(page);
+    if (page < 0) {
         onCurrentPageChanged(curPage_, curPage_);
         return;
     }
-    int lastPage = curPage_;
-    curPage_ = page;
     if (layoutMode_ == Continuous) {
-        QPointF off(-1, -1);
+        QPointF off(-100000001.0, -100000001.0);
         if (direction_ == Vertical)
-            off.setY((pageSize_.height() + padding_) * curPage_);
+            off.setY((pageSize_.height() + padding_) * page);
         else
-            off.setX((pageSize_.width() + padding_) * curPage_);
+            off.setX((pageSize_.width() + padding_) * page);
         emit requestPosition(off);
     } else {
-        clear();
-        QRectF rect = layoutPage(pageCanvas_, curPage_);
+        if (anim) {
+            createAnimCanvas(page, true);
+            animCanvas_->startAnimate();
+        } else {
+            clear();
+            QRectF rect = layoutPage(pageCanvas_, page);
 #if DUPLEX_FIX_SIZE
-        (void) rect;
+            (void) rect;
 #else
-        if (pageSize2_ != rect.size()) {
-            setRect(QRectF(QPointF(0, 0), rect.topLeft()));
-            pageSize2_ = size;
-            onSizeChanged(pageSize2_);
-            rescale();
-        }
+            if (pageSize2_ != rect.size()) {
+                setRect(QRectF(QPointF(0, 0), rect.topLeft()));
+                pageSize2_ = size;
+                onSizeChanged(pageSize2_);
+                rescale();
+            }
 #endif
+        }
     }
+    int lastPage = curPage_;
+    curPage_ = page;
     onCurrentPageChanged(lastPage, curPage_);
 }
 
@@ -484,6 +500,7 @@ QRectF PageBoxDocItem::layoutPage(QGraphicsItem *canvas, int page)
         if (layoutMode_ == DuplexSingle) {
             pageItem->setPos(pos - off / 2);
             pos += off;
+            pageSize2 += QSizeF(off.x(), off.y());
         }
     } else if (layoutMode_ == Duplex) {
         PageBoxPageItem * pageItem1 = new PageBoxPageItem(canvas);
@@ -532,3 +549,83 @@ void PageBoxDocItem::setPageImage(PageBoxPageItem *pageItem, int index, bool sec
         pageItem->setImage(QUrl());
     }
 }
+
+bool PageBoxDocItem::createAnimCanvas(int page, bool afterPageSwitch)
+{
+    if (animCanvas_) {
+        if (!afterPageSwitch && (animCanvas_->afterPageSwitch()
+                || animCanvas_->inAnimate()))
+            return false;
+        animCanvas_->stopAnimate(); // will clear animCanvas_
+    }
+    animCanvas_ = new PageAnimCanvas(this);
+    animCanvas_->setPen(QPen(Qt::NoPen));
+    animCanvas_->setAfterPageSwitch(afterPageSwitch);
+    animCanvas_->setDirection(page > curPage_
+                              ? PageAnimCanvas::RightToLeft
+                              : PageAnimCanvas::LeftToRight);
+    layoutPage(animCanvas_, page);
+    if (!afterPageSwitch)
+        animCanvas_->setData(1000, page);
+    QRectF vrect = mapFromScene(scene()->sceneRect()).boundingRect();
+    if (page > curPage_)
+        animCanvas_->setY(vrect.top() + borderSize_.top());
+    else
+        animCanvas_->setY(vrect.bottom() + borderSize_.top() - pageSize2_.height());
+    qDebug() << "PageBoxDocItem::createAnimCanvas" << animCanvas_->pos();
+    return true;
+}
+
+void PageBoxDocItem::destroyAnimCanvas(PageAnimCanvas * anim, bool finish)
+{
+    assert(animCanvas_ == anim);
+    if (finish && animCanvas_->switchPage()) {
+        QRectF vrect = mapFromScene(scene()->sceneRect()).boundingRect();
+        QPointF pos = -borderSize_.topLeft();
+        if (vrect.width() > pageSize2_.width())
+            pos.setX((rect().width() - vrect.width()) / 2);
+        else if (animCanvas_->direction() == PageAnimCanvas::LeftToRight)
+            pos += QPointF(pageSize2_.width() - vrect.width(),
+                           pageSize2_.height() - vrect.height());
+        qDebug() << "PageBoxDocItem::destroyAnimCanvas" << pos;
+        requestPosition(pos);
+    }
+    delete animCanvas_;
+    animCanvas_ = nullptr;
+}
+
+bool PageBoxDocItem::event(QEvent *event)
+{
+    switch (event->type()) {
+    case PageSwitchEvent::PageSwitchStart: {
+        int page = (static_cast<PageSwitchStartEvent*>(event)
+                ->delta().x() < 0 ? 1 : -1) + curPage_;
+        page = adjustPageIndex(page);
+        if (page < 0)
+            break;
+        if (createAnimCanvas(page, false)) {
+            animCanvas_->startAnimate();
+            event->setAccepted(true);
+        }
+    }
+        break;
+    case PageSwitchEvent::PageSwitchMove:
+        event->setAccepted(animCanvas_->move(
+                               static_cast<PageSwitchMoveEvent*>(event)->delta()));
+        break;
+    case PageSwitchEvent::PageSwitchEnd:
+        if (animCanvas_->release()) {
+            if (!animCanvas_->afterPageSwitch()) {
+                int lastPage = curPage_;
+                curPage_ = animCanvas_->data(1000).toInt();
+                onCurrentPageChanged(lastPage, curPage_);
+            }
+            event->accept();
+        }
+        break;
+    default:
+        return QObject::event(event);
+    }
+    return event->isAccepted();
+}
+

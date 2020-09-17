@@ -53,9 +53,8 @@ PageBoxItem::PageBoxItem(QGraphicsItem * parent)
                      this, &PageBoxItem::documentSizeChanged);
     transform_ = new ResourceTransform(this);
     document_->setTransformations({new ControlTransform(*transform_)});
-    // QueuedConnection: we should adjust document border offset after detachTransform
     QObject::connect(document_, &PageBoxDocItem::requestPosition,
-                     this, &PageBoxItem::setDocumentPosition, Qt::QueuedConnection);
+                     this, &PageBoxItem::setDocumentPosition);
     toolBar_ = nullptr;
     toolBarProxy_ = nullptr;
     setToolsString(toolsStr);
@@ -418,17 +417,25 @@ void PageBoxItem::documentSizeChanged(const QSizeF &pageSize2)
 
 void PageBoxItem::setDocumentPosition(const QPointF &pos)
 {
+    // We should adjust document border offset after detachTransform
+    if (!document_->transformations().empty()) {
+        QTimer::singleShot(0, this, [=] () {
+            setDocumentPosition(pos);
+        });
+        return;
+    }
     QPointF p(pos);
     QPointF tl = boundingRect().topLeft();
-    if (p.x() < 0)
+    if (p.x() < -100000000.0)
         p.setX(transform_->translate().dx());
     else
         p.setX(tl.x() - p.x() * zoom());
-    if (p.y() < 0)
+    if (p.y() < -100000000.0)
         p.setY(transform_->translate().dy());
     else
         p.setY(tl.y() - p.y() * zoom());
     transform_->translateTo(p);
+
 }
 
 void PageBoxItem::onTransformChanged()

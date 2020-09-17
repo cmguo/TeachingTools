@@ -1,4 +1,4 @@
-﻿#include "pageboxcontrol.h"
+#include "pageboxcontrol.h"
 #include "pageboxitem.h"
 #include "pagenumberwidget.h"
 #include "pageboxdocitem.h"
@@ -11,11 +11,13 @@
 #include <core/resourcetransform.h>
 #include <core/controltransform.h>
 #include <views/whitecanvas.h>
+#include <views/pageswitchevent.h>
 
 #include <qcomponentcontainer.h>
 
 #include <QStandardItemModel>
 #include <QGraphicsScene>
+#include <QApplication>
 #include <QUrl>
 #include <QDir>
 
@@ -25,7 +27,6 @@ PageBoxControl::PageBoxControl(ResourceView * res, Flags flags, Flags clearFlags
 {
     if (res_->flags().testFlag(ResourceView::LargeCanvas)) {
         //flags_.setFlag(CanScale, false);
-        flags_.setFlag(CanMove, false);
         flags_.setFlag(FullLayout);
     }
     setMinSize({450.24, 0});
@@ -178,6 +179,21 @@ Control::SelectMode PageBoxControl::selectTest(QPointF const & point)
 void PageBoxControl::loadEnd(bool ok)
 {
     Control::loadFinished(ok);
+}
+
+bool PageBoxControl::event(QEvent *event)
+{
+    switch (event->type()) {
+    case PageSwitchEvent::PageSwitchStart:
+    case PageSwitchEvent::PageSwitchMove:
+    case PageSwitchEvent::PageSwitchEnd:
+        qDebug() << "PageBoxControl::event" << event->type();
+        QApplication::sendEvent(static_cast<PageBoxItem *>(item_)->document(), event);
+        break;
+    default:
+        return QObject::event(event);
+    }
+    return event->isAccepted();
 }
 
 void PageBoxControl::loadData()
