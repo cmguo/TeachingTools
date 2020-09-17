@@ -24,7 +24,7 @@
 
 INKCANVAS_USE_NAMESPACE
 
-#ifndef QT_DEBUG
+#ifdef QT_DEBUG
 #define ERASE_CLIP_SHAPE 1
 #else
 #define ERASE_CLIP_SHAPE 0
