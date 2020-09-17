@@ -214,75 +214,23 @@ void PageBoxDocItem::relayout()
     if (pageSize_.isEmpty() || !model_)
         return;
     clear();
-    QPointF pos = -borderSize_.topLeft();
-    QPointF off; // offset of one page, with padding
     int oldPage = curPage_;
     if (curPage_ == -2)
         curPage_ = initialPage();
     else if (curPage_ < -2)
         curPage_ = -curPage_ - 3;
-    pageSize2_ = pageSize_;
-    if (direction_ == Vertical) {
-        pos.setY(padding_);
-        off.setY(pageSize_.height() + padding_);
-        pageSize2_.setHeight(pageSize_.height() + padding_ * 2);
-    } else {
-        pos.setX(padding_);
-        off.setX(pageSize_.width() + padding_);
-        pageSize2_.setWidth(pageSize_.width() + padding_ * 2);
-    }
-    if (layoutMode_ == Single || layoutMode_ == DuplexSingle) {
-        PageBoxPageItem * pageItem = new PageBoxPageItem(pageCanvas_);
-        setPageImage(pageItem, curPage_);
-        pageItem->setPos(pos);
-        pos += off;
-        // special case, transform attach prevent us to place single page at center
-        if (layoutMode_ == DuplexSingle) {
-            pageItem->setPos(pos - off / 2);
-            pos += off;
-        }
-    } else if (layoutMode_ == Duplex) {
-        if (layoutMode_ == Duplex && curPage_ != 0 && curPage_ % 2 == 1 && curPage_ + 1 < model_->rowCount())
-            ++curPage_;
-        PageBoxPageItem * pageItem1 = new PageBoxPageItem(pageCanvas_);
-        PageBoxPageItem * pageItem2 = new PageBoxPageItem(pageCanvas_);
-        pageItem1->setPos(pos);
-        pos += off;
-        pageItem2->setPos(pos);
-        setPageImage(pageItem1, (curPage_ == 0 || (curPage_ & 1)) ? curPage_ : curPage_ - 1);
-        if (curPage_) {
-            pos += off;
-            pageSize2_ += QSizeF(off.x(), off.y());
-            if ((curPage_ & 1) == 0) {
-                setPageImage(pageItem2, curPage_, true);
-            }
-        } else {
-#if DUPLEX_FIX_SIZE
-            pageSize2_ += QSizeF(off.x(), off.y());
-            pos += off;
-            pageItem1->setPos(pageItem1->pos() + off / 2);
-#endif
-            pageItem2->setVisible(false);
-        }
-    } else {
-        for (int i = 0; i < model_->rowCount(); ++i) {
-            PageBoxPageItem * pageItem = new PageBoxPageItem(pageCanvas_);
-            setPageImage(pageItem, i);
-            pageItem->setPos(pos);
-            pos += off;
-        }
-    }
-    if (direction_ == Vertical) {
-        pos.setX(pos.x() + pageSize_.width());
-    } else {
-        pos.setY(pos.y() + pageSize_.height());
-    }
-    pos += borderSize_.bottomRight();
-    setRect(QRectF(QPointF(0, 0), pos));
+    if (layoutMode_ == Duplex
+            && curPage_ != 0
+            && curPage_ % 2 == 1
+            && curPage_ + 1 < model_->rowCount())
+        ++curPage_;
+    QRectF rect = layoutPage(pageCanvas_, curPage_);
+    pageSize2_ = rect.size();
+    setRect({QPointF(), rect.topLeft()});
     onPageSize2Changed(pageSize2_);
     // Initial position; TODO:
     if (oldPage < -1) {
-        pos = -borderSize_.topLeft();
+        QPointF pos = -borderSize_.topLeft();
         pos.setX(-1); // not changed x pos
         emit requestPosition(pos);
     }
@@ -416,54 +364,26 @@ void PageBoxDocItem::goToPage(int page)
     }
     int lastPage = curPage_;
     curPage_ = page;
-    if (layoutMode_ == Single || layoutMode_ == DuplexSingle) {
-        PageBoxPageItem * pageItem = static_cast<PageBoxPageItem *>(pageCanvas_->childItems().front());
-        setPageImage(pageItem, page);
-    } else if (layoutMode_ == Duplex) {
-        PageBoxPageItem * pageItem1 = static_cast<PageBoxPageItem *>(pageCanvas_->childItems()[0]);
-        PageBoxPageItem * pageItem2 = static_cast<PageBoxPageItem *>(pageCanvas_->childItems()[1]);
-        QSizeF off;
-        if (direction_ == Vertical) {
-            off.setHeight(pageSize_.height() + padding_);
-        } else {
-            off.setWidth(pageSize_.width() + padding_);
-        }
-        setPageImage(pageItem1, (page == 0 || (page & 1)) ? page : page - 1);
-#if !DUPLEX_FIX_SIZE
-        QSizeF& size = pageSize2_;
-#endif
-        if (curPage_ == 0) {
-#if DUPLEX_FIX_SIZE
-            pageItem1->setPos(pageItem1->pos() + QPointF(off.width(), off.height()) / 2);
-#else
-            size -= off;
-#endif
-            pageItem2->setVisible(false);
-        } else {
-            if (lastPage == 0)
-#if DUPLEX_FIX_SIZE
-                pageItem1->setPos(pageItem1->pos() - QPointF(off.width(), off.height()) / 2);
-#else
-                size += off;
-#endif
-            pageItem2->setVisible(true);
-            if ((curPage_ & 1) == 0) {
-                setPageImage(pageItem2, curPage_, true);
-            }
-        }
-#if !DUPLEX_FIX_SIZE
-        setRect(QRectF(QPointF(0, 0), size));
-        pageSize_ = size;
-        onSizeChanged(pageSize2_);
-        rescale();
-#endif
-    } else {
+    if (layoutMode_ == Continuous) {
         QPointF off(-1, -1);
         if (direction_ == Vertical)
             off.setY((pageSize_.height() + padding_) * curPage_);
         else
             off.setX((pageSize_.width() + padding_) * curPage_);
         emit requestPosition(off);
+    } else {
+        clear();
+        QRectF rect = layoutPage(pageCanvas_, curPage_);
+#if DUPLEX_FIX_SIZE
+        (void) rect;
+#else
+        if (pageSize2_ != rect.size()) {
+            setRect(QRectF(QPointF(0, 0), rect.topLeft()));
+            pageSize2_ = size;
+            onSizeChanged(pageSize2_);
+            rescale();
+        }
+#endif
     }
     onCurrentPageChanged(lastPage, curPage_);
 }
@@ -539,6 +459,65 @@ void PageBoxDocItem::resourceMoved(QModelIndex const &parent, int start, int end
     (void) end;
     (void) destination;
     (void) row;
+}
+
+QRectF PageBoxDocItem::layoutPage(QGraphicsItem *canvas, int page)
+{
+    QPointF pos = -borderSize_.topLeft();
+    QPointF off; // offset of one page, with padding
+    QSizeF pageSize2 = pageSize_;
+    if (direction_ == Vertical) {
+        pos.setY(padding_);
+        off.setY(pageSize_.height() + padding_);
+        pageSize2.setHeight(pageSize_.height() + padding_ * 2);
+    } else {
+        pos.setX(padding_);
+        off.setX(pageSize_.width() + padding_);
+        pageSize2.setWidth(pageSize_.width() + padding_ * 2);
+    }
+    if (layoutMode_ == Single || layoutMode_ == DuplexSingle) {
+        PageBoxPageItem * pageItem = new PageBoxPageItem(canvas);
+        setPageImage(pageItem, page);
+        pageItem->setPos(pos);
+        pos += off;
+        // special case, transform attach prevent us to place single page at center
+        if (layoutMode_ == DuplexSingle) {
+            pageItem->setPos(pos - off / 2);
+            pos += off;
+        }
+    } else if (layoutMode_ == Duplex) {
+        PageBoxPageItem * pageItem1 = new PageBoxPageItem(canvas);
+        pageItem1->setPos(pos);
+        pos += off;
+        setPageImage(pageItem1, (page == 0 || (page & 1)) ? page : page - 1);
+        if (page && (page & 1) == 0) {
+            PageBoxPageItem * pageItem2 = new PageBoxPageItem(canvas);
+            pageItem2->setPos(pos);
+            pos += off;
+            setPageImage(pageItem2, page, true);
+            pageSize2 += QSizeF(off.x(), off.y());
+        } else {
+#if DUPLEX_FIX_SIZE
+            pageSize2 += QSizeF(off.x(), off.y());
+            pos += off;
+            pageItem1->setPos(pageItem1->pos() + off / 2);
+#endif
+        }
+    } else {
+        for (int i = 0; i < model_->rowCount(); ++i) {
+            PageBoxPageItem * pageItem = new PageBoxPageItem(canvas);
+            setPageImage(pageItem, i);
+            pageItem->setPos(pos);
+            pos += off;
+        }
+    }
+    if (direction_ == Vertical) {
+        pos.setX(pos.x() + pageSize_.width());
+    } else {
+        pos.setY(pos.y() + pageSize_.height());
+    }
+    pos += borderSize_.bottomRight();
+    return {pos, pageSize2};
 }
 
 void PageBoxDocItem::setPageImage(PageBoxPageItem *pageItem, int index, bool second)

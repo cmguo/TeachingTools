@@ -163,6 +163,8 @@ private slots:
                        QModelIndex const &destination, int row);
 
 private:
+    QRectF layoutPage(QGraphicsItem * canvas, int page);
+
     void setPageImage(PageBoxPageItem* pageItem, int index = -1, bool second = false);
 
 private:
