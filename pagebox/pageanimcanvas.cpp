@@ -39,18 +39,21 @@ void PageAnimCanvas::setAfterPageSwitch(bool after)
 void PageAnimCanvas::startAnimate()
 {
     QRectF vrect = document_->mapFromScene(scene()->sceneRect()).boundingRect();
-    qreal width = document_->pageSize2().width();
+    qreal width1 = childItems().size() == 1
+            ? document_->pageSize().width()
+            : document_->pageSize2().width();
+    qreal width2 = document_->pageSize2().width();
     scale_ = vrect.width() / scene()->width();
-    qreal diff1 = 200 + width;
+    qreal diff1 = 200 + width2;
     qreal diff2 = 0;
     if (direction_ == LeftToRight) {
-        diff2 = vrect.right() - width;
+        diff2 = vrect.right() - width2;
     } else {
         diff1 = -diff1;
         diff2 = vrect.left();
     }
-    if (vrect.width() > width)
-        diff2 = -vrect.center().x() + width / 2.0;
+    if (vrect.width() > width1)
+        diff2 = vrect.center().x() - width2 / 2.0;
     offset_ = diff1 + diff2;
     setX(-diff1);
     setOpacity(0);
