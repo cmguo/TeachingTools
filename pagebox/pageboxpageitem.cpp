@@ -3,6 +3,7 @@
 
 #include <data/imagecache.h>
 #include <core/resource.h>
+#include <qeventbus.h>
 
 PageBoxPageItem::PageBoxPageItem(QGraphicsItem * parent)
     : QGraphicsPixmapItem(parent)
@@ -37,7 +38,8 @@ void PageBoxPageItem::setImage(const QUrl &image)
             return;
         setPixmap(data->pixmap());
     }, [](std::exception & e) {
-        qDebug() << e.what();
+        qWarning() << "PageBoxPageItem::setImage" << e.what();
+        QEventBus::globalInstance().publish("warning", e.what());
     }).finally([life] () {
         if (!life.isNull())
             life.data()->setProperty("PageBoxPageItem", QVariant());
