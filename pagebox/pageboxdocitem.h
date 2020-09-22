@@ -170,7 +170,11 @@ private slots:
 private:
     friend class PageAnimCanvas;
 
-    int adjustPageIndex(int page);
+    void gotoNeighborPage(int page, bool anim = false);
+
+    void switchPage(int page, bool anim = false);
+
+    int adjustPageIndex(int page, bool neighbor);
 
     QRectF layoutPage(QGraphicsItem * canvas, int page);
 

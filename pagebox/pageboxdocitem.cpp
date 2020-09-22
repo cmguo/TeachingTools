@@ -41,7 +41,7 @@ PageBoxDocItem::PageBoxDocItem(QGraphicsItem * parent)
     pageNumber_ = new PageNumberWidget();
     QObject::connect(pageNumber_, &PageNumberWidget::pageNumberChanged,
                      this,[=](int page){
-        goToPage(page, true);
+        gotoNeighborPage(page, true);
     });
 }
 
@@ -327,17 +327,17 @@ bool PageBoxDocItem::hit(QPointF const & point)
 void PageBoxDocItem::nextPage()
 {
     if (layoutMode_ == Duplex && curPage_ != 0)
-        goToPage(curPage_ + 2);
+        gotoNeighborPage(curPage_ + 2);
     else
-        goToPage(curPage_ + 1);
+        gotoNeighborPage(curPage_ + 1);
 }
 
 void PageBoxDocItem::previousPage()
 {
     if (layoutMode_ == Duplex && curPage_ > 2)
-        goToPage(curPage_ - 2);
+        gotoNeighborPage(curPage_ - 2);
     else
-        goToPage(curPage_ - 1);
+        gotoNeighborPage(curPage_ - 1);
 }
 
 void PageBoxDocItem::frontPage()
@@ -350,25 +350,38 @@ void PageBoxDocItem::backPage()
     goToPage(model_->rowCount() - 1);
 }
 
-int PageBoxDocItem::adjustPageIndex(int page)
+void PageBoxDocItem::goToPage(int page, bool anim)
 {
-    if (layoutMode_ == Duplex && page != 0 && page % 2 == 1) {
-        page = (page == curPage_ - 1) ? page - 1 : page + 1;
-        if (page == model_->rowCount())
-            --page;
+    page = adjustPageIndex(page, false);
+    switchPage(page, anim);
+}
+
+void PageBoxDocItem::gotoNeighborPage(int page, bool anim)
+{
+    page = adjustPageIndex(page, true);
+    switchPage(page, anim);
+}
+
+int PageBoxDocItem::adjustPageIndex(int page, bool neighbor)
+{
+    if (layoutMode_ == Duplex && page != 0 && page % 2 == 1
+            && page + 1 < model_->rowCount()) {
+        if (neighbor)
+            page = (page == curPage_ - 1) ? page - 1 : page + 1;
+        else
+            ++page;
     }
     if (page < 0 || page >= model_->rowCount() || page == curPage_)
         page = -1;
     return page;
 }
 
-void PageBoxDocItem::goToPage(int page, bool anim)
+void PageBoxDocItem::switchPage(int page, bool anim)
 {
     bool guided = GuideHelper::sendGuideEvent(GestureType::TurnPage);
     if (guided) return;
     if (!model_ || page == curPage_)
         return;
-    page = adjustPageIndex(page);
     if (page < 0) {
         onCurrentPageChanged(curPage_, curPage_);
         return;
@@ -602,7 +615,7 @@ bool PageBoxDocItem::event(QEvent *event)
     case PageSwitchEvent::PageSwitchStart: {
         int page = (static_cast<PageSwitchStartEvent*>(event)
                 ->delta().x() < 0 ? 1 : -1) + curPage_;
-        page = adjustPageIndex(page);
+        page = adjustPageIndex(page, true);
         if (page < 0)
             break;
         if (createAnimCanvas(page, false)) {
