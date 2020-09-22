@@ -47,10 +47,10 @@ void PageAnimCanvas::startAnimate()
     qreal diff1 = 200 + width2;
     qreal diff2 = 0;
     if (direction_ == LeftToRight) {
-        diff2 = vrect.right() - width2;
+        diff2 = vrect.right() - (width1 + width2) / 2;
     } else {
         diff1 = -diff1;
-        diff2 = vrect.left();
+        diff2 = vrect.left() - (width2 - width1) / 2;
     }
     if (vrect.width() > width1)
         diff2 = vrect.center().x() - width2 / 2.0;

@@ -594,13 +594,16 @@ void PageBoxDocItem::destroyAnimCanvas(PageAnimCanvas * anim, bool finish)
     assert(animCanvas_ == anim);
     if (finish && animCanvas_->switchPage()) {
         QRectF vrect = mapFromScene(scene()->sceneRect()).boundingRect();
-        QPointF pos = -borderSize_.topLeft();
-        qreal width = (pageCanvas_->childItems().size() == 1
+        qreal width1 = (pageCanvas_->childItems().size() == 1
                        ? pageSize_ : pageSize2_).width();
+        qreal width2 = pageSize2_.width();
+        QPointF pos = -borderSize_.topLeft();
         if (animCanvas_->direction() == PageAnimCanvas::LeftToRight)
-            pos += QPointF(pageSize2_.width() - vrect.width(),
+            pos += QPointF((width1 + width2) / 2 - vrect.width(),
                            pageSize2_.height() - vrect.height());
-        if (vrect.width() > width)
+        else
+            pos += QPointF((width2 - width1) / 2, 0);
+        if (vrect.width() > width1)
             pos.setX((rect().width() - vrect.width()) / 2);
         qDebug() << "PageBoxDocItem::destroyAnimCanvas" << pos;
         requestPosition(pos);
