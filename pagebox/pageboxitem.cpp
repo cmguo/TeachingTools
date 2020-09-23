@@ -296,7 +296,7 @@ void PageBoxItem::stepMiddleScale()
 void PageBoxItem::updateStepScale()
 {
     manualScale_ = zoom();
-    qreal s = minScale_;
+    qreal s = minScale_ * scaleInterval_ * 0.999;
     int l = 0;
     while (s < manualScale_) {
         s *= scaleInterval_;
@@ -438,12 +438,13 @@ void PageBoxItem::setDocumentPosition(const QPointF &pos)
 
 }
 
-void PageBoxItem::onTransformChanged()
+void PageBoxItem::onTransformChanged(int elems)
 {
     qDebug() << "PageBoxItem onTransformChanged" << transform_->transform();
     QPointF center = mapFromScene(scene()->sceneRect()).boundingRect().center();
     document_->visiblePositionHint(this, center);
-    updateStepScale();
+    if (elems & 4)
+        updateStepScale();
 }
 
 QSizeF PageBoxItem::calcSize(QSizeF const &pageSize2)

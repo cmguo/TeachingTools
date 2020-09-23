@@ -128,7 +128,7 @@ private:
 
     void setDocumentPosition(QPointF const & pos);
 
-    void onTransformChanged();
+    void onTransformChanged(int elems);
 
 private:
     virtual void mousePressEvent(QGraphicsSceneMouseEvent *event) override;
