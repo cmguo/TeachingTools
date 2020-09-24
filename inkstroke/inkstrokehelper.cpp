@@ -335,17 +335,20 @@ void StylusGuestureHelper::handle(StylusEventArgs &args)
                                       ? groups.first().pointIds.size() == 2
                                       : groups.first().pointIds.size() >= 2)) {
         if (!installed_) {
+            //qDebug() << "StylusGuestureHelper::handle install";
             ink_->installSceneEventFilter(canvas_->selector());
             QTouchEvent & o = *args.event();
             QTouchEvent e(QEvent::TouchBegin, device->device(), o.modifiers(), o.touchPointStates(), o.touchPoints());
             canvas_->selector()->sceneEventFilter(ink_, &e);
             installed_ = true;
         }
-    } else if (!failed_ && (groups.size() > 1
-               || (groups.size() == 1 && groups.first().pointIds.size() > 2))) {
-        failed_ = true;
     } else {
+        if (!failed_ && (groups.size() > 1
+               || (groups.size() == 1 && groups.first().pointIds.size() > 2))) {
+            failed_ = true;
+        }
         if (installed_) {
+            //qDebug() << "StylusGuestureHelper::handle uninstall";
             ink_->removeSceneEventFilter(canvas_->selector());
             QTouchEvent & o = *args.event();
             QTouchEvent e(QEvent::TouchEnd, device->device(), o.modifiers(), o.touchPointStates(), o.touchPoints());
