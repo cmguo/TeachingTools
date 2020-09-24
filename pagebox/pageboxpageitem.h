@@ -6,6 +6,7 @@
 #include <QList>
 
 class Resource;
+class ImageData;
 
 class PageBoxPageItem : public QGraphicsPixmapItem
 {
@@ -33,6 +34,7 @@ public:
 private:
     QUrl image_;
     QList<QRectF> rects_;
+    QSharedPointer<ImageData> imageData_;
     QSharedPointer<Resource> lifeToken_;
 };
 

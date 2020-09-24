@@ -146,6 +146,8 @@ protected:
 
     void clear();
 
+    PageBoxPageItem * allocPage(QGraphicsItem * canvas);
+
     void relayout();
 
 protected:
@@ -204,6 +206,7 @@ private:
 private:
     QPropertyBindings * itemBindings_;
     PageAnimCanvas * animCanvas_ = nullptr;
+    QList<PageBoxPageItem*> pageCache_;
 };
 
 #endif // PAGEBOXDOCITEM_H

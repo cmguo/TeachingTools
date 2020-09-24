@@ -51,6 +51,9 @@ PageBoxDocItem::~PageBoxDocItem()
         plugin->item()->setParentItem(nullptr);
     plugins_.clear();
     delete pageNumber_;
+    for (auto page : pageCache_)
+        delete page;
+    pageCache_.clear();
 }
 
 void PageBoxDocItem::setPageSize(QSizeF const & size)
@@ -208,9 +211,19 @@ void PageBoxDocItem::clear()
     for(QGraphicsItem * item : pageCanvas_->childItems()) {
         if (scene())
             scene()->removeItem(item);
-        setPageImage(static_cast<PageBoxPageItem*>(item));
-        delete item;
+        PageBoxPageItem * page = static_cast<PageBoxPageItem*>(item);
+        setPageImage(page);
+        pageCache_.prepend(page);
     }
+}
+
+PageBoxPageItem *PageBoxDocItem::allocPage(QGraphicsItem * canvas)
+{
+    if (pageCache_.isEmpty())
+        return new PageBoxPageItem(canvas);
+    PageBoxPageItem * page = pageCache_.takeFirst();
+    page->setParentItem(canvas);
+    return page;
 }
 
 void PageBoxDocItem::relayout()
@@ -505,7 +518,7 @@ QRectF PageBoxDocItem::layoutPage(QGraphicsItem *canvas, int page)
         pageSize2.setWidth(pageSize_.width() + padding_ * 2);
     }
     if (layoutMode_ == Single || layoutMode_ == DuplexSingle) {
-        PageBoxPageItem * pageItem = new PageBoxPageItem(canvas);
+        PageBoxPageItem * pageItem = allocPage(canvas);
         setPageImage(pageItem, page);
         pageItem->setPos(pos);
         pos += off;
@@ -516,12 +529,12 @@ QRectF PageBoxDocItem::layoutPage(QGraphicsItem *canvas, int page)
             pageSize2 += QSizeF(off.x(), off.y());
         }
     } else if (layoutMode_ == Duplex) {
-        PageBoxPageItem * pageItem1 = new PageBoxPageItem(canvas);
+        PageBoxPageItem * pageItem1 = allocPage(canvas);
         pageItem1->setPos(pos);
         pos += off;
         setPageImage(pageItem1, (page == 0 || (page & 1)) ? page : page - 1);
         if (page && (page & 1) == 0) {
-            PageBoxPageItem * pageItem2 = new PageBoxPageItem(canvas);
+            PageBoxPageItem * pageItem2 = allocPage(canvas);
             pageItem2->setPos(pos);
             pos += off;
             setPageImage(pageItem2, page, true);
@@ -535,7 +548,7 @@ QRectF PageBoxDocItem::layoutPage(QGraphicsItem *canvas, int page)
         }
     } else {
         for (int i = 0; i < model_->rowCount(); ++i) {
-            PageBoxPageItem * pageItem = new PageBoxPageItem(canvas);
+            PageBoxPageItem * pageItem = allocPage(canvas);
             setPageImage(pageItem, i);
             pageItem->setPos(pos);
             pos += off;

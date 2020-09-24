@@ -25,7 +25,9 @@ PageBoxPageItem::PageBoxPageItem(QGraphicsItem * parent)
 void PageBoxPageItem::setImage(const QUrl &image)
 {
     if (image.isEmpty()) {
-        lifeToken_.reset();
+        if (lifeToken_ && !lifeToken_->property("PageBoxPageItem").isNull())
+            lifeToken_.reset();
+        imageData_.reset();
         return;
     }
     if (lifeToken_.isNull() || !lifeToken_->property("PageBoxPageItem").isNull())
@@ -36,6 +38,7 @@ void PageBoxPageItem::setImage(const QUrl &image)
                 [this, life](QSharedPointer<ImageData> const & data) {
         if (life.isNull())
             return;
+        imageData_ = data;
         setPixmap(data->pixmap());
     }, [](std::exception & e) {
         qWarning() << "PageBoxPageItem::setImage" << e.what();
