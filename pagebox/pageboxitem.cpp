@@ -440,7 +440,7 @@ void PageBoxItem::setDocumentPosition(const QPointF &pos)
 
 void PageBoxItem::onTransformChanged(int elems)
 {
-    qDebug() << "PageBoxItem onTransformChanged" << transform_->transform();
+    //qDebug() << "PageBoxItem onTransformChanged" << transform_->transform();
     QPointF center = mapFromScene(scene()->sceneRect()).boundingRect().center();
     document_->visiblePositionHint(this, center);
     if (elems & 4)

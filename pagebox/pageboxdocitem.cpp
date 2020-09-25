@@ -645,7 +645,7 @@ bool PageBoxDocItem::event(QEvent *event)
                                static_cast<PageSwitchMoveEvent*>(event)->delta()));
         break;
     case PageSwitchEvent::PageSwitchEnd:
-        if (animCanvas_->release()) {
+        if (animCanvas_ && animCanvas_->release()) {
             if (!animCanvas_->afterPageSwitch()) {
                 int lastPage = curPage_;
                 curPage_ = animCanvas_->data(1000).toInt();

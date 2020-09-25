@@ -78,7 +78,7 @@ bool PageAnimCanvas::release()
 {
     qreal x = pageCanvas_->x();
     if (!switchPage_)
-        switchPage_ = qAbs(x) >= scene()->width() * scale_ / 4;
+        switchPage_ = qAbs(x) * 6.0 >= scene()->width() * scale_;
     timeLine_ = new QTimeLine;
     if (switchPage_) {
         timeLine_->setDuration(static_cast<int>(500.0 * (offset_ - x) / offset_));
