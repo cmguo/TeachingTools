@@ -320,20 +320,19 @@ StylusGuestureHelper::StylusGuestureHelper(InkCanvas *ink)
 
 void StylusGuestureHelper::handle(StylusEventArgs &args)
 {
+    if (ink_->EditingMode() != InkCanvasEditingMode::Ink)
+        return;
     if (!canvas_)
         canvas_ = static_cast<WhiteCanvas*>(ink_->parentItem()->parentItem());
     StylusDevice * device = qobject_cast<StylusDevice*>(args.Device());
     auto & groups = device->StylusGroups();
-    bool inkMode = ink_->EditingMode() == InkCanvasEditingMode::Ink;
     if (&args.GetRoutedEvent() == &Stylus::StylusDownEvent) {
         timer_.restart();
         failed_ = false;
     }
     if (&args.GetRoutedEvent() != &Stylus::StylusUpEvent
             && !failed_ && (installed_ || timer_.elapsed() < 100)
-            && groups.size() == 1 && (inkMode
-                                      ? groups.first().pointIds.size() == 2
-                                      : groups.first().pointIds.size() >= 2)) {
+            && groups.size() == 1 && groups.first().pointIds.size() == 2) {
         if (!installed_) {
             //qDebug() << "StylusGuestureHelper::handle install";
             ink_->installSceneEventFilter(canvas_->selector());
