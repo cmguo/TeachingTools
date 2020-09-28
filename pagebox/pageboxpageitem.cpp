@@ -40,7 +40,9 @@ void PageBoxPageItem::setImage(const QUrl &image)
             return;
         imageData_ = data;
         setPixmap(data->pixmap());
-    }, [](std::exception & e) {
+    }, [life] (std::exception & e) {
+        if (life.isNull())
+            return;
         qWarning() << "PageBoxPageItem::setImage" << e.what();
         QByteArray msg = e.what();
         msg.replace(0, msg.indexOf('|') + 1, "");
