@@ -1,4 +1,4 @@
-﻿#include "pagenumberwidget.h"
+#include "pagenumberwidget.h"
 
 #include <core/toolbutton.h>
 
@@ -85,14 +85,19 @@ bool PageNumberWidget::gotoNext()
     }
 }
 
-bool PageNumberWidget::isFirstPage()
+bool PageNumberWidget::isFirstPage() const
 {
     return no_ == 0;
 }
 
-bool PageNumberWidget::isLastPage()
+bool PageNumberWidget::isLastPage() const
 {
     return no_ + 1 == total_;
+}
+
+void PageNumberWidget::notify()
+{
+    emit pageNumberChanged(no_);
 }
 
 ToolButton *PageNumberWidget::toolButton()

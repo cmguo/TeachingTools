@@ -1,4 +1,4 @@
-﻿#ifndef PAGENOWIDGET_H
+#ifndef PAGENOWIDGET_H
 #define PAGENOWIDGET_H
 
 #include <QWidget>
@@ -20,7 +20,11 @@ signals:
     void pageNumberChanged(int no);
 
 public:
+    int total() const { return total_; }
+
     void setTotal(int n);
+
+    int number() const { return no_; }
 
     void setNumber(int n);
 
@@ -28,8 +32,11 @@ public:
 
     bool gotoNext();
 
-    bool isFirstPage();
-    bool isLastPage();
+    bool isFirstPage() const;
+
+    bool isLastPage() const;
+
+    void notify();
 
     ToolButton* toolButton();
 

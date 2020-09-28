@@ -42,7 +42,9 @@ void PageBoxPageItem::setImage(const QUrl &image)
         setPixmap(data->pixmap());
     }, [](std::exception & e) {
         qWarning() << "PageBoxPageItem::setImage" << e.what();
-        QEventBus::globalInstance().publish("warning", e.what());
+        QByteArray msg = e.what();
+        msg.replace(0, msg.indexOf('|') + 1, "");
+        QEventBus::globalInstance().publish("warning", msg);
     }).finally([life] () {
         if (!life.isNull())
             life.data()->setProperty("PageBoxPageItem", QVariant());
