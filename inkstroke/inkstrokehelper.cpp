@@ -1,13 +1,12 @@
 #include "inkstrokefilter.h"
+#include "inkstrokegeometry.h"
 #include "inkstrokehelper.h"
 
 #include <core/optiontoolbuttons.h>
 #include <core/toolbutton.h>
 
 #include <Windows/Controls/inkcanvas.h>
-#include <Windows/Controls/inkevents.h>
-#include <Windows/Ink/stroke.h>
-#include <Windows/Ink/strokecollection.h>
+#include <Windows/Ink/drawingattributes.h>
 #include <Windows/Ink/stylusshape.h>
 #include <Windows/Input/stylusdevice.h>
 #include <Windows/Input/styluseventargs.h>
@@ -77,7 +76,7 @@ InkCanvas *InkStrokeHelper::createInkCanvas(QColor color, qreal lineWidth, QSize
     StylusShape * shape = new StylusShape(StylusTip::Rectangle, eraserSize.width(), eraserSize.height(), 0);
     //shape->setParent(ink);
     ink->SetEraserShape(shape);
-    new PressureHelper(ink); // attached to InkCanvas
+    new InkStrokeGeometry(ink); // attached to InkCanvas
     return ink;
 }
 
@@ -261,50 +260,7 @@ QWidget *InkStrokeHelper::createEraserWidget(QssHelper const & qss)
     return widget;
 }
 
-PressureHelper::PressureHelper(InkCanvas *ink)
-    : QObject(ink)
-    , ink_(ink)
-{
-    ink_->AddHandler(InkCanvas::StrokeCollectedEvent, RoutedEventHandlerT<
-                     PressureHelper, InkCanvasStrokeCollectedEventArgs, &PressureHelper::applyPressure>(this));
-    QObject::connect(ink_, &InkCanvas::StrokesReplaced,
-                     this, &PressureHelper::strokesReplaced);
-}
-
-PressureHelper::~PressureHelper()
-{
-    // InkCanvas already destoryed
-    //ink_->RemoveHandler(InkCanvas::StrokeCollectedEvent, RoutedEventHandlerT<
-    //                PressureHelper, InkCanvasStrokeCollectedEventArgs, &PressureHelper::applyPressure>(this));
-}
-
-void PressureHelper::strokesReplaced(InkCanvasStrokesReplacedEventArgs &e)
-{
-    (void) e;
-    ink_->SetDefaultStylusPointDescription(Stylus::DefaultPointDescription());
-}
-
-void PressureHelper::applyPressure(InkCanvasStrokeCollectedEventArgs &e)
-{
-    QSharedPointer<Stroke> stroke = e.GetStroke();
-    QSharedPointer<StylusPointCollection> stylusPoints = stroke->StylusPoints()->Clone();
-    int n = 16;
-    if (stylusPoints->Count() > n) {
-        for (int i = 1; i < n; ++i) {
-            int m = stylusPoints->Count() + i - n;
-            StylusPoint point = (*stylusPoints)[m];
-            float d = static_cast<float>(i) / static_cast<float>(n);
-            point.SetPressureFactor(point.PressureFactor() * (1.0f - d * d));
-            stylusPoints->SetItem(m, point);
-        }
-        --n;
-    } else {
-        n = 0;
-    }
-    //QUuid guid("52053C24-CBDD-4547-AAA1-DEFEBF7FD1E1");
-    //stroke->AddPropertyData(guid, 2.0);
-    stroke->SetStylusPoints(stylusPoints);
-}
+/* StylusGuestureHelper */
 
 StylusGuestureHelper::StylusGuestureHelper(InkCanvas *ink)
     : QObject(ink)
@@ -356,6 +312,8 @@ void StylusGuestureHelper::handle(StylusEventArgs &args)
         }
     }
 }
+
+/* ClickThroughtHelper */
 
 ClickThroughtHelper::ClickThroughtHelper(InkCanvas *ink)
     : QObject(ink)

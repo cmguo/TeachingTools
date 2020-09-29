@@ -14,6 +14,9 @@
 #include <core/resourcepage.h>
 #include <core/resourceview.h>
 #include <core/toolbutton.h>
+
+INKCANVAS_USE_NAMESPACE
+
 #include <evlogapi/evlogrecorder.h>
 
 #include <QApplication>
@@ -27,6 +30,23 @@ static constexpr char const * toolstr =
         "eraser|橡皮|Checkable,NeedUpdate|:/teachingtools/icon/stroke.eraser.svg;"
         ;
 
+class ShapeToolButtons : public OptionToolButtons
+{
+public:
+    ShapeToolButtons()
+        : OptionToolButtons(InkStrokeGeometry::Shapes, 4)
+    {
+    }
+    virtual QString buttonTitle(const QVariant &value) override
+    {
+        return value.toString();
+    }
+    virtual QVariant buttonIcon(QVariant const & value) override
+    {
+        (void) value;
+        return QVariant();
+    }
+};
 static StateColorToolButtons colorButtons(QList<QColor>({
     "#FFF0F0F0", "#FFFFCE2D", "#FFFF9F5E", "#FFFF6262", "#FF7A51AE",
     "#FF43CAFF", "#FF2FA8B3", "#FF506EB7", "#FF28417F", "#FF000000"
@@ -304,6 +324,10 @@ bool InkStrokeTools::setOption(const QByteArray &key, QVariant value)
             QString typeId("StrokeColor");
             typeId.append(".").append(value.toString());
             EVLOG_CTX("Main:BottomTool", click, "typeId", (typeId))
+        } else if (!(value.toString().at(0).isDigit())
+                   && value.convert(qMetaTypeId<InkStrokeGeometry::Shape>())) {
+            if (inkControl_)
+                inkControl_->setShapeMode(value.value<InkStrokeGeometry::Shape>());
         } else {
             value.convert(QVariant::Double);
             setWidth(value.toDouble());
@@ -363,7 +387,12 @@ bool InkStrokeTools::setOption(const QByteArray &key, QVariant value)
 
 void InkStrokeTools::getToolButtons(QList<ToolButton *> &buttons, ToolButton *parent)
 {
+    static ShapeToolButtons shapeButtons;
     if (parent && parent->name() == "stroke") {
+#ifdef QT_DEBUG
+        shapeButtons.getButtons(buttons, inkControl_->shapeMode());
+        buttons.append(&ToolButton::LINE_SPLITTER);
+#endif
         colorButtons.getButtons(buttons, *activeColor_);
         buttons.append(&ToolButton::LINE_SPLITTER);
         widthButtons.getButtons(buttons, width_);
@@ -455,6 +484,7 @@ QWidget *InkStrokeTools::createEraserWidget(ToolButton *button)
     return widget;
 }
 
+/* SyncInkControl */
 
 SyncInkControl::SyncInkControl(InkStrokeTools *tools, QObject *outerControl)
     : tools_(tools)

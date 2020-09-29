@@ -105,3 +105,10 @@ else:unix: LIBS += -L$$OUT_PWD/../Assistant/Guide/ -lGuide
 
 INCLUDEPATH += $$PWD/../Assistant/Guide
 DEPENDPATH += $$PWD/../Assistant/Guide
+
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../Geometry/release/ -lGeometry
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../Geometry/debug/ -lGeometryd
+else:unix: LIBS += -L$$OUT_PWD/../Geometry/ -lGeometry
+
+INCLUDEPATH += $$PWD/../Geometry
+DEPENDPATH += $$PWD/../Geometry

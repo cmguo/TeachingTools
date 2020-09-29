@@ -2,6 +2,7 @@
 #define INKSTROKECONTROL_H
 
 #include "TeachingTools_global.h"
+#include "inkstrokegeometry.h"
 
 #include <core/control.h>
 #include <Windows/Controls/editingmode.h>
@@ -18,6 +19,7 @@ class InkStrokeControl : public Control
     Q_OBJECT
 
     Q_PROPERTY(INKCANVAS_PREPEND_NAMESPACE(InkCanvasEditingMode) editingMode READ editingMode WRITE setEditingMode NOTIFY editingModeChanged)
+    Q_PROPERTY(InkStrokeGeometry::Shape shapeMode READ shapeMode WRITE setShapeMode)
     Q_PROPERTY(QColor color READ color WRITE setColor)
     Q_PROPERTY(qreal width READ width WRITE setWidth)
 
@@ -26,11 +28,15 @@ public:
 
     InkCanvasEditingMode editingMode();
 
+    InkStrokeGeometry::Shape shapeMode() const;
+
     QColor color();
 
     qreal width();
 
     void setEditingMode(InkCanvasEditingMode mode);
+
+    void setShapeMode(InkStrokeGeometry::Shape shape);
 
     void setColor(QColor c);
 

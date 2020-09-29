@@ -106,6 +106,7 @@ private:
     QColor colorShow_;
     QColor colorOuter_;
     QColor* inkColor_;
+    QByteArray lineStyle_;
     QColor* activeColor_;
     qreal width_;
 };

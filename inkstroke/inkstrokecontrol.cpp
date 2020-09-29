@@ -49,6 +49,12 @@ InkCanvasEditingMode InkStrokeControl::editingMode()
     return ink->EditingMode();
 }
 
+InkStrokeGeometry::Shape InkStrokeControl::shapeMode() const
+{
+    InkCanvas * ink = static_cast<InkCanvas*>(item_);
+    return ink->findChild<InkStrokeGeometry*>()->shapeMode();
+}
+
 QColor InkStrokeControl::color()
 {
     InkCanvas * ink = static_cast<InkCanvas*>(item_);
@@ -97,6 +103,12 @@ void InkStrokeControl::setEditingMode(InkCanvasEditingMode mode)
         }
         editingModeChanged(mode);
     }
+}
+
+void InkStrokeControl::setShapeMode(InkStrokeGeometry::Shape shape)
+{
+    InkCanvas * ink = static_cast<InkCanvas*>(item_);
+    ink->findChild<InkStrokeGeometry*>()->setShapeMode(shape);
 }
 
 void InkStrokeControl::setColor(QColor c)
