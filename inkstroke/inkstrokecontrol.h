@@ -53,7 +53,7 @@ signals:
     void editingModeChanged(InkCanvasEditingMode mode);
 
 protected:
-    virtual QGraphicsItem * create(ResourceView *res) override;
+    virtual ControlView * create(ControlView * parent) override;
 
     virtual void attached() override;
 

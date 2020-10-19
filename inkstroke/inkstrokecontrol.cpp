@@ -152,9 +152,9 @@ void InkStrokeControl::fitToCurve()
     }
 }
 
-QGraphicsItem * InkStrokeControl::create(ResourceView *res)
+ControlView *InkStrokeControl::create(ControlView *parent)
 {
-    (void) res;
+    (void) parent;
     InkCanvas * ink = InkStrokeHelper::createInkCanvas();
     if (!ink->acceptTouchEvents())
         flags_.setFlag(Touchable, false);

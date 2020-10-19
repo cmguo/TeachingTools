@@ -30,10 +30,11 @@ WritingGridControl::WritingGridControl(ResourceView * res)
     setMinSize({0, 232});
 }
 
-QGraphicsItem *WritingGridControl::create(ResourceView *res)
-{   QString path = res->url().path();
-    int type = res->url().path().split("/")[1].toInt();
-    QGraphicsItem *item =new WritingGrid(300 * m_adapterRatio,WritingGridType(type));
+ControlView *WritingGridControl::create(ControlView *)
+{
+    QString path = res_->url().path();
+    int type = res_->url().path().split("/")[1].toInt();
+    QGraphicsItem *item = new WritingGrid(300 * m_adapterRatio, WritingGridType(type));
     return item;
 }
 

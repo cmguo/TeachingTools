@@ -1,4 +1,4 @@
-﻿#ifndef PAGEBOXCONTROL_H
+#ifndef PAGEBOXCONTROL_H
 #define PAGEBOXCONTROL_H
 
 #include "TeachingTools_global.h"
@@ -23,7 +23,7 @@ public slots:
     void switchPage(int);
 
 protected:
-    virtual QGraphicsItem * create(ResourceView *res) override;
+    virtual ControlView * create(ControlView * parent) override;
 
     virtual void attaching() override;
 
@@ -55,7 +55,7 @@ private:
     void loadPages(PageBoxItem * item);
 
 private:
-    QGraphicsTransform * bottomTransform_;
+    ControlTransform * bottomTransform_;
 };
 
 #endif // PAGEBOXCONTROL_H

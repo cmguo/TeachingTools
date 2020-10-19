@@ -50,9 +50,9 @@ void PageBoxControl::switchPage(int index)
     item->document()->goToPage(index);
 }
 
-QGraphicsItem* PageBoxControl::create(ResourceView *res)
+ControlView *PageBoxControl::create(ControlView *parent)
 {
-    (void)res;
+    (void)parent;
     PageBoxItem * item = new PageBoxItem;
     if (res_->flags().testFlag(ResourceView::LargeCanvas)) {
         item->setAcceptedMouseButtons(Qt::NoButton);
