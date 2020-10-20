@@ -108,7 +108,7 @@ void InkStrokeGeometry::autoShape(QSharedPointer<Stroke> stroke)
 QSharedPointer<Stroke> InkStrokeGeometry::fromGeometry(::Geometry *geometry)
 {
     QSharedPointer<Stroke> s = InkCanvasQt::createStroke(
-        geometry->path(), geometry->color(), geometry->width());
+        geometry->graphPath(), geometry->color(), geometry->width());
     return s;
 }
 
