@@ -10,6 +10,7 @@
 #include <core/resourcepage.h>
 #include <core/resourcetransform.h>
 #include <core/controltransform.h>
+#include <core/resourcerecord.h>
 #include <views/whitecanvas.h>
 #include <views/pageswitchevent.h>
 
@@ -242,6 +243,8 @@ void PageBoxControl::enableInkPad()
 
 void PageBoxControl::loadPages(int initialPage)
 {
+    RecordMergeScope rs(this);
+    rs.drop();
     PageBoxItem * item = static_cast<PageBoxItem *>(item_);
     item->document()->reset();
     item->setScaleMode(PageBoxItem::WholePage); // restore from ManualScale
