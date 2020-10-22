@@ -118,12 +118,12 @@ void PageBoxControl::attached()
             res_->page()->clearSubPages();
         });
     }
-    if (property("pageData").isValid()) {
+    if (res_->property("pageData").isValid()) {
         loadPages(item);
         return;
     }
     loadData();
-    if (property("pageModel").isValid()) {
+    if (res_->property("pageModel").isValid()) {
         loadPages(item);
         return;
     }
@@ -255,14 +255,14 @@ void PageBoxControl::loadPages(PageBoxItem * item)
     PageBoxDocItem * doc = item->document();
     QStandardItemModel * model = nullptr;
     QPropertyBindings * bindings = nullptr;
-    QVariant pageModel = property("pageModel");
+    QVariant pageModel = res_->property("pageModel");
     if (!pageModel.isValid()) {
         parseData();
-        pageModel = property("pageModel");
+        pageModel = res_->property("pageModel");
     }
     if (pageModel.isValid()) {
         model = pageModel.value<QStandardItemModel *>();
-        QVariant pageBindings = property("pageBindings");
+        QVariant pageBindings = res_->property("pageBindings");
         bindings = pageBindings.value<QPropertyBindings *>();
     }
     doc->setItemBindings(bindings);
@@ -282,8 +282,8 @@ void PageBoxControl::loadPages(PageBoxItem * item)
         QGraphicsItem* canvas = item_->parentItem()->parentItem();
         ResourceTransform& tr = *item->detachTransform();
         ResourceTransform& tc = Control::fromItem(canvas)->resource()->transform();
-        QVariant attachedCanvasTransform = property("attachedCanvasTransform");
-        QVariant attachedPageTransform = property("attachedPageTransform");
+        QVariant attachedCanvasTransform = res_->property("attachedCanvasTransform");
+        QVariant attachedPageTransform = res_->property("attachedPageTransform");
         if (attachedCanvasTransform.isValid()) {
             // must attach with original tranform, not known why?
             ResourceTransform t = tc;
@@ -294,8 +294,8 @@ void PageBoxControl::loadPages(PageBoxItem * item)
         } else {
             attachedCanvasTransform.setValue(tc.transform());
             attachedPageTransform.setValue(tr.transform());
-            setProperty("attachedCanvasTransform", attachedCanvasTransform);
-            setProperty("attachedPageTransform", attachedPageTransform);
+            res_->setProperty("attachedCanvasTransform", attachedCanvasTransform);
+            res_->setProperty("attachedPageTransform", attachedPageTransform);
             tc.attachTransform(&tr);
         }
     }
