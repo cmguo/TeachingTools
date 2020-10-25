@@ -112,9 +112,10 @@ void PageBoxControl::attached()
     }
     PageBoxDocItem * doc = item->document();
     if (res_->flags().testFlag(ResourceView::ListOfPages)) {
-        QObject::connect(doc, &PageBoxDocItem::currentPageChanged, this, [this](int page) {
-            res_->page()->switchSubPage(page);
-        });
+//        QObject::connect(doc, &PageBoxDocItem::currentPageChanged, this, [this](int page) {
+//            res_->page()->switchSubPage(page);
+//        });
+        doc->pageNumberWidget()->attachResourcePage(res_->page());
         QObject::connect(doc, &PageBoxDocItem::layoutModeChanged, this, [this]() {
             res_->page()->clearSubPages();
         });
@@ -243,8 +244,7 @@ void PageBoxControl::enableInkPad()
 
 void PageBoxControl::loadPages(int initialPage)
 {
-    RecordMergeScope rs(this);
-    rs.drop();
+    RecordMergeScope rs(this, true);
     PageBoxItem * item = static_cast<PageBoxItem *>(item_);
     item->document()->reset();
     item->setScaleMode(PageBoxItem::WholePage); // restore from ManualScale

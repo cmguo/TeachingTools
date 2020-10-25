@@ -9,7 +9,6 @@
 #include <guidehelper.h>
 
 #include <data/resourcecache.h>
-#include <core/resourcerecord.h>
 #include <core/toolbutton.h>
 #include <views/pageswitchevent.h>
 
@@ -428,14 +427,6 @@ void PageBoxDocItem::switchPage(int page, bool anim)
     }
     int lastPage = curPage_;
     curPage_ = page;
-    RecordMergeScope rs(this);
-    if (rs) {
-        rs.drop();
-        // TODO: get current attach control from resource
-//        rs.add(makeFunctionRecord(
-//                   [this, lastPage] () { switchPage(lastPage); },
-//                   [this, page] () { switchPage(page); }));
-    }
     onCurrentPageChanged(lastPage, curPage_);
 }
 

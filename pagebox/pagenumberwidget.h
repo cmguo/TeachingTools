@@ -4,9 +4,11 @@
 #include <QWidget>
 #include "TeachingTools_global.h"
 
+class ToolButton;
+class ResourcePage;
+
 class QPushButton;
 class QLabel;
-class ToolButton;
 
 class TEACHINGTOOLS_EXPORT PageNumberWidget : public QWidget
 {
@@ -26,11 +28,14 @@ public:
 
     int number() const { return no_; }
 
+    // no signal
     void setNumber(int n);
 
     bool gotoPrev();
 
     bool gotoNext();
+
+    bool gotoPage(int n);
 
     bool isFirstPage() const;
 
@@ -39,6 +44,8 @@ public:
     void notify();
 
     ToolButton* toolButton();
+
+    void attachResourcePage(ResourcePage * page);
 
 private:
     void buttonClicked();
@@ -50,6 +57,7 @@ private:
 
 private:
     ToolButton* toolButton_ = nullptr;
+    ResourcePage * page_ = nullptr;
 
 private:
     int total_ = 0;

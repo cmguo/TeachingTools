@@ -1,12 +1,14 @@
 #include "pagenumberwidget.h"
 
+#include <core/resourcepage.h>
+#include <core/resourcerecord.h>
 #include <core/toolbutton.h>
+#include <views/qsshelper.h>
 
+#include <QGraphicsProxyWidget>
 #include <QPushButton>
 #include <QLabel>
 #include <QHBoxLayout>
-
-#include <views/qsshelper.h>
 
 PageNumberWidget::PageNumberWidget(QWidget *parent)
     : QWidget(parent, Qt::FramelessWindowHint)
@@ -61,28 +63,30 @@ void PageNumberWidget::setNumber(int n)
     progressLabel_->setText(QString("%1/%2").arg(no_ + 1).arg(total_));
     preBtn_->setEnabled(no_ > 0);
     nextBtn_->setEnabled(no_ + 1 < total_);
+    if (page_)
+        page_->switchSubPage(no_);
 }
 
 bool PageNumberWidget::gotoPrev()
 {
-    if (no_ > 0) {
-        setNumber(no_ - 1);
-        emit pageNumberChanged(no_);
-        return true;
-    } else {
-        return false;
-    }
+	return gotoPage(no_ - 1);
 }
 
 bool PageNumberWidget::gotoNext()
 {
-    if (no_ + 1 < total_) {
-        setNumber(no_ + 1);
-        emit pageNumberChanged(no_);
+	return gotoPage(no_ + 1);
+}
+
+bool PageNumberWidget::gotoPage(int n)
+{
+    RecordMergeScope rs(page_);
+    if (n == no_)
         return true;
-    } else {
+    if (n < 0 || n >= total_)
         return false;
-    }
+    setNumber(n);
+    emit pageNumberChanged(no_);
+    return true;
 }
 
 bool PageNumberWidget::isFirstPage() const
@@ -106,6 +110,18 @@ ToolButton *PageNumberWidget::toolButton()
         toolButton_ = new ToolButton({"pages", "",
                                       ToolButton::CustomWidget, QVariant::fromValue(this)});
     return toolButton_;
+}
+
+void PageNumberWidget::attachResourcePage(ResourcePage *page)
+{
+    if (page_)
+        page_->disconnect(this);
+    page_ = page;
+    if (page_) {
+        connect(page, &ResourcePage::currentSubPageChanged, this, [this] () {
+            gotoPage(page_->currentSubNumber());
+        });
+    }
 }
 
 void PageNumberWidget::buttonClicked()
