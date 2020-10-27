@@ -30,6 +30,11 @@ INKCANVAS_USE_NAMESPACE
 #define ERASE_CLIP_SHAPE 0
 #endif
 
+static constexpr char const * toolstr =
+        "fitToCurve()|FTC|Checkable,NeedUpdate|;"
+        ;
+
+
 InkStrokeControl::InkStrokeControl(ResourceView *res)
     : Control(res, {Touchable})
     , filterItem_(nullptr)
@@ -40,6 +45,7 @@ InkStrokeControl::InkStrokeControl(ResourceView *res)
         flags_.setFlag(DefaultFlags, false);
     } else {
         flags_.setFlag(KeepAspectRatio, true);
+        setToolsString(toolstr);
     }
 }
 
