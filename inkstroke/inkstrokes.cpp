@@ -32,9 +32,9 @@ InkStrokes::InkStrokes(InkStrokes &o)
     if (o.flags().testFlag(Splittable)) {
         strokes_.reset(new StrokeCollection);
         strokes_.swap(o.strokes_);
-        strokes_->setParent(o.strokes().get());
+        strokes_->setParent(o.strokes_.get());
         for (QObject * s : strokes_->children())
-            s->setParent(o.strokes().get());
+            s->setParent(o.strokes_.get());
         if (o.next_)
             o.next_->prev_ = this;
         o.next_ = this;
