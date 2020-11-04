@@ -79,13 +79,14 @@ bool InkStrokeFilter::sceneEventFilter(QGraphicsItem *watched, QEvent *event)
             sending_ = false;
 
             if (!m.isAccepted()) {
-                break;
+                continue;
             }
 
             sending_ = true;
             scene()->sendEvent(item, event);
             sending_ = false;
-        }
+            break;
+        } // for
         if (l.isNull())
             return true;
         me.setSource(source);
