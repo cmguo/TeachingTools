@@ -119,7 +119,11 @@ void PageNumberWidget::attachResourcePage(ResourcePage *page)
     page_ = page;
     if (page_) {
         connect(page, &ResourcePage::currentSubPageChanged, this, [this] () {
-            gotoPage(page_->currentSubNumber());
+            int no = page_->currentSubNumber();
+            if (no == -1)
+                setNumber(no);
+            else
+                gotoPage(no);
         });
     }
 }
