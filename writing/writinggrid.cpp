@@ -8,6 +8,7 @@
 #include <QGraphicsSceneResizeEvent>
 #include <QGraphicsProxyWidget>
 #include <core/control.h>
+#include <core/resourcerecord.h>
 #include <Windows/Controls/inkcanvas.h>
 
 INKCANVAS_USE_NAMESPACE
@@ -187,21 +188,11 @@ bool WritingGrid::sceneEventFilter(QGraphicsItem* watched, QEvent* event)
     if (mouseEvent->pos().y() > (addItem->pos().y() - clickGap) && mouseEvent->pos().y() < (addItem->pos().y() + clickGap * 3)) {
         if(isMousePressed) return true;
         addGrid();
-        WritingGridControl* control = qobject_cast<WritingGridControl*>(WritingGridControl::fromItem(this));
-        if (control != nullptr)
-            control->sizeChanged();
-        adjustControlItemPos();
-        adjustInkCanvas();
         return true;
     }
     if (decItem->isVisible() && mouseEvent->pos().y() > (decItem->pos().y() - clickGap) && mouseEvent->pos().y() < (decItem->pos().y() + clickGap * 3)) {
         if(isMousePressed) return true;
         decGrid();
-        WritingGridControl* control = qobject_cast<WritingGridControl*>(WritingGridControl::fromItem(this));
-        if (control != nullptr)
-            control->sizeChanged();
-        adjustControlItemPos();
-        adjustInkCanvas();
         return true;
     }
 
@@ -308,20 +299,29 @@ int WritingGrid::gridCount() const
 
 void WritingGrid::setGridCount(int n)
 {
+    RecordMergeScope rs(this);
+    if (rs)
+        rs.add(MakeFunctionRecord(
+                   [this, n = gridCount_] () { setGridCount(n); },
+                   [this, n] () { setGridCount(n); }));
     prepareGeometryChange();
     gridCount_ = n;
+    WritingGridControl* control = qobject_cast<WritingGridControl*>(WritingGridControl::fromItem(this));
+    if (control != nullptr)
+        control->sizeChanged();
     adjustControlItemPos();
     adjustInkCanvas();
 }
 
-void WritingGrid::addGrid(){
-    gridCount_++;
+void WritingGrid::addGrid()
+{
+    setGridCount(gridCount_ + 1);
 }
 
-void WritingGrid::decGrid(){
-    if(gridCount_>1) {
-        prepareGeometryChange();
-        gridCount_--;
+void WritingGrid::decGrid()
+{
+    if (gridCount_ > 1) {
+        setGridCount(gridCount_ - 1);
     }
 }
 
