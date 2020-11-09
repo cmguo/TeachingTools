@@ -9,6 +9,7 @@
 #include <guidehelper.h>
 
 #include <data/resourcecache.h>
+#include <core/resourcerecord.h>
 #include <core/toolbutton.h>
 #include <views/pageswitchevent.h>
 
@@ -75,6 +76,12 @@ void PageBoxDocItem::setLayoutMode(LayoutMode mode)
 {
     if (layoutMode_ == mode)
         return;
+    RecordMergeScope rs(this);
+    if (rs && rs.atTop())
+        rs.add(MakeFunctionRecord(
+                [this, mode = layoutMode_] { setLayoutMode(mode); },
+                [this, mode] { setLayoutMode(mode); }
+        ));
     layoutMode_ = mode;
     emit layoutModeChanged();
     relayout();

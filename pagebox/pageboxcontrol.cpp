@@ -118,6 +118,7 @@ void PageBoxControl::attached()
         doc->pageNumberWidget()->attachResourcePage(res_->page());
         QObject::connect(doc, &PageBoxDocItem::layoutModeChanged, this, [this]() {
             res_->page()->clearSubPages();
+            buttonsChanged();
         });
     }
     if (res_->property("pageData").isValid()) {
