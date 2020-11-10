@@ -352,7 +352,8 @@ void ClickThroughtHelper::handle(RoutedEventArgs &)
 }
 
 StrokesRecordHelper::StrokesRecordHelper(InkCanvas *ink)
-    : ink_(ink)
+    : QObject(ink)
+    , ink_(ink)
 {
     ink->AddHandler(Mouse::MouseDownEvent, RoutedEventHandlerT<
                     StrokesRecordHelper, RoutedEventArgs, &StrokesRecordHelper::handle>(this));
