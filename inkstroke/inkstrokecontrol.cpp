@@ -228,10 +228,10 @@ void InkStrokeControl::attached()
         ink->SetStrokes(strokes->strokes());
         ink->SetRenderSize(strokes->size());
         loadFinished(true);
-    }, [this, l] (std::exception & e) {
+    }, [this, l] (std::exception &) {
         if (l.isNull())
             return;
-        loadFinished(false, e.what());
+        loadFailed();
     });
 }
 
