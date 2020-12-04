@@ -1,0 +1,63 @@
+{
+    "Exports": [
+        {
+            "attrs": {
+                "mineType": "inkstroke"
+            },
+            "meta": "InkStrokes/1.0",
+            "type": "ResourceView/1.0"
+        },
+        {
+            "attrs": {
+                "position": "middle"
+            },
+            "meta": "InkStrokeTools/1.0",
+            "share": "shared",
+            "type": "ToolButtonProvider/1.0"
+        },
+        {
+            "meta": "InkStrokeHelper",
+            "share": "shared",
+            "type": "InkStrokeHelper"
+        },
+        {
+            "attrs": {
+                "mineType": "writinggrid"
+            },
+            "meta": "WritingGridControl/1.0",
+            "type": "Control/1.0"
+        },
+        {
+            "attrs": {
+                "position": "middle"
+            },
+            "meta": "InkStrokeTools/1.0",
+            "share": "shared",
+            "type": "InkStrokeTools/1.0"
+        },
+        {
+            "attrs": {
+                "mineType": "pages"
+            },
+            "meta": "PageBoxControl/1.0",
+            "type": "Control/1.0"
+        },
+        {
+            "attrs": {
+                "mineType": "inkstroke"
+            },
+            "meta": "InkStrokeControl/1.0",
+            "type": "Control/1.0"
+        }
+    ],
+    "Imports": [
+    ],
+    "Keys": [
+        "InkStrokes/1.0",
+        "InkStrokeTools/1.0",
+        "InkStrokeHelper",
+        "WritingGridControl/1.0",
+        "PageBoxControl/1.0",
+        "InkStrokeControl/1.0"
+    ]
+}

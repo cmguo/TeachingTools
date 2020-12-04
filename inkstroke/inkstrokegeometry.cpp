@@ -1,7 +1,5 @@
 #include "inkstrokegeometry.h"
 
-#include <geometry.h>
-#include <geometryhelper.h>
 #include <views/qsshelper.h>
 
 #include <qcomponentcontainer.h>
@@ -95,7 +93,14 @@ void InkStrokeGeometry::toCurve(QSharedPointer<Stroke> stroke, qreal(func)(qreal
     }
     stroke->SetStylusPoints(points);
     Matrix m;
-    m.Rotate(-GeometryHelper::angle(Point(e - s)));
+    static QObject* geometryHelper = QComponentContainer::globalInstance().getExportValue("GeometryHelper");
+    if (geometryHelper) {
+        qreal angle = 0;
+        bool ok = QMetaObject::invokeMethod(geometryHelper, "angle", Q_RETURN_ARG(qreal,angle),
+                      Q_ARG(QPointF,QPointF(Point(e - s))));
+        if (ok)
+            m.Rotate(-angle);
+    }
     m.Translate(s.X(), s.Y());
     stroke->Transform(m, false);
 }
@@ -103,13 +108,6 @@ void InkStrokeGeometry::toCurve(QSharedPointer<Stroke> stroke, qreal(func)(qreal
 void InkStrokeGeometry::autoShape(QSharedPointer<Stroke> stroke)
 {
     (void) stroke;
-}
-
-QSharedPointer<Stroke> InkStrokeGeometry::fromGeometry(::Geometry *geometry)
-{
-    QSharedPointer<Stroke> s = InkCanvasQt::createStroke(
-        geometry->graphPath(), geometry->color(), geometry->width());
-    return s;
 }
 
 InkStrokeGeometry::InkStrokeGeometry(InkCanvas *ink)

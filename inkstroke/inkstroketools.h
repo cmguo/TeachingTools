@@ -1,11 +1,11 @@
 #ifndef INKSTROKETOOLS_H
 #define INKSTROKETOOLS_H
 
-#include "TeachingTools_global.h"
-
 #include <core/toolbuttonprovider.h>
 
 #include <Windows/Controls/editingmode.h>
+
+#include <qpart.h>
 
 #include <QColor>
 
@@ -20,9 +20,10 @@ using INKCANVAS_PREPEND_NAMESPACE(InkCanvasEditingMode);
 #define INKSTORKE_DRAWING_SETTING 0
 #endif
 
-class TEACHINGTOOLS_EXPORT InkStrokeTools : public ToolButtonProvider
+class InkStrokeTools : public ToolButtonProvider
 {
     Q_OBJECT
+    Q_CLASSINFO("position", "middle")
 
     Q_PROPERTY(INKCANVAS_PREPEND_NAMESPACE(InkCanvasEditingMode) mode READ mode WRITE setMode)
     Q_PROPERTY(bool enabled READ enabled WRITE setEnabled)
@@ -31,14 +32,14 @@ class TEACHINGTOOLS_EXPORT InkStrokeTools : public ToolButtonProvider
     Q_PROPERTY(qreal width READ width WRITE setWidth)
 
 public:
-    InkStrokeTools(QObject* parent = nullptr, WhiteCanvas* whiteCanvas = nullptr);
+    Q_INVOKABLE InkStrokeTools(QObject* parent = nullptr, WhiteCanvas* whiteCanvas = nullptr);
 
     virtual ~InkStrokeTools() override;
 
     static InkStrokeTools * instance();
 
 public:
-    void attachToWhiteCanvas(WhiteCanvas* whiteCanvas);
+    Q_INVOKABLE void attachToWhiteCanvas(WhiteCanvas* whiteCanvas);
 
     Q_INVOKABLE void setOuterControl(QObject* control, bool sync = false);
 

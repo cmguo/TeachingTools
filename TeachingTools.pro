@@ -2,6 +2,7 @@ QT += widgets quick quickwidgets qml
 
 TEMPLATE = lib
 DEFINES += TEACHINGTOOLS_LIBRARY
+CONFIG += plugin
 
 CONFIG += c++14
 
@@ -25,12 +26,12 @@ prod_qxkt{
 }
 
 SOURCES += \
-    teachingtools.cpp \
+    teachingtoolsplugin.cpp
 
 HEADERS += \
     TeachingTools_global.h \
     controls.h \
-    teachingtools.h \
+    teachingtoolsplugin.h
 
 RESOURCES += \
     res/TeachingTools.qrc
@@ -106,9 +107,12 @@ else:unix: LIBS += -L$$OUT_PWD/../Assistant/Guide/ -lGuide
 INCLUDEPATH += $$PWD/../Assistant/Guide
 DEPENDPATH += $$PWD/../Assistant/Guide
 
-win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../Geometry/release/ -lGeometry
-else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../Geometry/debug/ -lGeometryd
-else:unix: LIBS += -L$$OUT_PWD/../Geometry/ -lGeometry
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../PageBox/ -lPageBox
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../PageBox/ -lPageBoxd
+else:unix: LIBS += -L$$OUT_PWD/../PageBox/ -lPageBox
 
-INCLUDEPATH += $$PWD/../Geometry
-DEPENDPATH += $$PWD/../Geometry
+INCLUDEPATH += $$PWD/../PageBox
+DEPENDPATH += $$PWD/../PageBox
+
+DISTFILES += \
+    TeachingTools.json

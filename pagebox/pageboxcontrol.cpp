@@ -11,6 +11,7 @@
 #include <core/resourcetransform.h>
 #include <core/controltransform.h>
 #include <core/resourcerecord.h>
+#include <core/toolbutton.h>
 #include <views/whitecanvas.h>
 #include <views/pageswitchevent.h>
 
@@ -21,6 +22,7 @@
 #include <QApplication>
 #include <QUrl>
 #include <QDir>
+#include <pagesource.h>
 
 PageBoxControl::PageBoxControl(ResourceView * res, Flags flags, Flags clearFlags)
     : Control(res, flags | KeepAspectRatio | Touchable, clearFlags)
@@ -121,14 +123,31 @@ void PageBoxControl::attached()
             buttonsChanged();
         });
     }
-    if (res_->property("pageData").isValid()) {
-        loadPages(item);
-        return;
-    }
-    loadData();
-    if (res_->property("pageModel").isValid()) {
-        loadPages(item);
-        return;
+    if (PageSource * ps = qobject_cast<PageSource*>(res_)) {
+        if (ps->items()) {
+            loadPages(ps->initialPage());
+            return;
+        }
+        QUrl realUrl = QUrl(res_->property("realUrl").toString());
+        if (!realUrl.isValid())
+            realUrl = res_->url();
+        ps->load().then([this, ps, l = life()] () {
+            if (l.isNull()) return;
+            loadPages(ps->initialPage());
+        }, [this, l = life()] (std::exception &) {
+            if (l.isNull()) return;
+            loadFailed();
+        });
+    } else {
+        if (res_->property("pageData").isValid()) {
+            loadPages(item);
+            return;
+        }
+        loadData();
+        if (res_->property("pageModel").isValid()) {
+            loadPages(item);
+            return;
+        }
     }
     // loading with default data
     QStandardItemModel * model = new QStandardItemModel(res_);
@@ -179,9 +198,12 @@ Control::SelectMode PageBoxControl::selectTest(QPointF const & point)
     }
 }
 
-void PageBoxControl::loadEnd(bool ok)
+bool PageBoxControl::handleToolButton(ToolButton *button, const QStringList &args)
 {
-    Control::loadFinished(ok);
+    if (PageSource * ps = qobject_cast<PageSource*>(res_)) {
+        return ps->onToolButton(button);
+    }
+    return false;
 }
 
 bool PageBoxControl::event(QEvent *event)
@@ -225,6 +247,9 @@ void PageBoxControl::parseData()
 
 QSizeF PageBoxControl::pageSize()
 {
+    if (PageSource * ps = qobject_cast<PageSource*>(res_)) {
+        return ps->pageSize();
+    }
     return QSizeF(1656.0, 2326.0);
 }
 
@@ -257,28 +282,34 @@ void PageBoxControl::loadPages(int initialPage)
 void PageBoxControl::loadPages(PageBoxItem * item)
 {
     PageBoxDocItem * doc = item->document();
-    QStandardItemModel * model = nullptr;
-    QPropertyBindings * bindings = nullptr;
-    QVariant pageModel = res_->property("pageModel");
-    if (!pageModel.isValid()) {
-        parseData();
-        pageModel = res_->property("pageModel");
+    if (PageSource * ps = qobject_cast<PageSource*>(res_)) {
+        doc->setPageSource(ps);
+        ps->onLoaded();
+        connect(ps, &PageSource::requestPage, this, &PageBoxControl::switchPage);
+    } else {
+        QStandardItemModel * model = nullptr;
+        QPropertyBindings * bindings = nullptr;
+        QVariant pageModel = res_->property("pageModel");
+        if (!pageModel.isValid()) {
+            parseData();
+            pageModel = res_->property("pageModel");
+        }
+        if (pageModel.isValid()) {
+            model = pageModel.value<QStandardItemModel *>();
+            QVariant pageBindings = res_->property("pageBindings");
+            bindings = pageBindings.value<QPropertyBindings *>();
+        }
+        doc->setItemBindings(bindings);
+        doc->setPageSize(pageSize()); // page size may changed
+        doc->setItems(model);
     }
-    if (pageModel.isValid()) {
-        model = pageModel.value<QStandardItemModel *>();
-        QVariant pageBindings = res_->property("pageBindings");
-        bindings = pageBindings.value<QPropertyBindings *>();
-    }
-    doc->setItemBindings(bindings);
-    doc->setPageSize(pageSize()); // page size may changed
-    doc->setItems(model);
     if (flags_ & RestoreSession) {
         item->restorePosition();
     } else {
         //doc->setManualScale(
         //            item->rect().width() / item->document()->rect().width() / 1.3);
     }
-    loadEnd(true);
+    loadFinished(true);
     if (!res_->flags().testFlag(ResourceView::LargeCanvas))
         item->toolBar()->show();
     //*

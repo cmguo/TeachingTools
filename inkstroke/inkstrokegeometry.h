@@ -40,8 +40,6 @@ public:
 
     static void autoShape(QSharedPointer<Stroke> stroke);
 
-    static QSharedPointer<Stroke> fromGeometry(::Geometry * geometry);
-
 public:
     InkStrokeGeometry(InkCanvas* ink);
 

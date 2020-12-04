@@ -35,7 +35,9 @@ protected:
 
     virtual SelectMode selectTest(QPointF const & point) override;
 
-    virtual void loadEnd(bool ok);
+
+protected:
+    virtual bool handleToolButton(ToolButton * button, QStringList const & args) override;
 
     virtual bool event(QEvent *event) override;
 
