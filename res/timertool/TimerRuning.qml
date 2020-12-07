@@ -34,15 +34,23 @@ Rectangle {
         State {
             name: "runingTime"
             PropertyChanges {target: timer;running:true;}
-            PropertyChanges {target: startTimerBtn;text:"停止计时";visible:true}
+            PropertyChanges {target: startTimerBtn;visible:true}
+            PropertyChanges {target: startTimerBtnPause;text:"暂停";visible:true}
+            PropertyChanges {target: timeoutButton; visible:false}
             PropertyChanges {target: closeBtn;visible:true}
             PropertyChanges {target: minizeBtn;visible:true }
             PropertyChanges {target: timer;intervalTime:0}
         },
         State {
             name: "stopTime"
-            PropertyChanges {target: startTimerBtn;text:"返回"}
             PropertyChanges {target: minizeBtn;visible:false }
+            PropertyChanges {target: timeoutButton; visible:false}
+        },
+        State {
+            name: "stopTimePause"
+            PropertyChanges {target: startTimerBtnPause;text:"继续"}
+            PropertyChanges {target: minizeBtn;visible:false }
+            PropertyChanges {target: timeoutButton; visible:false}
         },
         State {
             name: "minizeTime"
@@ -51,13 +59,17 @@ Rectangle {
             PropertyChanges {target: minizeShowContent;visible:true}
             PropertyChanges {target: timeRuningItem.parent; width:Destiny.dp(356); height:Destiny.dp(80);}
             PropertyChanges {target: startTimerBtn;visible:false}
+            PropertyChanges {target: startTimerBtnPause;visible:false}
+            PropertyChanges {target: timeoutButton; visible:false}
             PropertyChanges {target: closeBtn;visible:false }
             PropertyChanges {target: minizeBtn;visible:false }
             PropertyChanges {target: showTimeText;visible:false }
         },
         State {
             name:"timeout"
-            PropertyChanges {target: startTimerBtn;text:"知道了";visible:true}
+            PropertyChanges {target: startTimerBtn;visible:false}
+            PropertyChanges {target: startTimerBtnPause;visible:false}
+            PropertyChanges {target: timeoutButton; visible:true}
             PropertyChanges {target: showTimeText;text:"时间到";}
             PropertyChanges {target: canvas;visible:true;}
             PropertyChanges {target: minizeBtn;visible:false }
@@ -176,26 +188,86 @@ Rectangle {
             var isDrag = Math.abs(mapToGlobal(mouse.x,mouse.y).x-prex)>5||Math.abs(mapToGlobal(mouse.x,mouse.y).y-prey)>5;
             if(!isDrag &&timeRuningItem.state == "minizeTime"){
                 timeRuningItem.state= "runingTime"
+                if(minizeShowContent.paused) {
+                    timeRuningItem.state = "stopTimePause"
+                }
             }
         }
     }
 
 
+
+
     TalButton { // 底部点击btn
-        id:startTimerBtn
-        talStyle: TalButtonStyleGhostPrimary { size: TalButtonStyle.Size.L; }
-        width: Destiny.dp(256)
-        anchors.horizontalCenter:   parent.horizontalCenter
+        id:startTimerBtnPause
+        talStyle: TalButtonStylePrimary {
+            size: TalButtonStyle.Size.M;
+            textColor: timer.running ? "#615FD8" : "#4CBCA1"
+            textColorPressed: textColor
+            textColorDisabled: textColor
+            textColorHovered: textColor
+            color: "#FFFFFFFF"
+            colorHovered: "#CCFFFFFF"
+            colorPressed: "#7FFFFFFF"
+            width: Destiny.dp(180)
+            height: Destiny.dp(64)
+            radius: height/2
+        }
+        anchors.left: parent.left
+        anchors.leftMargin: Destiny.dp(75)
         anchors.bottomMargin:  Destiny.dp(40)
         anchors.bottom: parent.bottom
         onClicked: {
-            if(timeRuningItem.state == "timeout"||timeRuningItem.state == "stopTime"){
-                timeRuningItem.backBtnClick();
+            if(timeRuningItem.state == "stopTimePause"){
+                if (!soundEffect.playing) {
+                    soundEffect.play()
+                }
+                timeRuningItem.state = "runingTime"
+                timer.running = true
+            }else if(timeRuningItem.state == "runingTime"){
                 if (soundEffect.playing) {
                     soundEffect.stop()
                 }
-            }else if(timeRuningItem.state == "runingTime"){
-                timeRuningItem.state = "stopTime"
+                timer.running = false
+                timeRuningItem.state = "stopTimePause"
+            }
+        }
+    }
+
+    TalButton { // 底部点击btn
+        id:startTimerBtn
+        talStyle: TalButtonStyleGhostPrimary { size: TalButtonStyle.Size.M; }
+        width: Destiny.dp(180)
+        height: Destiny.dp(64)
+        radius: height/2
+        anchors.right: parent.right
+        anchors.rightMargin: Destiny.dp(75)
+        anchors.bottomMargin:  Destiny.dp(40)
+        anchors.bottom: parent.bottom
+        text: "取消"
+        onClicked: {
+            timeRuningItem.state = "stopTime"
+            timeRuningItem.backBtnClick();
+            if (soundEffect.playing) {
+                soundEffect.stop()
+            }
+        }
+    }
+
+    TalButton { // 底部点击btn
+        id: timeoutButton
+        talStyle: TalButtonStyleGhostPrimary { size: TalButtonStyle.Size.M; }
+        width: Destiny.dp(256)
+        height: Destiny.dp(64)
+        radius: height/2
+        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.bottomMargin:  Destiny.dp(40)
+        anchors.bottom: parent.bottom
+        text: "返回"
+        onClicked: {
+            timeRuningItem.backBtnClick();
+            if (soundEffect.playing) {
+                soundEffect.stop()
             }
         }
     }
@@ -242,16 +314,33 @@ Rectangle {
         color: "transparent"
         anchors.fill: parent
         radius: Destiny.dp(8)
+        property var paused: false
+        onVisibleChanged: {
+            if(visible) {
+                paused = false
+            }
+        }
         TalButton {
             id:stopButton
             talStyle: TalButtonStyleGhostPrimary { size: TalButtonStyle.Size.S }
             anchors.left: parent.left
             anchors.leftMargin: Destiny.dp(24)
             anchors.verticalCenter: minizeShowContent.verticalCenter
-            text:"停止"
+            text: minizeShowContent.paused ? "继续" :"暂停"
             onClicked: {
-                timeRuningItem.state= "stopTime"
-                canvas.requestPaint()
+                if(minizeShowContent.paused){
+                    if (!soundEffect.playing) {
+                        soundEffect.play()
+                    }
+                    minizeShowContent.paused = false
+                    timer.running = true
+                } else {
+                    if (soundEffect.playing) {
+                        soundEffect.stop()
+                    }
+                    timer.running = false
+                    minizeShowContent.paused = true
+                }
             }
         }
 
