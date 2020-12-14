@@ -33,7 +33,6 @@ Rectangle {
     states: [
         State {
             name: "runingTime"
-            PropertyChanges {target: timer;running:true;}
             PropertyChanges {target: startTimerBtn;visible:true}
             PropertyChanges {target: startTimerBtnPause;text:"暂停";visible:true}
             PropertyChanges {target: timeoutButton; visible:false}
@@ -49,12 +48,11 @@ Rectangle {
         State {
             name: "stopTimePause"
             PropertyChanges {target: startTimerBtnPause;text:"继续"}
-            PropertyChanges {target: minizeBtn;visible:false }
+            PropertyChanges {target: minizeBtn;visible:true }
             PropertyChanges {target: timeoutButton; visible:false}
         },
         State {
             name: "minizeTime"
-            PropertyChanges {target: timer;running:true;}
             PropertyChanges {target: canvas;visible:false }
             PropertyChanges {target: minizeShowContent;visible:true}
             PropertyChanges {target: timeRuningItem.parent; width:Destiny.dp(356); height:Destiny.dp(80);}
@@ -128,7 +126,7 @@ Rectangle {
 
             Component.onCompleted: {
                 timeRuningItem.state = "runingTime"
-                timer.running = true;
+                timer.start()
                 timer.intervalTotalTime = timeRuningItem.totalTime;
 
             }
@@ -154,8 +152,9 @@ Rectangle {
                         canvas.angle = 90-timeRuningItem.totalTime/intervalTotalTime*90
                         canvas.requestPaint()
                         if(totalTime<=0) {
-                            soundEffect.play()
                             timeRuningItem.state  = "timeout"
+                            timer.stop()
+                            soundEffect.play()
                         }
                     }
                 }
@@ -188,8 +187,9 @@ Rectangle {
             var isDrag = Math.abs(mapToGlobal(mouse.x,mouse.y).x-prex)>5||Math.abs(mapToGlobal(mouse.x,mouse.y).y-prey)>5;
             if(!isDrag &&timeRuningItem.state == "minizeTime"){
                 timeRuningItem.state= "runingTime"
-                if(minizeShowContent.paused) {
+                if(!timer.running) {
                     timeRuningItem.state = "stopTimePause"
+                    timer.stop()
                 }
             }
         }
@@ -219,17 +219,11 @@ Rectangle {
         anchors.bottom: parent.bottom
         onClicked: {
             if(timeRuningItem.state == "stopTimePause"){
-                if (!soundEffect.playing) {
-                    soundEffect.play()
-                }
                 timeRuningItem.state = "runingTime"
-                timer.running = true
+                timer.start()
             }else if(timeRuningItem.state == "runingTime"){
-                if (soundEffect.playing) {
-                    soundEffect.stop()
-                }
-                timer.running = false
                 timeRuningItem.state = "stopTimePause"
+                timer.stop()
             }
         }
     }
@@ -314,32 +308,19 @@ Rectangle {
         color: "transparent"
         anchors.fill: parent
         radius: Destiny.dp(8)
-        property var paused: false
-        onVisibleChanged: {
-            if(visible) {
-                paused = false
-            }
-        }
+
         TalButton {
             id:stopButton
             talStyle: TalButtonStyleGhostPrimary { size: TalButtonStyle.Size.S }
             anchors.left: parent.left
             anchors.leftMargin: Destiny.dp(24)
             anchors.verticalCenter: minizeShowContent.verticalCenter
-            text: minizeShowContent.paused ? "继续" :"暂停"
+            text: !timer.running ? "继续" :"暂停"
             onClicked: {
-                if(minizeShowContent.paused){
-                    if (!soundEffect.playing) {
-                        soundEffect.play()
-                    }
-                    minizeShowContent.paused = false
-                    timer.running = true
+                if(!timer.running){
+                    timer.start()
                 } else {
-                    if (soundEffect.playing) {
-                        soundEffect.stop()
-                    }
-                    timer.running = false
-                    minizeShowContent.paused = true
+                    timer.stop()
                 }
             }
         }
