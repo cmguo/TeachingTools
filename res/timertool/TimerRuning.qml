@@ -241,6 +241,7 @@ Rectangle {
         text: "取消"
         onClicked: {
             timeRuningItem.state = "stopTime"
+            timer.stop()
             timeRuningItem.backBtnClick();
             if (soundEffect.playing) {
                 soundEffect.stop()
