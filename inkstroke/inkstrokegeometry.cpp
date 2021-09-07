@@ -15,6 +15,8 @@
 
 INKCANVAS_USE_NAMESPACE
 
+std::array<InkStrokeGeometry::Shape, 4> InkStrokeGeometry::Shapes = {None, Line, Wavy, Auto};
+
 void InkStrokeGeometry::reshape(QSharedPointer<Stroke> stroke, Shape shape)
 {
     switch (shape) {

@@ -27,7 +27,7 @@ public:
 
     Q_ENUM(Shape)
 
-    static constexpr std::array<Shape, 4> Shapes {None, Line, Wavy, Auto};
+    static std::array<Shape, 4> Shapes;
 
 public:
     static void reshape(QSharedPointer<Stroke> stroke, Shape shape);
