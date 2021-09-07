@@ -17,12 +17,9 @@
 
 INKCANVAS_USE_NAMESPACE
 
-#include <evlogapi/evlogrecorder.h>
-
 #include <QApplication>
 #include <QUrl>
 #include <QDebug>
-#include <guidehelper.h>
 
 static constexpr char const * toolstr =
         "nonStroke|选择|Checkable,NeedUpdate,OptionsGroup|:/teachingtools/icon/stroke.none.svg;"
@@ -309,21 +306,18 @@ bool InkStrokeTools::setOption(const QByteArray &key, QVariant value)
         } else {
             inkControl_->metaObject()->invokeMethod(inkControl_, value.toByteArray());
         }
-        EVLOG_CTX("Main:BottomTool", click, "typeId", (QString("Select")))
     } else if (key == "stroke") {
         if (!value.isValid()) {
             if (mode_ == InkCanvasEditingMode::Ink)
                 togglePopupMenu(getStringButton(1));
             else
                 setMode(InkCanvasEditingMode::Ink);
-            EVLOG_CTX("Main:BottomTool", click, "typeId", (QString("Pen")))
         } else if (value.toString().startsWith("#")) {
             value.convert(QVariant::Color);
             setColor(value.value<QColor>());
 
             QString typeId("StrokeColor");
             typeId.append(".").append(value.toString());
-            EVLOG_CTX("Main:BottomTool", click, "typeId", (typeId))
         } else if (!(value.toString().at(0).isDigit())
                    && value.convert(qMetaTypeId<InkStrokeGeometry::Shape>())) {
             if (inkControl_)
@@ -334,7 +328,6 @@ bool InkStrokeTools::setOption(const QByteArray &key, QVariant value)
 
             QString typeId("StrokeWidth");
             typeId.append(".").append(value.toString());
-            EVLOG_CTX("Main:BottomTool", click, "typeId", (typeId))
         }
     } else if (key == "select") {
         if (!value.isValid()) {
@@ -345,18 +338,13 @@ bool InkStrokeTools::setOption(const QByteArray &key, QVariant value)
         }
     } else if (key == "eraser") {
         if (mode_ == InkCanvasEditingMode::Ink) {
-            QWidget *widget = qobject_cast<QWidget*>(parent());
-            bool result = GuideHelper::instance()->checkGuide(widget, GestureType::Earser);
-            if (result) {
-                return ToolButtonProvider::setOption(key, value);
-            }
+            return ToolButtonProvider::setOption(key, value);
         }
         if (!value.isValid()) {
             if (mode_ == InkCanvasEditingMode::EraseByPoint)
                 togglePopupMenu(getStringButton(2));
             else
                 setMode(InkCanvasEditingMode::EraseByPoint);
-            EVLOG_CTX("Main:BottomTool", click, "typeId", (QString("Eraser")))
         } else {
             clearInkStroke();
         }
