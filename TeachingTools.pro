@@ -36,6 +36,9 @@ HEADERS += \
 RESOURCES += \
     res/TeachingTools.qrc
 
+DISTFILES += \
+    TeachingTools.json
+
 include(writing/writing.pri)
 include(pagebox/pagebox.pri)
 include(inkstroke/inkstroke.pri)
@@ -93,5 +96,7 @@ else:unix: LIBS += -L$$OUT_PWD/../PageBox/ -lPageBox
 INCLUDEPATH += $$PWD/../PageBox
 DEPENDPATH += $$PWD/../PageBox
 
-DISTFILES += \
-    TeachingTools.json
+win32: LIBS += -LD:/work/tools/vcpkg/installed/x64-windows/lib -ltesseract41 -lleptonica-1.80.0
+#else:unix: LIBS += -L$$PWD/tesseract/lib -ltesseract41 -lleptonica-1.80.0
+
+INCLUDEPATH += D:/work/tools/vcpkg/installed/x64-windows/include

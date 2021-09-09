@@ -9,6 +9,7 @@
 
 INKCANVAS_FORWARD_DECLARE_CLASS(InkCanvas);
 INKCANVAS_FORWARD_DECLARE_CLASS(StrokeCollection);
+INKCANVAS_FORWARD_DECLARE_CLASS(StrokeCollectionChangedEventArgs);
 
 enum WritingGridType
 {
@@ -79,11 +80,17 @@ private:
    void adjustWidth();
    void adjustControlItemPos();
    void adjustInkCanvas();
+   void strokesChanged(StrokeCollectionChangedEventArgs & args);
+   void ocr();
+
+   virtual void timerEvent(QTimerEvent *event);
+
 private:
     QGraphicsPixmapItem *addItem;
     QGraphicsPixmapItem *decItem;
     QGraphicsPixmapItem *inkItem;
-	QGraphicsPixmapItem *inkEraseItem;
+    QGraphicsPixmapItem *inkEraseItem;
+    QGraphicsTextItem *ocrItem;
     QGraphicsRectItem *controlItem;
     qreal m_width;
     qreal m_height;
@@ -102,7 +109,7 @@ private:
     QSize itemSize=QSize(40,40);
     InkCanvas * ink ;
     float m_adapterRatio = 1.0f;
-
+    int timerOcr = 0;
 };
 
 #endif // WRITINGGRID_H

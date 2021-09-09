@@ -1,15 +1,17 @@
 #include "writinggrid.h"
 #include "writinggridcontrol.h"
 #include "inkstroke/inkstrokehelper.h"
+#include "tesseractocr.h"
+
+#include <core/control.h>
+#include <core/resourcerecord.h>
+#include <Windows/Controls/inkcanvas.h>
 
 #include <QPainter>
 #include <QDebug>
 #include <QEvent>
 #include <QGraphicsSceneResizeEvent>
 #include <QGraphicsProxyWidget>
-#include <core/control.h>
-#include <core/resourcerecord.h>
-#include <Windows/Controls/inkcanvas.h>
 
 INKCANVAS_USE_NAMESPACE
 
@@ -48,14 +50,23 @@ WritingGrid::WritingGrid(int h,WritingGridType type,QGraphicsItem * parent)
     inkItem->setAcceptedMouseButtons(Qt::LeftButton);
     inkItem->setX((controlItemSize.width()-itemSize.width())/2);
 
+    ocrItem = new QGraphicsTextItem(controlItem);
+    ocrItem->setScale(2.0);
+    ocrItem->setPlainText("字");
+    ocrItem->setAcceptedMouseButtons(Qt::LeftButton);
+    ocrItem->setX((controlItemSize.width()-itemSize.width())/2);
+
     inkEraseItem = new QGraphicsPixmapItem(controlItem);
     inkEraseItem->setPixmap(QPixmap(":/teachingtools/icon/icon_eraser_normal.png").scaled(itemSize, Qt::KeepAspectRatio, Qt::SmoothTransformation));
     inkEraseItem->setAcceptedMouseButtons(Qt::LeftButton);
     inkEraseItem->setX((controlItemSize.width() - itemSize.width()) / 2);
+
     adjustControlItemPos();
     ink = InkStrokeHelper::createInkCanvas(Qt::black, 8, {24, 40});
     ink->SetLimitInputPosition(true);
     ink->SetEditingMode(InkCanvasEditingMode::Ink);
+    QObject::connect(ink->Strokes().get(), &StrokeCollection::StrokesChanged,
+                     this, &WritingGrid::strokesChanged);
     //QGraphicsProxyWidget * proxy = new QGraphicsProxyWidget(this);
     //proxy->setWidget(ink);
     ink->setParentItem(this);
@@ -209,6 +220,9 @@ bool WritingGrid::sceneEventFilter(QGraphicsItem* watched, QEvent* event)
         inkItem->setPixmap(QPixmap(":/teachingtools/icon/icon_ink_normal.png").scaled(itemSize, Qt::KeepAspectRatio, Qt::SmoothTransformation));
         ink->SetEditingMode(InkCanvasEditingMode::EraseByPoint);
         ink->itemChange(QGraphicsItem::ItemTransformHasChanged, QVariant()); // for update cursor
+    }
+    if (mouseEvent->pos().y() > (ocrItem->pos().y() - clickGap) && mouseEvent->pos().y() < (ocrItem->pos().y() + clickGap * 3)) {
+        ocr();
         return true;
     }
 
@@ -352,9 +366,10 @@ void WritingGrid::adjustControlItemPos()
 {
     controlItem->setRect(0,0,controlItemSize.width(),newScaleSize.height());
     inkEraseItem->setY(55*m_adapterRatio);
-    addItem->setY(125 * m_adapterRatio);
+    ocrItem->setY(110 *m_adapterRatio);
+    addItem->setY(180 * m_adapterRatio);
     decItem->setVisible(gridCount_ != 1);
-    decItem->setY(180 * m_adapterRatio);
+    decItem->setY(235 * m_adapterRatio);
 }
 
 void WritingGrid::adjustInkCanvas()
@@ -365,5 +380,28 @@ void WritingGrid::adjustInkCanvas()
     //QGraphicsProxyWidget * proxy = ink->graphicsProxyWidget();
     //if (proxy)
     //    proxy->resize(ink->minimumSize());
+}
+
+void WritingGrid::strokesChanged(StrokeCollectionChangedEventArgs &args)
+{
+    if (timerOcr != 0)
+        killTimer(timerOcr);
+    timerOcr = startTimer(2000);
+}
+
+void WritingGrid::ocr()
+{
+    static TesseractOcr c;
+    QString t = c.detect(ink);
+    if (t.isEmpty()) t = "?";
+    ocrItem->setPlainText(t);
+}
+
+void WritingGrid::timerEvent(QTimerEvent *event)
+{
+    if (event->timerId() == timerOcr) {
+        ocr();
+        killTimer(timerOcr);
+    }
 }
 
