@@ -48,6 +48,13 @@
             },
             "meta": "InkStrokeControl/1.0",
             "type": "Control/1.0"
+        },
+        {
+            "attrs": {
+                "mineType": "hanzi"
+            },
+            "meta": "HanziControl/1.0",
+            "type": "Control/1.0"
         }
     ],
     "Imports": [
@@ -58,6 +65,7 @@
         "InkStrokeHelper",
         "WritingGridControl/1.0",
         "PageBoxControl/1.0",
-        "InkStrokeControl/1.0"
+        "InkStrokeControl/1.0",
+        "HanziControl/1.0"
     ]
 }
