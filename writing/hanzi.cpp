@@ -9,6 +9,15 @@
 QRect Hanzi::VIEW_BOX = {0, 0, 1024, 1024};
 QTransform Hanzi::TRANSFORM(1, 0, 0, -1, 0, 900);
 
+static QVector<int> makeNull()
+{
+    QVector<int> v(1, 0);
+    v.clear();
+    return v;
+}
+
+static QVector<int> null = makeNull();
+
 Hanzi::Hanzi(QChar character, QObject *parent)
     : QObject(parent)
 {
@@ -55,16 +64,24 @@ QVector<int> Hanzi::radical() const
         } else if (c == dict_.radical) {
             break;
         } else {
-            while (++position.back() == stack.back()) {
+            while (!stack.isEmpty() && ++position.back() == stack.back()) {
                 stack.pop_back();
                 position.pop_back();
             }
         }
     }
-    position.pop_front();
     QVector<int> indexes;
+    if (position.isEmpty()) {
+        if (dict_.radical == dict_.character) {
+            for (int i = 0; i < dict_.matches.size(); ++i)
+                indexes.append(i);
+            return indexes;
+        }
+    } else {
+        position.pop_front();
+    }
     for (int i = 0; i < dict_.matches.size(); ++i) {
-        if (dict_.matches[i] == position)
+        if (!dict_.matches[i].isSharedWith(null) && dict_.matches[i] == position)
             indexes.append(i);
     }
     return indexes;
@@ -148,8 +165,12 @@ void Hanzi::parseDict(Hanzi::DictionaryItem &dict, const QByteArray &json)
     dict.radical = j.value("radical").toString();
     for (QJsonValue const v : j.value("matches").toArray()) {
         QVector<int> array;
-        for (QJsonValue const vv : v.toArray()) {
-            array.append(vv.toInt());
+        if (v.isNull()) {
+            array = null;
+        } else {
+            for (QJsonValue const vv : v.toArray()) {
+                array.append(vv.toInt());
+            }
         }
         dict.matches.append(array);
     }
