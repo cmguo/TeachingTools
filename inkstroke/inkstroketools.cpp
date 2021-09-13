@@ -63,9 +63,6 @@ protected:
     }
 } styleButton;
 
-static QssHelper QSS_PEN(":/teachingtools/qss/inktoolspen.qss");
-static QssHelper QSS_ERASER(":/teachingtools/qss/inktoolseraser.qss");
-
 static InkStrokeTools * inst = nullptr;
 
 InkStrokeTools::InkStrokeTools(QObject* parent, WhiteCanvas *whiteCanvas)
@@ -441,6 +438,8 @@ QWidget *InkStrokeTools::createWidget(ToolButton *button)
 
 QWidget *InkStrokeTools::createPenWidget(ToolButton *button)
 {
+    static QssHelper QSS_PEN(":/teachingtools/qss/inktoolspen.qss");
+
     QList<ToolButton *> buttons;
     ToolButtonProvider::getToolButtons(buttons, QList<ToolButton*>({button}));
     ToolbarWidget bar;
@@ -463,6 +462,8 @@ QWidget *InkStrokeTools::createSelectWidget(ToolButton *button)
 
 QWidget *InkStrokeTools::createEraserWidget(ToolButton *button)
 {
+    static QssHelper QSS_ERASER(":/teachingtools/qss/inktoolseraser.qss");
+
     QWidget * widget = InkStrokeHelper::createEraserWidget(QSS_ERASER);
     ToolButton::action_t action([this, widget, button]() {
         widget->hide();
