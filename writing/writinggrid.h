@@ -37,7 +37,9 @@ public:
 
     virtual bool sceneEventFilter(QGraphicsItem *watched, QEvent *event) override;
     virtual QVariant itemChange(GraphicsItemChange change, const QVariant &value) override;
-    QGraphicsItem* createControlBar();
+
+    QGraphicsItem* createLeftControlBar();
+    QGraphicsItem* createRightControlBar();
 
     void setDotLineColor(QColor &color);
     void setDotLineWidth(int width);
@@ -86,12 +88,15 @@ private:
    virtual void timerEvent(QTimerEvent *event);
 
 private:
+    QGraphicsRectItem *leftControlItem;
+    QGraphicsRectItem *rightControlItem;
+    QGraphicsTextItem *ocrItem;
+    QGraphicsTextItem *animItem;
+
     QGraphicsPixmapItem *addItem;
     QGraphicsPixmapItem *decItem;
     QGraphicsPixmapItem *inkItem;
     QGraphicsPixmapItem *inkEraseItem;
-    QGraphicsTextItem *ocrItem;
-    QGraphicsRectItem *controlItem;
     qreal m_width;
     qreal m_height;
     QColor m_dotLineColor;

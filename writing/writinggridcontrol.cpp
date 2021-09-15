@@ -52,10 +52,11 @@ void WritingGridControl::attaching()
     pixItem->setX(topItem->boundingRect().width()/2-pixItemSize.width()/2);
     pixItem->setY(topItem->boundingRect().height()/2-pixItemSize.height()/2);
     frame->addDockItem(ItemFrame::Top, topItem);
-    frame->addDockItem(ItemFrame::Left, 72 * m_adapterRatio);
+    QGraphicsItem *item = static_cast<WritingGrid*>(item_)->createLeftControlBar();
+    frame->addDockItem(ItemFrame::Left, item);
     frame->addDockItem(ItemFrame::Buttom, 16 * m_adapterRatio);
-    QGraphicsItem *item = static_cast<WritingGrid*>(item_)->createControlBar();
-    frame->addDockItem(ItemFrame::Right,item);
+    QGraphicsItem *item2 = static_cast<WritingGrid*>(item_)->createRightControlBar();
+    frame->addDockItem(ItemFrame::Right,item2);
 }
 
 void WritingGridControl::attached()
