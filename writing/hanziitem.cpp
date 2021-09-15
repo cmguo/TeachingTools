@@ -76,7 +76,7 @@ void HanziItem::pinyin()
 {
     list_.clear();
     for (QByteArray py: hanzi_.pinyin()) {
-        QString file = "pinyin/" + py + ".mp3";
+        QString file = "PinYinSound/" + py + ".mp3";
         if (QFile(file).exists())
             list_.addMedia(QUrl::fromLocalFile(file));
         else

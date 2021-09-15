@@ -8,6 +8,7 @@
 #include <QPen>
 #include <QUrl>
 #include <QDebug>
+#include <QTimerEvent>
 
 static constexpr char const * toolstr =
         "next()|下一笔|;"
@@ -17,7 +18,7 @@ static constexpr char const * toolstr =
         ;
 
 HanziControl::HanziControl(ResourceView *res)
-    : Control(res, {KeepAspectRatio, FixedOnCanvas})
+    : Control(res, {KeepAspectRatio, FixedOnCanvas, Touchable}, {CanRotate})
 {
     setToolsString(toolstr);
 }
@@ -69,4 +70,3 @@ void HanziControl::timerEvent(QTimerEvent *event)
         }
     }
 }
-
