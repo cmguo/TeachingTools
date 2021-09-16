@@ -2,9 +2,12 @@ QT += widgets quick quickwidgets qml multimedia
 
 TEMPLATE = lib
 DEFINES += TEACHINGTOOLS_LIBRARY
-CONFIG += plugin
+#CONFIG += plugin
 
 CONFIG += c++14
+
+include($$(applyCommonConfig))
+include($$(applyConanPlugin))
 
 include(../config.pri)
 
@@ -62,33 +65,6 @@ else:unix: LIBS += -L$$OUT_PWD/../ShowBoard/ -lShowBoard
 INCLUDEPATH += $$PWD/../ShowBoard
 DEPENDPATH += $$PWD/../ShowBoard
 
-win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../QtComposition/release/ -lQtComposition
-else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../QtComposition/debug/ -lQtCompositiond
-else:unix: LIBS += -L$$OUT_PWD/../QtComposition/ -lQtComposition
-
-INCLUDEPATH += $$PWD/../QtComposition
-DEPENDPATH += $$PWD/../QtComposition
-
-
-INCLUDEPATH += $$PWD/../QtPromise/src
-
-INCLUDEPATH += $$PWD/../qtpromise/src/qtpromise $$PWD/../qtpromise/include
-#DEPENDPATH += $$PWD/../qtpromise/src/qtpromise
-
-win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../InkCanvas/release/ -lInkCanvas
-else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../InkCanvas/debug/ -lInkCanvasd
-else:unix: LIBS += -L$$OUT_PWD/../InkCanvas/ -lInkCanvas
-
-INCLUDEPATH += $$PWD/../InkCanvas
-DEPENDPATH += $$PWD/../InkCanvas
-
-win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../QtEventBus/release/ -lQtEventBus
-else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../QtEventBus/debug/ -lQtEventBusd
-else:unix: LIBS += -L$$OUT_PWD/../QtEventBus/ -lQtEventBus
-
-INCLUDEPATH += $$PWD/../QtEventBus
-DEPENDPATH += $$PWD/../QtEventBus
-
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../PageBox/ -lPageBox
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../PageBox/ -lPageBoxd
 else:unix: LIBS += -L$$OUT_PWD/../PageBox/ -lPageBox
@@ -96,7 +72,13 @@ else:unix: LIBS += -L$$OUT_PWD/../PageBox/ -lPageBox
 INCLUDEPATH += $$PWD/../PageBox
 DEPENDPATH += $$PWD/../PageBox
 
+exists(D:/work/tools/vcpkg/installed) {
+
+DEFINES += HAS_TESSERACT
+
 win32: LIBS += -LD:/work/tools/vcpkg/installed/x64-windows/lib -ltesseract41 -lleptonica-1.80.0
 #else:unix: LIBS += -L$$PWD/tesseract/lib -ltesseract41 -lleptonica-1.80.0
 
 INCLUDEPATH += D:/work/tools/vcpkg/installed/x64-windows/include
+
+}

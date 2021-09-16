@@ -9,6 +9,7 @@
 
 TesseractOcr::TesseractOcr()
 {
+#ifdef HAS_TESSERACT
     tesseract::TessBaseAPI *api = new tesseract::TessBaseAPI();
     // Initialize tesseract-ocr with English, without specifying tessdata path
     if (api->Init(QDir::currentPath().toUtf8() + "/tessdata_best", "chi_sim")) {
@@ -17,17 +18,21 @@ TesseractOcr::TesseractOcr()
     }
     api->SetPageSegMode(tesseract::PSM_SINGLE_CHAR);
     api_ = api;
+#endif
 }
 
 TesseractOcr::~TesseractOcr()
 {
+#ifdef HAS_TESSERACT
     api_->End();
     delete api_;
+#endif
 }
 
 QString TesseractOcr::detect(QString const & file)
 {
     QString out;
+#ifdef HAS_TESSERACT
     Pix *image = pixRead(file.toUtf8());
     api_->SetImage(image);
     // Get OCR result
@@ -37,6 +42,7 @@ QString TesseractOcr::detect(QString const & file)
 
 //    delete [] outText; // TODO: CRT
     pixDestroy(&image);
+#endif
     return out;
 }
 
@@ -58,6 +64,7 @@ QString TesseractOcr::detect(QGraphicsItem *item)
 
     QString out;
 
+#ifdef HAS_TESSERACT
     // Open input image with leptonica library
     Pix *image = pixReadMem(reinterpret_cast<l_uint8 const*>(imageData.data().data()), imageData.size());
     api_->SetImage(image);
@@ -118,6 +125,8 @@ QString TesseractOcr::detect(QGraphicsItem *item)
 
     //    delete [] outText; // TODO: CRT
     pixDestroy(&image);
+#endif
+
     return out;
 
 }
