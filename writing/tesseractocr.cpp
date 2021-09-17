@@ -1,7 +1,10 @@
 #include "tesseractocr.h"
 
+#ifdef HAS_TESSERACT
 #include <tesseract/baseapi.h>
 #include <leptonica/allheaders.h>
+#endif
+
 #include <QDir>
 #include <QPainter>
 #include <QStyleOptionGraphicsItem>
