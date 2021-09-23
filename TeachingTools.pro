@@ -45,6 +45,7 @@ DISTFILES += \
 include(writing/writing.pri)
 include(pagebox/pagebox.pri)
 include(inkstroke/inkstroke.pri)
+include(mindmap/mindmap.pri)
 
 includes.files = $$PWD/*.h
 win32 {
