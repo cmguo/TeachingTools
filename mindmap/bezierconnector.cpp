@@ -17,6 +17,8 @@ void BezierConnector::draw(QPainter *painter, QRectF  const & exposedRect)
     rc = rc.normalized();
     if (!exposedRect.intersects(rc.adjusted(-1, -1, 1, 1)))
         return;
+    painter->setPen(Qt::black);
+    painter->setBrush(QBrush());
     if (qAbs(start_.y() - end_.y()) < 1) {
         painter->drawLine(start_, end_);
     } else {

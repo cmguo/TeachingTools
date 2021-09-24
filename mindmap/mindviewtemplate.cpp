@@ -1,5 +1,6 @@
 #include "arcconnector.h"
 #include "bezierconnector.h"
+#include "mindviewstyle.h"
 #include "mindviewtemplate.h"
 #include "simpleconnector.h"
 #include "simpleview.h"
@@ -11,33 +12,37 @@ MindViewTemplate::MindViewTemplate()
 {
     levelPadding = 60;
     siblinPadding = 30;
+    viewStyles.append(new MindViewStyle());
 }
 
 MindViewTemplate::MindViewTemplate(const QJsonObject &json)
 {
-    levelPadding = json.value("levelPadding").toDouble();
-    siblinPadding = json.value("siblinPadding").toDouble();
-    QJsonArray lts = json.value("lineTypes").toArray();
-    for (auto lt : lts) {
-        lineTypes.append(lt.toInt());
-    }
-    QJsonArray lws = json.value("lineWidths").toArray();
-    for (auto lw : lws) {
-        lineWidths.append(lw.toDouble());
-    }
-    QJsonArray vts = json.value("viewTypes").toArray();
-    for (auto vt : vts) {
-        viewTypes.append(vt.toString().toUtf8());
+    levelPadding = json.value("levelPadding").toDouble(60);
+    siblinPadding = json.value("siblinPadding").toDouble(30);
+    QJsonArray vss = json.value("viewStyles").toArray();
+    for (auto vs : vss) {
+        viewStyles.append(new MindViewStyle(vs.toObject()));
     }
     QJsonArray cts = json.value("connectorTypes").toArray();
-    for (auto ct : vts) {
+    for (auto ct : cts) {
         connectorTypes.append(ct.toString().toUtf8());
     }
+    QJsonArray cws = json.value("connectorWidths").toArray();
+    for (auto cw : cws) {
+        connectorWidths.append(cw.toDouble());
+    }
+    defaultNode = MindNode(json.value("defaultNode").toObject());
+}
+
+MindViewTemplate::~MindViewTemplate()
+{
+    for (auto s : viewStyles)
+        delete s;
 }
 
 void MindViewTemplate::push(QPointF & pos)
 {
-    if (++level == 0) {
+    if (++level == 1) {
         xoffset = 0;
         yoffset = 0;
         xmax = 0;
@@ -53,20 +58,17 @@ void MindViewTemplate::pop(QPointF const & pos)
     --level;
 }
 
-int MindViewTemplate::lineType() const
+MindNode MindViewTemplate::createNode()
 {
-    return level < lineTypes.size() ? lineTypes.at(level) : lineTypes.back();
-}
-
-qreal MindViewTemplate::lineWidth() const
-{
-    return level < lineWidths.size() ? lineWidths.at(level) : lineWidths.back();
+    return defaultNode;
 }
 
 MindNodeView *MindViewTemplate::createView(MindNode *node)
 {
-    //QByteArray type = level < viewTypes.size() ? viewTypes.at(level) : viewTypes.back();
-    return new SimpleView(node);
+    MindViewStyle const * style = level < viewStyles.size() ? viewStyles.at(level) : viewStyles.back();
+    MindNodeView * view = new SimpleView(node);
+    view->setViewStyle(style);
+    return view;
 }
 
 MindConnector *MindViewTemplate::createConnector()

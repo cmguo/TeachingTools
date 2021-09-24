@@ -3,6 +3,7 @@
 #include "mindnode.h"
 #include "mindnodeview.h"
 #include "mindviewtemplate.h"
+#include "mindviewstyle.h"
 #include "simpleview.h"
 
 #include <QEvent>
@@ -10,24 +11,29 @@
 #include <QKeyEvent>
 #include <QDebug>
 #include <QStyleOptionGraphicsItem>
+#include <QDrag>
+#include <QMimeData>
+
+static QRectF viewRect(MindNodeView * v1, MindNodeView * v2);
 
 MindMapItem::MindMapItem(QGraphicsItem *parent)
     : QGraphicsItem(parent)
 {
     setAcceptHoverEvents(true);
     setAcceptedMouseButtons(Qt::LeftButton);
+    setAcceptDrops(true);
     setFlag(ItemIsFocusable);
     setFlag(ItemUsesExtendedStyleOption);
 
-    template_ = new MindViewTemplate;
-    rootView_ = new SimpleView(new MindNode);
-    update();
+    static MindViewTemplate tpl;
+    static MindNode node;
+    load(&tpl, &node);
 }
 
 void MindMapItem::load(MindViewTemplate *tpl, MindNode *node)
 {
-    delete template_;
-    delete rootView_;
+    if (rootView_)
+        delete rootView_;
     template_ = tpl;
     rootView_ = tpl->createView(node);
     update();
@@ -37,13 +43,34 @@ bool MindMapItem::sceneEvent(QEvent *event)
 {
     switch (event->type()) {
     case QEvent::GraphicsSceneMousePress:
+        moveView_ = rootView_->hitTest(static_cast<QGraphicsSceneMouseEvent*>(event)->pos());
+        moveStart_ = static_cast<QGraphicsSceneMouseEvent*>(event)->scenePos();
+        moved_ = false;
         break;
-    case QEvent::GraphicsSceneMouseMove:
+    case QEvent::GraphicsSceneMouseMove: {
+        QPointF d = static_cast<QGraphicsSceneMouseEvent*>(event)->scenePos() - moveStart_;
+        if (moved_ || qAbs(d.x()) + qAbs(d.y()) > 10) {
+            if (moveView_ == rootView_) {
+                MindMapControl * control = qobject_cast<MindMapControl*>(Control::fromItem(this));
+                control->move(d);
+            } else if (!moved_) {
+                moveStart_ = mapFromScene(moveStart_);
+                dragStart(moveView_);
+            }
+            moved_ = true;
+            moveStart_ += d;
+        }
         break;
+    }
     case QEvent::GraphicsSceneMouseRelease: {
-        MindNodeView * view = rootView_->hitTest(static_cast<QGraphicsSceneMouseEvent*>(event)->pos());
-        if (view)
-            changeFocus(view);
+        if (moved_) {
+
+        } else {
+            if (moveView_)
+                changeFocus(moveView_);
+        }
+        moveView_ = nullptr;
+        moved_ = false;
         setFocus();
         break;
     }
@@ -55,6 +82,7 @@ bool MindMapItem::sceneEvent(QEvent *event)
         break;
     case QEvent::KeyRelease:
         switch (static_cast<QKeyEvent*>(event)->key()) {
+        case Qt::Key_Return:
         case Qt::Key_Enter:
             newNode(false);
             break;
@@ -80,6 +108,22 @@ bool MindMapItem::sceneEvent(QEvent *event)
             return QGraphicsItem::sceneEvent(event);
         }
         break;
+    case QEvent::GraphicsSceneDragEnter:
+        static_cast<QGraphicsSceneDragDropEvent*>(event)->setAccepted(
+                    static_cast<QGraphicsSceneDragDropEvent*>(event)->mimeData()->hasFormat("mindnode"));
+        static_cast<QGraphicsSceneDragDropEvent*>(event)->setDropAction(Qt::DropAction::MoveAction);
+        break;
+    case QEvent::GraphicsSceneDragMove: {
+        MindNodeView * targetView = rootView_->hitTest(static_cast<QGraphicsSceneDragDropEvent*>(event)->pos());
+        QGraphicsItem::update(viewRect(targetView_, targetView));
+        targetView_ = targetView;
+        static_cast<QGraphicsSceneDragDropEvent*>(event)->accept();
+        break;
+    }
+    case QEvent::GraphicsSceneDrop: {
+        static_cast<QGraphicsSceneDragDropEvent*>(event)->accept();
+        break;
+    }
     default:
         return QGraphicsItem::sceneEvent(event);
     }
@@ -93,9 +137,7 @@ QRectF MindMapItem::boundingRect() const
 
 QPainterPath MindMapItem::shape() const
 {
-    QPainterPath s;
-    rootView_->collectShape(s);
-    return s;
+    return shape_;
 }
 
 bool MindMapItem::contains(const QPointF &point) const
@@ -105,11 +147,13 @@ bool MindMapItem::contains(const QPointF &point) const
 
 void MindMapItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *)
 {
-    painter->setPen(Qt::white);
+    painter->setPen(Qt::NoPen);
+    painter->setBrush(Qt::white);
+    painter->drawRect(option->exposedRect);
     rootView_->draw(painter, option->exposedRect);
     if (focusedView_) {
         QRectF rc(focusedView_->pos(), focusedView_->size());
-        painter->setPen(Qt::blue);
+        painter->setPen(QPen(Qt::blue, 4));
         painter->setBrush(QBrush());
         painter->drawRect(rc);
     }
@@ -117,7 +161,10 @@ void MindMapItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *optio
 
 void MindMapItem::toggle(MindNodeView *view)
 {
-    view->toggle();
+    if (!view->toggle()) {
+        if (focusedView_ && focusedView_->hasParent(view))
+            focusedView_ = nullptr;
+    }
     update();
 }
 
@@ -125,20 +172,24 @@ void MindMapItem::newNode(bool childOrSiblin)
 {
     if (focusedView_ == nullptr)
         return;
+    MindNodeView * parent = focusedView_->parent();
+    MindNodeView * after = nullptr;
     if (childOrSiblin)
-        focusedView_->newChild();
-    else if (focusedView_->parent())
-        focusedView_->parent()->newChild(focusedView_);
+        parent = focusedView_;
+    else if (parent)
+        after = focusedView_;
     else
         return;
+    parent->insertChild(template_->createNode(), after);
     update();
+    focusedView_ = parent->findChild(after);
 }
 
 void MindMapItem::removeFocusedNode()
 {
     if (focusedView_ && focusedView_->parent()) {
         MindNodeView * next = focusedView_->nextFocus(MindNodeView::FocusUp);
-        focusedView_->remove();
+        focusedView_->removeFromParent();
         focusedView_ = next;
         update();
     }
@@ -148,16 +199,31 @@ void MindMapItem::changeFocus(MindNodeView *view)
 {
     if (focusedView_ == view)
         return;
-    if (focusedView_) {
-        QRectF rc(focusedView_->pos(), focusedView_->size());
-        focusedView_ = view;
-        QRectF rc2(focusedView_->pos(), focusedView_->size());
-        QGraphicsItem::update(rc.united(rc2));
-    } else {
-        focusedView_ = view;
-        QRectF rc2(focusedView_->pos(), focusedView_->size());
-        QGraphicsItem::update(rc2);
-    }
+    QGraphicsItem::update(viewRect(focusedView_, view));
+    focusedView_ = view;
+}
+
+void MindMapItem::dragStart(MindNodeView *view)
+{
+    QDrag * drag = new QDrag(Control::fromItem(this));
+    QMimeData *mimeData = new QMimeData;
+    mimeData->setData("mindnode", QByteArray::number(reinterpret_cast<uintptr_t>(view)));
+    drag->setMimeData(mimeData);
+    QPixmap pixmap(view->size().toSize());
+    pixmap.fill(Qt::transparent);
+    QPainter painter(&pixmap);
+    QRectF rc {{0, 0}, view->size()};
+    painter.setRenderHint(QPainter::Antialiasing);
+    painter.setPen(QPen(Qt::darkGray, 2));
+    painter.setBrush(Qt::gray);
+    painter.drawRoundedRect(rc, 5, 5);
+    painter.setFont(view->style()->textFont());
+    painter.setPen(view->style()->textColor());
+    painter.drawText(rc, Qt::AlignCenter, view->node()->title);
+    painter.end();
+    drag->setPixmap(pixmap);
+    drag->setHotSpot((moveStart_ - view->pos()).toPoint());
+    drag->exec();
 }
 
 void MindMapItem::moveFocus(int dir)
@@ -170,16 +236,37 @@ void MindMapItem::moveFocus(int dir)
     changeFocus(next);
 }
 
+bool MindMapItem::hitTestRoot(const QPointF &point)
+{
+    return rootView_->hitTest(point) == rootView_;
+}
+
 void MindMapItem::update()
 {
     prepareGeometryChange();
     QPointF pos1 = rootView_->pos();
     rootView_->layout(*template_);
+    shape_ = QPainterPath();
+    rootView_->collectShape(shape_);
     QPointF pos2 = rootView_->pos();
     MindMapControl * control = qobject_cast<MindMapControl*>(Control::fromItem(this));
     if (control) {
         control->sizeChanged();
         QPointF diff = pos1 - pos2;
         control->move(diff);
+    }
+}
+
+static QRectF viewRect(MindNodeView * v1, MindNodeView * v2)
+{
+    if (v1 == nullptr) {
+        if (v2 == nullptr)
+            return {};
+        return {v2->pos(), v2->size()};
+    } else {
+        if (v2 == nullptr)
+            return {v1->pos(), v1->size()};
+        else
+            return QRectF{v1->pos(), v1->size()} | QRectF{v2->pos(), v2->size()};
     }
 }

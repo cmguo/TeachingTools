@@ -1,11 +1,17 @@
 #ifndef MINDVIEWTEMPLATE_H
 #define MINDVIEWTEMPLATE_H
 
+#include "mindnode.h"
+
+#include <QColor>
+#include <QFont>
+#include <QRectF>
 #include <QVector>
 
 class MindNode;
 class MindNodeView;
 class MindConnector;
+class MindViewStyle;
 
 class QJsonObject;
 
@@ -16,18 +22,21 @@ public:
 
     MindViewTemplate(QJsonObject const & json);
 
+    ~MindViewTemplate();
+
 public:
     qreal levelPadding;
     qreal siblinPadding;
 
-    QVector<int> lineTypes;
-    QVector<qreal> lineWidths;
-    QVector<QByteArray> viewTypes;
+    QVector<MindViewStyle*> viewStyles;
     QVector<QByteArray> connectorTypes;
+    QVector<qreal> connectorWidths;
+
+    MindNode defaultNode;
 
 public:
     // state
-    int level = -1;
+    int level = 0;
     qreal xoffset = 0;
     qreal yoffset = 0;
     qreal xmax = 0;
@@ -37,9 +46,7 @@ public:
 
     void pop(QPointF const & pos);
 
-    int lineType() const;
-
-    qreal lineWidth() const;
+    MindNode createNode();
 
     MindNodeView * createView(MindNode * node);
 

@@ -9,6 +9,7 @@
 class MindNode;
 class MindViewTemplate;
 class MindConnector;
+class MindViewStyle;
 
 class MindNodeView
 {
@@ -18,12 +19,6 @@ public:
     virtual ~MindNodeView();
 
 public:
-    virtual QSizeF size() = 0;
-
-    virtual QPointF inPort() = 0;
-
-    virtual QPointF outPort() = 0;
-
     virtual void layout(MindViewTemplate & tl);
 
     // call after layout
@@ -36,20 +31,33 @@ public:
     virtual void draw(QPainter * painter, QRectF  const & exposedRect);
 
 public:
+    void setViewStyle(MindViewStyle const * style);
+
+    MindViewStyle const * style() const { return style_; }
+
     void setParent(MindNodeView * parent);
 
     MindNodeView * parent() const { return parent_; }
 
+    bool hasParent(MindNodeView * parent) const;
+
     QPointF pos() const { return pos_; }
 
+    QSizeF size() const { return size_; }
+
+    MindNode * node() const { return node_; }
+
 public:
-    void toggle();
+    // return new state
+    bool toggle();
 
-    void newChild(MindNodeView * after = nullptr);
-
-    void remove();
+    void insertChild(MindNode const & node, MindNodeView * after = nullptr);
 
     void removeChild(MindNodeView * child);
+
+    MindNodeView * findChild(MindNodeView * after = nullptr);
+
+    void removeFromParent();
 
     enum FocusDirection {
         FocusLeft,
@@ -63,7 +71,10 @@ public:
 protected:
     MindNodeView * parent_ = nullptr;
     QList<QPair<MindNodeView*, MindConnector*>> children_;
+    MindViewStyle const * style_;
     QPointF pos_;
+    QPointF pos2_; // sub tree topLeft
+    QSizeF size_;
 
 protected:
     MindNode * node_;

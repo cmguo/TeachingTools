@@ -34,15 +34,25 @@ public:
 
     void changeFocus(MindNodeView * view);
 
+    void dragStart(MindNodeView * view);
+
     void moveFocus(int dir);
+
+    bool hitTestRoot(const QPointF &point);
 
 private:
     void update();
 
 private:
-    MindViewTemplate * template_;
-    MindNodeView * rootView_;
+    MindViewTemplate * template_ = nullptr;
+    MindNodeView * rootView_ = nullptr;
     MindNodeView * focusedView_ = nullptr;
+    QPainterPath shape_;
+
+    MindNodeView * moveView_ = nullptr;
+    MindNodeView * targetView_ = nullptr;
+    QPointF moveStart_;
+    bool moved_ = false;
 };
 
 #endif // MINDMAPITEM_H

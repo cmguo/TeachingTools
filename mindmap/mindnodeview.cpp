@@ -2,6 +2,7 @@
 #include "mindnodeview.h"
 #include "mindnode.h"
 #include "mindviewtemplate.h"
+#include "mindviewstyle.h"
 
 #include <QPainterPath>
 
@@ -22,9 +23,12 @@ void MindNodeView::layout(MindViewTemplate & tl)
 {
     tl.push(pos_);
     pos_ = {tl.xoffset, tl.yoffset};
+    pos2_ = pos_;
+    if (size_.isEmpty())
+        size_ = style_->measureNode(node_);
     if (!node_->expanded_ || node_->children_.empty()) {
-        tl.xoffset += size().width();
-        tl.yoffset += size().height();
+        tl.xoffset += size_.width();
+        tl.yoffset += size_.height();
         tl.pop(pos_);
         return;
     }
@@ -34,26 +38,27 @@ void MindNodeView::layout(MindViewTemplate & tl)
             children_.back().first->setParent(this);
         }
     }
-    tl.xoffset += size().width() + tl.levelPadding;
+    tl.xoffset += size_.width() + tl.levelPadding;
     for (auto & c : children_) {
         if (c.first == nullptr) {
             c.first = tl.createView(reinterpret_cast<MindNode*>(c.second));
+            c.first->setParent(this);
             c.second = tl.createConnector();
         }
         c.first->layout(tl);
         tl.yoffset += tl.siblinPadding;
     }
     tl.yoffset -= tl.siblinPadding;
-    pos_.setY((pos_.y() + tl.yoffset - size().height()) / 2);
+    pos_.setY((pos_.y() + tl.yoffset - size_.height()) / 2);
     for (auto & c : children_) {
-        c.second->setEndian(pos_ + outPort(), c.first->pos_ + c.first->inPort());
+        c.second->setEndian(pos_ + style_->outPort(size_), c.first->pos_ + c.first->style_->inPort(c.first->size_));
     }
     tl.pop(pos_);
 }
 
 void MindNodeView::collectShape(QPainterPath &shape)
 {
-    shape.addRect({pos_, size()});
+    shape.addRect({pos_, size_});
     if (!node_->expanded_ || node_->children_.empty()) {
         return;
     }
@@ -64,7 +69,7 @@ void MindNodeView::collectShape(QPainterPath &shape)
 
 MindNodeView *MindNodeView::hitTest(const QPointF &point)
 {
-    if (QRectF{pos_, size()}.contains(point))
+    if (QRectF{pos_, size_}.contains(point))
         return this;
     if (!node_->expanded_ || node_->children_.empty()) {
         return nullptr;
@@ -74,7 +79,7 @@ MindNodeView *MindNodeView::hitTest(const QPointF &point)
         return nullptr;
     MindNodeView * last = nullptr;
     for (auto & c : children_) {
-        if (c.first->pos_.y() > point.y()) {
+        if (c.first->pos2_.y() > point.y()) {
             break;
         }
         last = c.first;
@@ -93,17 +98,32 @@ void MindNodeView::draw(QPainter *painter, QRectF const & exposedRect)
     }
 }
 
+void MindNodeView::setViewStyle(const MindViewStyle *style)
+{
+    style_ = style;
+}
+
 void MindNodeView::setParent(MindNodeView *parent)
 {
     parent_ = parent;
 }
 
-void MindNodeView::toggle()
+bool MindNodeView::hasParent(MindNodeView * parent) const
 {
-    node_->expanded_ = !node_->expanded_;
+    MindNodeView * p = parent_;
+    while (p && p != parent) {
+        p = p->parent_;
+    }
+    return p == parent;
 }
 
-void MindNodeView::newChild(MindNodeView *after)
+bool MindNodeView::toggle()
+{
+    node_->expanded_ = !node_->expanded_;
+    return node_->expanded_;
+}
+
+void MindNodeView::insertChild(MindNode const & node, MindNodeView *after)
 {
     int n = node_->children_.size();
     if (after) {
@@ -116,13 +136,13 @@ void MindNodeView::newChild(MindNodeView *after)
             ++n;
         }
     }
-    node_->children_.insert(n, MindNode());
+    node_->children_.insert(n, node);
     node_->expanded_ = true;
     if (!children_.empty())
         children_.insert(n, {nullptr, reinterpret_cast<MindConnector*>(&node_->children_[n])});
 }
 
-void MindNodeView::remove()
+void MindNodeView::removeFromParent()
 {
     if (parent_ == nullptr)
         return;
@@ -143,6 +163,22 @@ void MindNodeView::removeChild(MindNodeView *child)
     children_.removeAt(n);
     delete child;
     node_->children_.removeAt(n);
+}
+
+MindNodeView *MindNodeView::findChild(MindNodeView *after)
+{
+    int n = node_->children_.size() - 1;
+    if (after) {
+        n = 0;
+        for (auto c : children_) {
+            if (c.first == after) {
+                ++n;
+                break;
+            }
+            ++n;
+        }
+    }
+    return children_.at(n).first;
 }
 
 MindNodeView *MindNodeView::nextFocus(MindNodeView::FocusDirection dir)
