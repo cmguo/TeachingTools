@@ -12,9 +12,11 @@ SimpleConnector::~SimpleConnector()
 
 void SimpleConnector::draw(QPainter *painter, QRectF  const & exposedRect)
 {
-    QRectF rc{start_, end_};
+    QPointF s = start();
+    QPointF e = end();
+    QRectF rc{s, e};
     rc = rc.normalized();
     if (!exposedRect.intersects(rc))
         return;
-    painter->drawLine(start_, end_);
+    painter->drawLine(s, e);
 }

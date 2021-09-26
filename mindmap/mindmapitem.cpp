@@ -2,9 +2,11 @@
 #include "mindmapitem.h"
 #include "mindnode.h"
 #include "mindnodeview.h"
+#include "mindspacing.h"
 #include "mindviewtemplate.h"
 #include "mindviewstyle.h"
 #include "simpleview.h"
+#include "mindswitch.h"
 
 #include <QEvent>
 #include <QGraphicsSceneEvent>
@@ -13,12 +15,13 @@
 #include <QStyleOptionGraphicsItem>
 #include <QDrag>
 #include <QMimeData>
+#include <QPainter>
 
-static QRectF viewRect(MindNodeView * v1, MindNodeView * v2);
+static QRectF viewRect(MindBaseView * v1, MindBaseView * v2);
 
 static MindViewTemplate tpl_empty;
 static MindNode node_empty;
-static MindNodeView dropMiddle(&node_empty);
+static MindSpacing dropMiddle;
 
 MindMapItem::MindMapItem(QGraphicsItem *parent)
     : QGraphicsItem(parent)
@@ -38,26 +41,27 @@ void MindMapItem::load(MindViewTemplate *tpl, MindNode *node)
         delete rootView_;
     template_ = tpl;
     rootView_ = tpl->createView(node);
-    update();
+    updateLayout();
 }
 
 bool MindMapItem::sceneEvent(QEvent *event)
 {
     switch (event->type()) {
-    case QEvent::GraphicsSceneMousePress:
-        moveView_ = rootView_->hitTest(static_cast<QGraphicsSceneMouseEvent*>(event)->pos());
+    case QEvent::GraphicsSceneMousePress: {
+        moveView_ = rootView_->hitTest(static_cast<QGraphicsSceneMouseEvent*>(event)->pos(), MindNodeView::NodeSwitch);
         moveStart_ = static_cast<QGraphicsSceneMouseEvent*>(event)->scenePos();
         moved_ = false;
         break;
+    }
     case QEvent::GraphicsSceneMouseMove: {
         QPointF d = static_cast<QGraphicsSceneMouseEvent*>(event)->scenePos() - moveStart_;
         if (moved_ || qAbs(d.x()) + qAbs(d.y()) > 10) {
-            if (moveView_ == rootView_ || moveView_ == nullptr) {
+            if (moveView_ == rootView_ || moveView_ == nullptr || !moveView_->isNode()) {
                 MindMapControl * control = qobject_cast<MindMapControl*>(Control::fromItem(this));
                 control->move(d);
             } else if (!moved_) {
                 moveStart_ = mapFromScene(moveStart_);
-                dragStart(moveView_);
+                dragStart(static_cast<MindNodeView*>(moveView_));
             }
             moved_ = true;
             moveStart_ += d;
@@ -68,12 +72,20 @@ bool MindMapItem::sceneEvent(QEvent *event)
         if (moved_) {
 
         } else {
-            if (moveView_)
-                changeFocus(moveView_);
+            if (moveView_->isNode())
+                changeFocus(static_cast<MindNodeView*>(moveView_));
+            else
+                toggle(static_cast<MindSwitch*>(moveView_)->parent());
         }
         moveView_ = nullptr;
         moved_ = false;
         setFocus();
+        break;
+    }
+    case QEvent::GraphicsSceneHoverEnter:
+    case QEvent::GraphicsSceneHoverMove: {
+        MindBaseView * targetView = rootView_->hitTest(static_cast<QGraphicsSceneHoverEvent*>(event)->pos(), MindNodeView::SwitchOnly);
+        hoveSwitch(static_cast<MindSwitch*>(targetView));
         break;
     }
     case QEvent::FocusIn:
@@ -116,10 +128,15 @@ bool MindMapItem::sceneEvent(QEvent *event)
         static_cast<QGraphicsSceneDragDropEvent*>(event)->setDropAction(Qt::DropAction::MoveAction);
         break;
     case QEvent::GraphicsSceneDragMove: {
-        dropMiddle.setParent(moveView_);
-        MindNodeView * targetView = rootView_->hitTest(
-                    static_cast<QGraphicsSceneDragDropEvent*>(event)->pos() - moveStart_ + moveView_->pos(), &dropMiddle);
-        if (targetView == moveView_) targetView= nullptr;
+        if (targetView_ == &MindNodeView::HitTestSpacing) {
+            dropMiddle.saveLast(MindNodeView::HitTestSpacing.boundingRect());
+            targetView_ = &dropMiddle;
+        }
+        MindNodeView * moveNodeView = static_cast<MindNodeView*>(moveView_);
+        MindNodeView::HitTestSpacing.setIgnore(moveNodeView);
+        MindBaseView * targetView = rootView_->hitTest(
+                    static_cast<QGraphicsSceneDragDropEvent*>(event)->pos() - moveStart_ + moveNodeView->pos(), MindNodeView::NodeSpacing);
+        if (targetView == moveView_) targetView = nullptr;
         QGraphicsItem::update(viewRect(targetView_, targetView));
         targetView_ = targetView;
         static_cast<QGraphicsSceneDragDropEvent*>(event)->accept();
@@ -143,11 +160,6 @@ QRectF MindMapItem::boundingRect() const
     return {0, 0, template_->xmax, template_->yoffset};
 }
 
-bool MindMapItem::contains(const QPointF &point) const
-{
-    return rootView_->hitTest(point) != nullptr;
-}
-
 void MindMapItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *)
 {
     painter->setPen(Qt::NoPen);
@@ -155,14 +167,14 @@ void MindMapItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *optio
     painter->drawRect(option->exposedRect);
     rootView_->draw(painter, option->exposedRect);
     if (focusedView_) {
-        QRectF rc(focusedView_->pos(), focusedView_->size());
+        QRectF rc = focusedView_->boundingRect();
         rc.adjust(2, 2, -2, -2);
         painter->setPen(QPen(Qt::blue, 4));
         painter->setBrush(QBrush());
         painter->drawRect(rc);
     }
     if (targetView_) {
-        QRectF rc(targetView_->pos(), targetView_->size());
+        QRectF rc = targetView_->boundingRect();
         rc.adjust(2, 2, -2, -2);
         painter->setPen(QPen(Qt::yellow, 4));
         painter->setBrush(QBrush());
@@ -176,7 +188,7 @@ void MindMapItem::toggle(MindNodeView *view)
         if (focusedView_ && focusedView_->hasParent(view))
             focusedView_ = nullptr;
     }
-    update();
+    updateLayout();
 }
 
 void MindMapItem::newNode(bool childOrSiblin)
@@ -192,7 +204,7 @@ void MindMapItem::newNode(bool childOrSiblin)
     else
         return;
     parent->insertChild(template_->createNode(), after);
-    update();
+    updateLayout();
     focusedView_ = parent->findChild(after);
 }
 
@@ -202,17 +214,21 @@ void MindMapItem::removeFocusedNode()
         MindNodeView * next = focusedView_->nextFocus(MindNodeView::FocusUp);
         focusedView_->removeFromParent();
         focusedView_ = next;
-        update();
+        updateLayout();
     }
 }
 
 void MindMapItem::moveNode()
 {
-    if (targetView_ == &dropMiddle)
-        moveView_->moveToParent(targetView_->parent()->parent(), targetView_->parent());
-    else if (targetView_)
-        moveView_->moveToParent(targetView_);
-    update();
+    MindNodeView * moveNodeView = static_cast<MindNodeView*>(moveView_);
+    if (targetView_ == &MindNodeView::HitTestSpacing) {
+        moveNodeView->moveToParent(MindNodeView::HitTestSpacing.prev()->parent(), MindNodeView::HitTestSpacing.prev());
+    } else if (targetView_) {
+        moveNodeView->moveToParent(static_cast<MindNodeView*>(targetView_));
+    } else {
+        QGraphicsItem::update(viewRect(targetView_, nullptr));
+    }
+    updateLayout();
 }
 
 void MindMapItem::changeFocus(MindNodeView *view)
@@ -261,7 +277,19 @@ bool MindMapItem::hitTestRoot(const QPointF &point)
     return rootView_->hitTest(point) == rootView_;
 }
 
-void MindMapItem::update()
+void MindMapItem::hoveSwitch(MindSwitch *sw)
+{
+    if (sw == hoveredSwitch_)
+        return;
+    if (hoveredSwitch_)
+        hoveredSwitch_->setHover(false);
+    QGraphicsItem::update(viewRect(hoveredSwitch_, sw));
+    hoveredSwitch_ = sw;
+    if (hoveredSwitch_)
+        hoveredSwitch_->setHover(true);
+}
+
+void MindMapItem::updateLayout()
 {
     prepareGeometryChange();
     QPointF pos1 = rootView_->pos();
@@ -275,16 +303,16 @@ void MindMapItem::update()
     }
 }
 
-static QRectF viewRect(MindNodeView * v1, MindNodeView * v2)
+static QRectF viewRect(MindBaseView * v1, MindBaseView * v2)
 {
     if (v1 == nullptr) {
         if (v2 == nullptr)
             return {};
-        return {v2->pos(), v2->size()};
+        return v2->boundingRect();
     } else {
         if (v2 == nullptr)
-            return {v1->pos(), v1->size()};
+            return v1->boundingRect();
         else
-            return QRectF{v1->pos(), v1->size()} | QRectF{v2->pos(), v2->size()};
+            return v1->boundingRect() | v2->boundingRect();
     }
 }

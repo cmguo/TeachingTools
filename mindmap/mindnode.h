@@ -17,6 +17,9 @@ public:
     QByteArray icon;
     QString title;
 
+public:
+    bool expanded() const { return expanded_; }
+
 private:
     friend class MindNodeView;
     QList<MindNode> children_;

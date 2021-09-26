@@ -1,9 +1,26 @@
 #include "mindconnector.h"
+#include "mindnodeview.h"
 
 #include <QLine>
 
-void MindConnector::setEndian(const QPointF &start, const QPointF &end)
+QRectF MindConnector::boundingRect() const
 {
-    start_ = start;
-    end_ = end;
+    return QRectF{start(), end()}.normalized();
 }
+
+void MindConnector::setTarget(MindNodeView *target)
+{
+    target_ = target;
+}
+
+QPointF MindConnector::start() const
+{
+    return parent_->outPort();
+}
+
+QPointF MindConnector::end() const
+{
+    return target_->inPort();
+}
+
+

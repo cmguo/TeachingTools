@@ -2,6 +2,8 @@
 #include "mindnode.h"
 #include "mindviewstyle.h"
 
+#include <QPainter>
+
 SimpleView::SimpleView(MindNode * node)
     : MindNodeView(node)
 {

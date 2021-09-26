@@ -5,7 +5,9 @@
 
 class MindNode;
 class MindNodeView;
+class MindBaseView;
 class MindViewTemplate;
+class MindSwitch;
 
 class MindMapItem : public QGraphicsItem
 {
@@ -18,8 +20,6 @@ protected:
     virtual bool sceneEvent(QEvent *event) override;
 
     virtual QRectF boundingRect() const override;
-
-    virtual bool contains(const QPointF &point) const override;
 
     virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
 
@@ -40,16 +40,19 @@ public:
 
     bool hitTestRoot(const QPointF &point);
 
+    void hoveSwitch(MindSwitch * sw);
+
 private:
-    void update();
+    void updateLayout();
 
 private:
     MindViewTemplate * template_ = nullptr;
     MindNodeView * rootView_ = nullptr;
     MindNodeView * focusedView_ = nullptr;
 
-    MindNodeView * moveView_ = nullptr;
-    MindNodeView * targetView_ = nullptr;
+    MindBaseView * moveView_ = nullptr;
+    MindBaseView * targetView_ = nullptr;
+    MindSwitch * hoveredSwitch_ = nullptr;
     QPointF moveStart_;
     bool moved_ = false;
 };

@@ -1,17 +1,22 @@
 #ifndef MINDNODEVIEW_H
 #define MINDNODEVIEW_H
 
+#include "mindbaseview.h"
+
 #include <QList>
-#include <QPainter>
 #include <QPointF>
 #include <QSizeF>
 
 class MindNode;
 class MindViewTemplate;
 class MindConnector;
+class MindSwitch;
+class MindSpacing;
 class MindViewStyle;
 
-class MindNodeView
+class QPainterPath;
+
+class MindNodeView : public MindBaseView
 {
 public:
     MindNodeView(MindNode * node);
@@ -24,28 +29,41 @@ public:
     // call after layout
     virtual void collectShape(QPainterPath & shape);
 
-    // call after layout
-    virtual MindNodeView * hitTest(QPointF const & point, MindNodeView * middle = nullptr);
+    virtual bool isNode() const override { return true; }
+
+    virtual QRectF boundingRect() const override;
+
+    enum HitTestType {
+        NodeOnly = 1,
+        NodeSpacing = 3,
+        SwitchOnly = 4,
+        NodeSwitch = 5,
+    };
+
+    static MindSpacing HitTestSpacing;
 
     // call after layout
-    virtual void draw(QPainter * painter, QRectF  const & exposedRect);
+    virtual MindBaseView * hitTest(QPointF const & point, int types = NodeOnly);
+
+    // call after layout
+    virtual void draw(QPainter * painter, QRectF  const & exposedRect) override;
 
 public:
     void setViewStyle(MindViewStyle const * style);
 
     MindViewStyle const * style() const { return style_; }
 
-    void setParent(MindNodeView * parent);
-
-    MindNodeView * parent() const { return parent_; }
-
-    bool hasParent(MindNodeView * parent) const;
-
     QPointF pos() const { return pos_; }
 
     QSizeF size() const { return size_; }
 
+    QPointF inPort() const;
+
+    QPointF outPort() const;
+
     MindNode * node() const { return node_; }
+
+    MindSwitch * _switch() { return this->switch_; }
 
 public:
     // return new state
@@ -73,9 +91,9 @@ public:
     MindNodeView * nextFocus(FocusDirection dir);
 
 protected:
-    MindNodeView * parent_ = nullptr;
     QList<QPair<MindNodeView*, MindConnector*>> children_;
-    MindViewStyle const * style_;
+    MindSwitch * switch_ = nullptr;
+    MindViewStyle const * style_ = nullptr;
     QPointF pos_;
     QPointF pos2_; // sub tree topLeft
     QSizeF size_;

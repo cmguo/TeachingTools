@@ -11,6 +11,7 @@
 class MindNode;
 class MindNodeView;
 class MindConnector;
+class MindSwitch;
 class MindViewStyle;
 
 class QJsonObject;
@@ -49,6 +50,8 @@ public:
     MindNode createNode();
 
     MindNodeView * createView(MindNode * node);
+
+    MindSwitch * createSwitch();
 
     MindConnector * createConnector();
 };

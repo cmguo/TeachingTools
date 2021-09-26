@@ -1,24 +1,28 @@
 #ifndef MINDCONNECTOR_H
 #define MINDCONNECTOR_H
 
+#include "mindbaseview.h"
+
 #include <QPointF>
-#include <QRectF>
 
-class QPainter;
-
-class MindConnector
+class MindConnector : public MindBaseView
 {
 public:
     virtual ~MindConnector() {}
 
 public:
-    virtual void setEndian(QPointF const & start, QPointF const &end);
+    QRectF boundingRect() const override;
 
-    virtual void draw(QPainter * painter, QRectF  const & exposedRect) = 0;
+public:
+    void setTarget(MindNodeView * target);
 
 protected:
-    QPointF start_;
-    QPointF end_;
+    QPointF start() const;
+
+    QPointF end() const;
+
+private:
+    MindNodeView * target_ = nullptr;
 };
 
 #endif // MINDCONNECTOR_H

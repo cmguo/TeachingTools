@@ -12,13 +12,15 @@ ArcConnector::~ArcConnector()
 
 void ArcConnector::draw(QPainter *painter, QRectF  const & exposedRect)
 {
-    QRectF rc{start_, end_};
+    QPointF s = start();
+    QPointF e = end();
+    QRectF rc{s, e};
     rc = rc.normalized();
     if (!exposedRect.intersects(rc))
         return;
     if (rc.height() < 1) {
-        painter->drawLine(start_, end_);
-    } else if (start_.y() < end_.y()) {
+        painter->drawLine(s, e);
+    } else if (s.y() < e.y()) {
         rc.setTopRight(rc.topRight() + QPointF{rc.width(), -rc.height()});
         painter->drawArc(rc, 180 * 16, 90 * 16);
     } else {

@@ -1,8 +1,10 @@
 #include "mindconnector.h"
+#include "mindswitch.h"
 #include "mindnodeview.h"
 #include "mindnode.h"
 #include "mindviewtemplate.h"
 #include "mindviewstyle.h"
+#include "mindspacing.h"
 
 #include <QPainterPath>
 
@@ -13,6 +15,8 @@ MindNodeView::MindNodeView(MindNode * node)
 
 MindNodeView::~MindNodeView()
 {
+    if (switch_)
+        delete switch_;
     for (auto & c : children_) {
         delete c.first;
         delete c.second;
@@ -26,16 +30,26 @@ void MindNodeView::layout(MindViewTemplate & tl)
     pos2_ = pos_;
     if (size_.isEmpty())
         size_ = style_->measureNode(node_);
+    if (switch_ == nullptr && !node_->children_.empty()) {
+        switch_ = tl.createSwitch();
+        switch_->setParent(this);
+    }
     if (!node_->expanded_ || node_->children_.empty()) {
         tl.xoffset += size_.width();
         tl.yoffset += size_.height();
+        if (switch_) {
+            tl.xoffset = qMax(tl.xoffset, switch_->boundingRect().right());
+        }
         tl.pop(pos_);
         return;
     }
     if (children_.empty()) {
-        for (auto & c : node_->children_) {
-            children_.append({tl.createView(&c), tl.createConnector()});
-            children_.back().first->setParent(this);
+        for (auto & n : node_->children_) {
+            children_.append({tl.createView(&n), tl.createConnector()});
+            auto & c = children_.back();
+            c.first->setParent(this);
+            c.second->setParent(this);
+            c.second->setTarget(c.first);
         }
     }
     tl.xoffset += size_.width() + tl.levelPadding;
@@ -44,15 +58,14 @@ void MindNodeView::layout(MindViewTemplate & tl)
             c.first = tl.createView(reinterpret_cast<MindNode*>(c.second));
             c.first->setParent(this);
             c.second = tl.createConnector();
+            c.second->setParent(this);
+            c.second->setTarget(c.first);
         }
         c.first->layout(tl);
         tl.yoffset += tl.siblinPadding;
     }
     tl.yoffset -= tl.siblinPadding;
     pos_.setY((pos_.y() + tl.yoffset - size_.height()) / 2);
-    for (auto & c : children_) {
-        c.second->setEndian(pos_ + style_->outPort(size_), c.first->pos_ + c.first->style_->inPort(c.first->size_));
-    }
     tl.pop(pos_);
 }
 
@@ -67,17 +80,24 @@ void MindNodeView::collectShape(QPainterPath &shape)
     }
 }
 
-MindNodeView *MindNodeView::hitTest(const QPointF &point, MindNodeView * middle)
+QRectF MindNodeView::boundingRect() const
+{
+    return {pos_, size_};
+}
+
+MindSpacing MindNodeView::HitTestSpacing;
+
+MindBaseView *MindNodeView::hitTest(const QPointF &point, int types)
 {
     if (QRectF{pos_, size_}.contains(point))
-        return this;
-    if (middle && point.x() < pos_.x() + size_.width()) {
+        return (types & NodeOnly) ? this : nullptr;
+    if ((types & 4) && switch_ && switch_->boundingRect().contains(point))
+        return switch_;
+    if ((types & 2) && point.x() < pos_.x() + size_.width()) {
         MindNodeView * siblin = nullptr;
-        if (this != middle->parent() && parent_ && (siblin = parent_->findChild(this)) && siblin != middle->parent()) {
-            middle->pos_ = pos_ + QPointF{0, size_.height()};
-            middle->size_ = {size_.width(), siblin->pos_.y() - middle->pos_.y()};
-            middle->parent_ = this;
-            return middle;
+        if (this != HitTestSpacing.prev() && parent_ && (siblin = parent_->findChild(this))
+                && HitTestSpacing.setPrevNext(this, siblin)) {
+            return &HitTestSpacing;
         }
         return nullptr;
     }
@@ -95,18 +115,22 @@ MindNodeView *MindNodeView::hitTest(const QPointF &point, MindNodeView * middle)
         }
         last = c.first;
     }
-    return last == nullptr ? nullptr : last->hitTest(point, middle);
+    return last == nullptr ? nullptr : last->hitTest(point, types);
 }
 
 void MindNodeView::draw(QPainter *painter, QRectF const & exposedRect)
 {
     if (!node_->expanded_ || node_->children_.empty()) {
+        if (switch_)
+            switch_->draw(painter, exposedRect);
         return;
     }
     for (auto & c : children_) {
         c.second->draw(painter, exposedRect);
         c.first->draw(painter, exposedRect);
     }
+    if (switch_)
+        switch_->draw(painter, exposedRect);
 }
 
 void MindNodeView::setViewStyle(const MindViewStyle *style)
@@ -114,18 +138,14 @@ void MindNodeView::setViewStyle(const MindViewStyle *style)
     style_ = style;
 }
 
-void MindNodeView::setParent(MindNodeView *parent)
+QPointF MindNodeView::inPort() const
 {
-    parent_ = parent;
+    return pos_ + style_->inPort(size_);
 }
 
-bool MindNodeView::hasParent(MindNodeView * parent) const
+QPointF MindNodeView::outPort() const
 {
-    MindNodeView * p = parent_;
-    while (p && p != parent) {
-        p = p->parent_;
-    }
-    return p == parent;
+    return pos_ + style_->outPort(size_);
 }
 
 bool MindNodeView::toggle()

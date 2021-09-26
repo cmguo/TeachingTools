@@ -3,6 +3,7 @@
 #include "mindviewstyle.h"
 #include "mindviewtemplate.h"
 #include "simpleconnector.h"
+#include "simpleswitch.h"
 #include "simpleview.h"
 
 #include <QJsonArray>
@@ -69,6 +70,11 @@ MindNodeView *MindViewTemplate::createView(MindNode *node)
     MindNodeView * view = new SimpleView(node);
     view->setViewStyle(style);
     return view;
+}
+
+MindSwitch *MindViewTemplate::createSwitch()
+{
+    return new SimpleSwitch;
 }
 
 MindConnector *MindViewTemplate::createConnector()
