@@ -67,16 +67,27 @@ void MindNodeView::collectShape(QPainterPath &shape)
     }
 }
 
-MindNodeView *MindNodeView::hitTest(const QPointF &point)
+MindNodeView *MindNodeView::hitTest(const QPointF &point, MindNodeView * middle)
 {
     if (QRectF{pos_, size_}.contains(point))
         return this;
+    if (middle && point.x() < pos_.x() + size_.width()) {
+        MindNodeView * siblin = nullptr;
+        if (this != middle->parent() && parent_ && (siblin = parent_->findChild(this)) && siblin != middle->parent()) {
+            middle->pos_ = pos_ + QPointF{0, size_.height()};
+            middle->size_ = {size_.width(), siblin->pos_.y() - middle->pos_.y()};
+            middle->parent_ = this;
+            return middle;
+        }
+        return nullptr;
+    }
     if (!node_->expanded_ || node_->children_.empty()) {
         return nullptr;
     }
     qreal x = children_.front().first->pos_.x();
-    if (x > point.x())
+    if (point.x() < x) {
         return nullptr;
+    }
     MindNodeView * last = nullptr;
     for (auto & c : children_) {
         if (c.first->pos2_.y() > point.y()) {
@@ -84,7 +95,7 @@ MindNodeView *MindNodeView::hitTest(const QPointF &point)
         }
         last = c.first;
     }
-    return last == nullptr ? nullptr : last->hitTest(point);
+    return last == nullptr ? nullptr : last->hitTest(point, middle);
 }
 
 void MindNodeView::draw(QPainter *painter, QRectF const & exposedRect)
@@ -150,6 +161,13 @@ void MindNodeView::removeFromParent()
 
 }
 
+void MindNodeView::moveToParent(MindNodeView *toParent, MindNodeView *after)
+{
+    if (parent_ == nullptr)
+        return;
+    parent_->moveChild(this, toParent, after);
+}
+
 void MindNodeView::removeChild(MindNodeView *child)
 {
     int n = 0;
@@ -179,6 +197,41 @@ MindNodeView *MindNodeView::findChild(MindNodeView *after)
         }
     }
     return children_.at(n).first;
+}
+
+void MindNodeView::moveChild(MindNodeView *child, MindNodeView *toParent, MindNodeView *after)
+{
+    int m = 0;
+    for (auto c : children_) {
+        if (c.first == child) {
+            break;
+        }
+        ++m;
+    }
+    auto cld = children_.at(m);
+    MindNode node = node_->children_.at(m);
+    children_.removeAt(m);
+    node_->children_.removeAt(m);
+    if (toParent == this) {
+        int n = node_->children_.size();
+        if (after) {
+            n = 0;
+            for (auto c : children_) {
+                if (c.first == after) {
+                    ++n;
+                    break;
+                }
+                ++n;
+            }
+        }
+        children_.insert(n, cld);
+        node_->children_.insert(n, node);
+        cld.first->node_ = &node_->children_[n];
+    } else {
+        delete cld.first;
+        delete cld.second;
+        toParent->insertChild(node, after);
+    }
 }
 
 MindNodeView *MindNodeView::nextFocus(MindNodeView::FocusDirection dir)

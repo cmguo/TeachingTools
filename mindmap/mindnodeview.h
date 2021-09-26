@@ -25,7 +25,7 @@ public:
     virtual void collectShape(QPainterPath & shape);
 
     // call after layout
-    virtual MindNodeView * hitTest(QPointF const & point);
+    virtual MindNodeView * hitTest(QPointF const & point, MindNodeView * middle = nullptr);
 
     // call after layout
     virtual void draw(QPainter * painter, QRectF  const & exposedRect);
@@ -57,7 +57,11 @@ public:
 
     MindNodeView * findChild(MindNodeView * after = nullptr);
 
+    void moveChild(MindNodeView * child, MindNodeView * toParent, MindNodeView * after = nullptr);
+
     void removeFromParent();
+
+    void moveToParent(MindNodeView * toParent, MindNodeView * after = nullptr);
 
     enum FocusDirection {
         FocusLeft,

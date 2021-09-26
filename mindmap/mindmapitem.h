@@ -19,8 +19,6 @@ protected:
 
     virtual QRectF boundingRect() const override;
 
-    virtual QPainterPath shape() const override;
-
     virtual bool contains(const QPointF &point) const override;
 
     virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
@@ -31,6 +29,8 @@ public:
     void newNode(bool childOrSiblin);
 
     void removeFocusedNode();
+
+    void moveNode();
 
     void changeFocus(MindNodeView * view);
 
@@ -47,7 +47,6 @@ private:
     MindViewTemplate * template_ = nullptr;
     MindNodeView * rootView_ = nullptr;
     MindNodeView * focusedView_ = nullptr;
-    QPainterPath shape_;
 
     MindNodeView * moveView_ = nullptr;
     MindNodeView * targetView_ = nullptr;
