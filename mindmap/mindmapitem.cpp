@@ -143,6 +143,7 @@ bool MindMapItem::sceneEvent(QEvent *event)
         break;
     }
     case QEvent::GraphicsSceneDrop: {
+        // TODO: why sometime no drop event with touch release?
         moveNode();
         targetView_ = nullptr;
         moveView_ = nullptr;
@@ -157,7 +158,7 @@ bool MindMapItem::sceneEvent(QEvent *event)
 
 QRectF MindMapItem::boundingRect() const
 {
-    return {0, 0, template_->xmax, template_->yoffset};
+    return {0, 0, template_->xmax, template_->ymax};
 }
 
 void MindMapItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *)

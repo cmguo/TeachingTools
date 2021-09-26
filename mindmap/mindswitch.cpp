@@ -12,6 +12,11 @@ QPointF MindSwitch::pos() const
     return parent_->switchPort();
 }
 
+bool MindSwitch::empty() const
+{
+    return parent_->node()->children().empty();
+}
+
 bool MindSwitch::expanded() const
 {
     return parent_->node()->expanded();

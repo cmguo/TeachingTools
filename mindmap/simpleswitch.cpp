@@ -25,7 +25,7 @@ QRectF SimpleSwitch::visualBoundingRect() const
 
 void SimpleSwitch::draw(QPainter *painter, QRectF  const & exposedRect)
 {
-    if (expanded() && !hover_)
+    if (empty() || (expanded() && !hover_))
         return;
     QRectF rc = visualBoundingRect();
     if (!exposedRect.intersects(rc))

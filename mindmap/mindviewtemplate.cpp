@@ -47,6 +47,7 @@ void MindViewTemplate::push(QPointF & pos)
         xoffset = 0;
         yoffset = 0;
         xmax = 0;
+        ymax = 0;
     }
     pos = {xoffset, yoffset};
 }
@@ -55,6 +56,8 @@ void MindViewTemplate::pop(QPointF const & pos)
 {
     if (xoffset > xmax)
         xmax = xoffset;
+    if (yoffset > ymax)
+        ymax = yoffset;
     xoffset = pos.x();
     --level;
 }

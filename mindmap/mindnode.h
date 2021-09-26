@@ -18,6 +18,8 @@ public:
     QString title;
 
 public:
+    QList<MindNode> children() const { return children_; }
+
     bool expanded() const { return expanded_; }
 
 private:

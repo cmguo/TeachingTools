@@ -66,6 +66,7 @@ void MindNodeView::layout(MindViewTemplate & tl)
     }
     tl.yoffset -= tl.siblinPadding;
     pos_.setY((pos_.y() + tl.yoffset - size_.height()) / 2);
+    tl.yoffset = qMax(tl.yoffset, pos_.y() + size_.height());
     tl.pop(pos_);
 }
 
@@ -93,11 +94,15 @@ MindBaseView *MindNodeView::hitTest(const QPointF &point, int types)
         return (types & NodeOnly) ? this : nullptr;
     if ((types & 4) && switch_ && switch_->boundingRect().contains(point))
         return switch_;
-    if ((types & 2) && point.x() < pos_.x() + size_.width()) {
-        MindNodeView * siblin = nullptr;
-        if (this != HitTestSpacing.prev() && parent_ && (siblin = parent_->findChild(this))
-                && HitTestSpacing.setPrevNext(this, siblin)) {
-            return &HitTestSpacing;
+    if ((types & 2) && point.x() < pos_.x() + size_.width() && this != HitTestSpacing.prev() && parent_) {
+        if (point.y() < pos_.y()) {
+            MindNodeView * siblin = parent_->findChildBefore(this);
+            if (siblin && HitTestSpacing.setPrevNext(siblin, this))
+                return &HitTestSpacing;
+        } else {
+            MindNodeView * siblin = parent_->findChild(this);
+            if (siblin && HitTestSpacing.setPrevNext(this, siblin))
+                return &HitTestSpacing;
         }
         return nullptr;
     }
@@ -208,6 +213,21 @@ void MindNodeView::removeChild(MindNodeView *child)
     node_->children_.removeAt(n);
 }
 
+MindNodeView *MindNodeView::findChildBefore(MindNodeView *before)
+{
+    int n = 0;
+    if (before) {
+        for (auto c : children_) {
+            if (c.first == before) {
+                --n;
+                break;
+            }
+            ++n;
+        }
+    }
+    return (n >= 0 && n < children_.size()) ? children_.at(n).first : nullptr;
+}
+
 MindNodeView *MindNodeView::findChild(MindNodeView *after)
 {
     int n = node_->children_.size() - 1;
@@ -221,7 +241,7 @@ MindNodeView *MindNodeView::findChild(MindNodeView *after)
             ++n;
         }
     }
-    return children_.at(n).first;
+    return (n >= 0 && n < children_.size()) ? children_.at(n).first : nullptr;
 }
 
 void MindNodeView::moveChild(MindNodeView *child, MindNodeView *toParent, MindNodeView *after)

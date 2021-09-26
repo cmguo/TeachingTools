@@ -41,6 +41,7 @@ public:
     qreal xoffset = 0;
     qreal yoffset = 0;
     qreal xmax = 0;
+    qreal ymax = 0;
 
 public:
     void push(QPointF & pos);

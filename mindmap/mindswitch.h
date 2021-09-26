@@ -18,6 +18,8 @@ public:
 protected:
     QPointF pos() const;
 
+    bool empty() const;
+
     bool expanded() const;
 
     bool hover_ = false;

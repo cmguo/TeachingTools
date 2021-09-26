@@ -75,6 +75,8 @@ public:
 
     void removeChild(MindNodeView * child);
 
+    MindNodeView * findChildBefore(MindNodeView * before = nullptr);
+
     MindNodeView * findChild(MindNodeView * after = nullptr);
 
     void moveChild(MindNodeView * child, MindNodeView * toParent, MindNodeView * after = nullptr);
