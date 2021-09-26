@@ -148,6 +148,11 @@ QPointF MindNodeView::outPort() const
     return pos_ + style_->outPort(size_);
 }
 
+QPointF MindNodeView::switchPort() const
+{
+    return pos_ + style_->switchPort(size_);
+}
+
 bool MindNodeView::toggle()
 {
     node_->expanded_ = !node_->expanded_;

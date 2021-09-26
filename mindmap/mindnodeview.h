@@ -61,6 +61,8 @@ public:
 
     QPointF outPort() const;
 
+    QPointF switchPort() const;
+
     MindNode * node() const { return node_; }
 
     MindSwitch * _switch() { return this->switch_; }

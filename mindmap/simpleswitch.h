@@ -13,6 +13,8 @@ public:
 public:
     QRectF boundingRect() const override;
 
+    QRectF visualBoundingRect() const;
+
     void draw(QPainter *painter, QRectF  const & exposedRect) override;
 };
 

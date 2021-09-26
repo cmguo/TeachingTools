@@ -72,7 +72,7 @@ bool MindMapItem::sceneEvent(QEvent *event)
         if (moved_) {
 
         } else {
-            if (moveView_->isNode())
+            if (moveView_ == nullptr || moveView_->isNode())
                 changeFocus(static_cast<MindNodeView*>(moveView_));
             else
                 toggle(static_cast<MindSwitch*>(moveView_)->parent());
@@ -162,6 +162,7 @@ QRectF MindMapItem::boundingRect() const
 
 void MindMapItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *)
 {
+    painter->setRenderHint(QPainter::HighQualityAntialiasing);
     painter->setPen(Qt::NoPen);
     painter->setBrush(Qt::white);
     painter->drawRect(option->exposedRect);

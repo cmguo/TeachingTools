@@ -9,6 +9,7 @@
 
 MindViewStyle::MindViewStyle()
 {
+     textColor_ = connectColor_ = QColor(Qt::black);
 }
 
 static QPointF readPoint(QJsonValue const & json, QPointF const & dflt = {})
@@ -74,6 +75,7 @@ static void readRadius(QJsonValue const & json, QRectF & up, QRectF & down)
 }
 
 MindViewStyle::MindViewStyle(const QJsonObject &json)
+    : MindViewStyle()
 {
     QJsonObject font = json.value("font").toObject();
     textFont_ = QFont(font.value("family").toString("Microsoft YaHei"),
@@ -83,12 +85,14 @@ MindViewStyle::MindViewStyle(const QJsonObject &json)
     textColor_ = QColor(json.value("textColor").toString());
     backgroundColor_ = QColor(json.value("backgroundColor").toString());
     borderColor_ = QColor(json.value("borderColor").toString());
+    connectColor_ = QColor(json.value("connectColor").toString());
     outerPadding_ = readPadding(json.value("outerPadding"));
     borderWidth_ = readPadding(json.value("borderWidth"));
     innerPadding_ = readPadding(json.value("innerPadding"));
     readRadius(json.value("cornerRadius"), cornerRadiusUp_, cornerRadiusDown_);
     inPort_ = readPoint(json.value("inPort"), {0, 0.5});
     outPort_ = readPoint(json.value("outPort"), {1, 0.5});
+    switchPort_ = readPoint(json.value("switchPort"), {1, 0.5});
 }
 
 QSizeF MindViewStyle::measureNode(MindNode *node) const
@@ -121,6 +125,11 @@ QPointF MindViewStyle::inPort(const QSizeF &size) const
 QPointF MindViewStyle::outPort(const QSizeF &size) const
 {
     return normalizePort(outPort_, size);
+}
+
+QPointF MindViewStyle::switchPort(const QSizeF &size) const
+{
+    return normalizePort(switchPort_, size);
 }
 
 QPainterPath MindViewStyle::roundedRect(QRectF const & rect) const
@@ -156,6 +165,21 @@ void MindViewStyle::applyTo(QPainter *painter, QRectF & rect) const
     QRectF borderRect = backgroundRect.adjusted(-borderWidth_.left(), -borderWidth_.top(), -borderWidth_.right(), -borderWidth_.bottom());
     QRectF innerRect = borderRect.adjusted(-innerPadding_.left(), -innerPadding_.top(), -innerPadding_.right(), -innerPadding_.bottom());
     if (backgroundColor_.isValid() || borderColor_.isValid()) {
+//        if (cornerRadiusUp_.topLeft().isNull() && cornerRadiusUp_.isNull()
+//                && cornerRadiusDown_.topLeft().isNull() && cornerRadiusDown_.isNull()) {
+//            painter->setPen(Qt::NoPen);
+//            if (backgroundColor_.isValid()) {
+//                painter->setBrush(backgroundColor_);
+//                painter->drawRect(backgroundRect);
+//            }
+//            if (borderColor_.isValid()) {
+//                backgroundRect -= borderRect;
+//                QPainterPath borderPath = roundedRect(borderRect);
+//                borderPath = backgroundPath - borderPath;
+//                painter->setBrush(borderColor_);
+//                painter->drawPath(borderPath);
+//            }
+//        } else {
         QPainterPath backgroundPath = roundedRect(backgroundRect);
         painter->setPen(Qt::NoPen);
         if (backgroundColor_.isValid()) {
@@ -164,10 +188,11 @@ void MindViewStyle::applyTo(QPainter *painter, QRectF & rect) const
         }
         if (borderColor_.isValid()) {
             QPainterPath borderPath = roundedRect(borderRect);
-            borderPath = backgroundPath - borderPath;
+            borderPath = backgroundPath.subtracted(borderPath).simplified();
             painter->setBrush(borderColor_);
             painter->drawPath(borderPath);
         }
+//        }
     }
     painter->setFont(textFont_);
     painter->setPen(textColor_);

@@ -9,7 +9,7 @@ void MindSwitch::setHover(bool hover)
 
 QPointF MindSwitch::pos() const
 {
-    return parent_->outPort();
+    return parent_->switchPort();
 }
 
 bool MindSwitch::expanded() const

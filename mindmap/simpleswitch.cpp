@@ -12,6 +12,11 @@ SimpleSwitch::~SimpleSwitch()
 
 QRectF SimpleSwitch::boundingRect() const
 {
+    return visualBoundingRect().adjusted(-6, -6, 6, 6);
+}
+
+QRectF SimpleSwitch::visualBoundingRect() const
+{
     QPointF pos = this->pos();
     pos.setX(pos.x() + 6);
     QPointF center = {6, 6};
@@ -22,7 +27,7 @@ void SimpleSwitch::draw(QPainter *painter, QRectF  const & exposedRect)
 {
     if (expanded() && !hover_)
         return;
-    QRectF rc = boundingRect();
+    QRectF rc = visualBoundingRect();
     if (!exposedRect.intersects(rc))
         return;
     painter->setPen(QPen(Qt::black, 2));

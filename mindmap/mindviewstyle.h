@@ -23,11 +23,15 @@ public:
 
     QPointF outPort(QSizeF const & size) const;
 
+    QPointF switchPort(QSizeF const & size) const;
+
     void applyTo(QPainter * painter, QRectF & rect) const;
 
     QFont textFont() const { return textFont_; }
 
     QColor textColor() const { return textColor_; }
+
+    QColor connectColor() const { return connectColor_; }
 
 private:
     QPainterPath roundedRect(QRectF const & rect) const;
@@ -37,6 +41,7 @@ private:
     QColor textColor_;
     QColor backgroundColor_;
     QColor borderColor_;
+    QColor connectColor_;
     QRectF borderWidth_;
     QRectF cornerRadiusUp_;
     QRectF cornerRadiusDown_;
@@ -44,6 +49,7 @@ private:
     QRectF innerPadding_;
     QPointF inPort_;
     QPointF outPort_;
+    QPointF switchPort_;
 };
 
 #endif // MINDVIEWSTYLE_H
