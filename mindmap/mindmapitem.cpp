@@ -236,6 +236,8 @@ void MindMapItem::removeFocusedNode()
 void MindMapItem::moveNode()
 {
     MindNodeView * moveNodeView = static_cast<MindNodeView*>(moveView_);
+    if (focusedView_ && (focusedView_ == moveNodeView || focusedView_->hasParent(moveNodeView)))
+        focusedView_ = nullptr;
     if (targetView_ == &MindNodeView::HitTestSpacing) {
         moveNodeView->moveToParent(MindNodeView::HitTestSpacing.prev()->parent(), MindNodeView::HitTestSpacing.prev());
     } else if (targetView_) {
