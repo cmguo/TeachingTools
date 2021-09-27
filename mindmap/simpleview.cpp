@@ -14,7 +14,8 @@ void SimpleView::draw(QPainter *painter, QRectF  const & exposedRect)
     QRectF rect{pos_, size_};
     if (exposedRect.intersects(rect)) {
         style_->applyTo(painter, rect);
-        painter->drawText(rect, Qt::TextDontClip, node_->title);
+        if (!editing_)
+            painter->drawText(rect, Qt::TextDontClip, node_->title);
     }
     MindNodeView::draw(painter, exposedRect);
 }

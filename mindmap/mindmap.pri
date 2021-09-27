@@ -10,6 +10,7 @@ HEADERS += \
     $$PWD/mindnodeview.h \
     $$PWD/mindspacing.h \
     $$PWD/mindswitch.h \
+    $$PWD/mindtextedititem.h \
     $$PWD/mindviewstyle.h \
     $$PWD/mindviewtemplate.h \
     $$PWD/simpleconnector.h \
@@ -28,6 +29,7 @@ SOURCES += \
     $$PWD/mindnodeview.cpp \
     $$PWD/mindspacing.cpp \
     $$PWD/mindswitch.cpp \
+    $$PWD/mindtextedititem.cpp \
     $$PWD/mindviewstyle.cpp \
     $$PWD/mindviewtemplate.cpp \
     $$PWD/simpleconnector.cpp \

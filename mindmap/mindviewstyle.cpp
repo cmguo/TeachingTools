@@ -199,3 +199,11 @@ void MindViewStyle::applyTo(QPainter *painter, QRectF & rect) const
     painter->setBrush(textColor_);
     rect = innerRect;
 }
+
+QPointF MindViewStyle::textOffset() const
+{
+    QPointF off = {-outerPadding_.left(), -outerPadding_.top()};
+    off += QPointF{-borderWidth_.left(), -borderWidth_.top()};
+    off += QPointF{-innerPadding_.left(), -innerPadding_.top()};
+    return off;
+}

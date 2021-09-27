@@ -49,7 +49,7 @@ public:
     virtual void draw(QPainter * painter, QRectF  const & exposedRect) override;
 
 public:
-    void setViewStyle(MindViewStyle const * style);
+    void setStyle(MindViewStyle const * style);
 
     MindViewStyle const * style() const { return style_; }
 
@@ -68,9 +68,14 @@ public:
     MindSwitch * _switch() { return this->switch_; }
 
 public:
+    void setTitle(QString const & title);
+
     // return new state
     bool toggle();
 
+    void setEditing(bool b) { editing_ = b; }
+
+public:
     void insertChild(MindNode const & node, MindNodeView * after = nullptr);
 
     void removeChild(MindNodeView * child);
@@ -94,6 +99,9 @@ public:
 
     MindNodeView * nextFocus(FocusDirection dir);
 
+private:
+    void moveBy(QPointF const & off);
+
 protected:
     QList<QPair<MindNodeView*, MindConnector*>> children_;
     MindSwitch * switch_ = nullptr;
@@ -101,6 +109,7 @@ protected:
     QPointF pos_;
     QPointF pos2_; // sub tree topLeft
     QSizeF size_;
+    bool editing_ = false;
 
 protected:
     MindNode * node_;

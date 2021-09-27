@@ -31,6 +31,8 @@ public:
 
     QColor textColor() const { return textColor_; }
 
+    QPointF textOffset() const;
+
     QColor connectColor() const { return connectColor_; }
 
 private:

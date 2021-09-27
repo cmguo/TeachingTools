@@ -32,7 +32,8 @@ MindViewTemplate::MindViewTemplate(const QJsonObject &json)
     for (auto cw : cws) {
         connectorWidths.append(cw.toDouble());
     }
-    defaultNode = MindNode(json.value("defaultNode").toObject());
+    if (json.contains("defaultNode"))
+        defaultNode = MindNode(json.value("defaultNode").toObject());
 }
 
 MindViewTemplate::~MindViewTemplate()
@@ -71,7 +72,7 @@ MindNodeView *MindViewTemplate::createView(MindNode *node)
 {
     MindViewStyle const * style = level < viewStyles.size() ? viewStyles.at(level) : viewStyles.back();
     MindNodeView * view = new SimpleView(node);
-    view->setViewStyle(style);
+    view->setStyle(style);
     return view;
 }
 

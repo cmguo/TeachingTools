@@ -7,6 +7,7 @@
 #include "mindviewstyle.h"
 #include "simpleview.h"
 #include "mindswitch.h"
+#include "mindtextedititem.h"
 
 #include <QEvent>
 #include <QGraphicsSceneEvent>
@@ -33,6 +34,12 @@ MindMapItem::MindMapItem(QGraphicsItem *parent)
     setFlag(ItemUsesExtendedStyleOption);
 
     load(&tpl_empty, &node_empty);
+
+    editItem_ = new MindTextEditItem(this);
+    QObject::connect(editItem_, &MindTextEditItem::editEnded, [this]() {
+        updateLayout();
+        setFocus();
+    });
 }
 
 void MindMapItem::load(MindViewTemplate *tpl, MindNode *node)
@@ -51,6 +58,9 @@ bool MindMapItem::sceneEvent(QEvent *event)
         moveView_ = rootView_->hitTest(static_cast<QGraphicsSceneMouseEvent*>(event)->pos(), MindNodeView::NodeSwitch);
         moveStart_ = static_cast<QGraphicsSceneMouseEvent*>(event)->scenePos();
         moved_ = false;
+        if (focusedView_ != moveView_) {
+            changeFocus(nullptr);
+        }
         break;
     }
     case QEvent::GraphicsSceneMouseMove: {
@@ -72,14 +82,15 @@ bool MindMapItem::sceneEvent(QEvent *event)
         if (moved_) {
 
         } else {
-            if (moveView_ == nullptr || moveView_->isNode())
+            if (focusedView_ && moveView_ == focusedView_)
+                editItem_->attachTo(focusedView_, static_cast<QGraphicsSceneMouseEvent*>(event)->pos());
+            else if (moveView_ == nullptr || moveView_->isNode())
                 changeFocus(static_cast<MindNodeView*>(moveView_));
             else
                 toggle(static_cast<MindSwitch*>(moveView_)->parent());
         }
         moveView_ = nullptr;
         moved_ = false;
-        setFocus();
         break;
     }
     case QEvent::GraphicsSceneHoverEnter:
@@ -93,6 +104,7 @@ bool MindMapItem::sceneEvent(QEvent *event)
         break;
     case QEvent::FocusOut:
         qDebug() << "MindMapItem FocusOut";
+        changeFocus(nullptr);
         break;
     case QEvent::KeyRelease:
         switch (static_cast<QKeyEvent*>(event)->key()) {
@@ -208,6 +220,7 @@ void MindMapItem::newNode(bool childOrSiblin)
     parent->insertChild(template_->createNode(), after);
     updateLayout();
     focusedView_ = parent->findChild(after);
+    editItem_->attachTo(focusedView_);
 }
 
 void MindMapItem::removeFocusedNode()
@@ -239,6 +252,7 @@ void MindMapItem::changeFocus(MindNodeView *view)
         return;
     QGraphicsItem::update(viewRect(focusedView_, view));
     focusedView_ = view;
+    setFocus();
 }
 
 void MindMapItem::dragStart(MindNodeView *view)

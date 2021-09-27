@@ -9,6 +9,8 @@ class MindBaseView;
 class MindViewTemplate;
 class MindSwitch;
 
+class MindTextEditItem;
+
 class MindMapItem : public QGraphicsItem
 {
 public:
@@ -49,6 +51,7 @@ private:
     MindViewTemplate * template_ = nullptr;
     MindNodeView * rootView_ = nullptr;
     MindNodeView * focusedView_ = nullptr;
+    MindTextEditItem * editItem_;
 
     MindBaseView * moveView_ = nullptr;
     MindBaseView * targetView_ = nullptr;

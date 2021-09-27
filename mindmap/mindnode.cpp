@@ -5,7 +5,7 @@
 
 MindNode::MindNode()
 {
-
+    title = "请输入内容";
 }
 
 MindNode::MindNode(QJsonObject const & json)

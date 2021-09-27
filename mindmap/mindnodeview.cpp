@@ -26,7 +26,6 @@ MindNodeView::~MindNodeView()
 void MindNodeView::layout(MindViewTemplate & tl)
 {
     tl.push(pos_);
-    pos_ = {tl.xoffset, tl.yoffset};
     pos2_ = pos_;
     if (size_.isEmpty())
         size_ = style_->measureNode(node_);
@@ -65,8 +64,12 @@ void MindNodeView::layout(MindViewTemplate & tl)
         tl.yoffset += tl.siblinPadding;
     }
     tl.yoffset -= tl.siblinPadding;
+    int oldy = pos_.y();
     pos_.setY((pos_.y() + tl.yoffset - size_.height()) / 2);
-    tl.yoffset = qMax(tl.yoffset, pos_.y() + size_.height());
+    if (oldy > pos_.y()) {
+        moveBy({0, oldy - pos_.y()});
+        tl.yoffset = pos_.y() + size_.height();
+    }
     tl.pop(pos_);
 }
 
@@ -138,7 +141,7 @@ void MindNodeView::draw(QPainter *painter, QRectF const & exposedRect)
         switch_->draw(painter, exposedRect);
 }
 
-void MindNodeView::setViewStyle(const MindViewStyle *style)
+void MindNodeView::setStyle(const MindViewStyle *style)
 {
     style_ = style;
 }
@@ -156,6 +159,12 @@ QPointF MindNodeView::outPort() const
 QPointF MindNodeView::switchPort() const
 {
     return pos_ + style_->switchPort(size_);
+}
+
+void MindNodeView::setTitle(const QString &title)
+{
+    node_->title = title;
+    size_ = {0, 0};
 }
 
 bool MindNodeView::toggle()
@@ -321,4 +330,13 @@ MindNodeView *MindNodeView::nextFocus(MindNodeView::FocusDirection dir)
         break;
     }
     return next;
+}
+
+void MindNodeView::moveBy(const QPointF &off)
+{
+    pos_ += off;
+    if (node_->expanded_) {
+        for (auto & c : children_)
+            c.first->moveBy(off);
+    }
 }
