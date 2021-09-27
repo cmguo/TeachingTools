@@ -221,6 +221,7 @@ private:
 void InkStrokeHelper::enableStylusGusture(InkCanvas *canvas)
 {
     new StylusGuestureHelper(canvas);
+    canvas->setProperty("enableshortcuts", true);
 }
 
 QWidget *InkStrokeHelper::createEraserWidget(QssHelper const & qss)
@@ -270,7 +271,11 @@ QWidget *InkStrokeHelper::createEraserWidget(QssHelper const & qss)
     return widget;
 }
 
-/* StylusGuestureHelper */
+/*
+ * StylusGuestureHelper
+ *   Pass Stylus (Touch) events to WhiteCanvas's selector
+ *   Let some white canvas operation take effect in InkCanvas Ink Mode
+ */
 
 StylusGuestureHelper::StylusGuestureHelper(InkCanvas *ink)
     : QObject(ink)
@@ -284,6 +289,12 @@ StylusGuestureHelper::StylusGuestureHelper(InkCanvas *ink)
                     StylusGuestureHelper, StylusEventArgs, &StylusGuestureHelper::handle>(this));
 }
 
+/*
+ * Conditions:
+ *   C1. One group, two points
+ *   C2. Meet C1 in 100 ms, from StylusDown
+ *   C3. Leave if C1 not meet
+ */
 void StylusGuestureHelper::handle(StylusEventArgs &args)
 {
     if (ink_->EditingMode() != InkCanvasEditingMode::Ink)
@@ -323,7 +334,10 @@ void StylusGuestureHelper::handle(StylusEventArgs &args)
     }
 }
 
-/* ClickThroughtHelper */
+/*
+ * ClickThroughtHelper
+ *
+ */
 
 ClickThroughtHelper::ClickThroughtHelper(InkCanvas *ink)
     : QObject(ink)
