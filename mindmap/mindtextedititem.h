@@ -15,7 +15,7 @@ public:
     void attachTo(MindNodeView * nodeView, QPointF const & pos = {});
 
 signals:
-    void editEnded();
+    void editEnded(MindNodeView * nodeView);
 
 private:
     void focusOutEvent(QFocusEvent *event) override;

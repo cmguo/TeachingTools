@@ -36,9 +36,10 @@ MindMapItem::MindMapItem(QGraphicsItem *parent)
     load(&tpl_empty, &node_empty);
 
     editItem_ = new MindTextEditItem(this);
-    QObject::connect(editItem_, &MindTextEditItem::editEnded, [this]() {
-        updateLayout();
+    QObject::connect(editItem_, &MindTextEditItem::editEnded, [this](MindNodeView * nodeView) {
         setFocus();
+        changeFocus(nodeView);
+        updateLayout();
     });
 }
 

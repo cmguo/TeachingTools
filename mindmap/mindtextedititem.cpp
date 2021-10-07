@@ -63,11 +63,12 @@ void MindTextEditItem::keyReleaseEvent(QKeyEvent *event)
 void MindTextEditItem::finish(bool cancel)
 {
     hide();
-    if (nodeView_ == nullptr)
+    MindNodeView * nodeView = nodeView_;
+    if (nodeView == nullptr)
         return;
-    nodeView_->setEditing(false);
-    nodeView_->setTitle(toPlainText());
     nodeView_ = nullptr;
+    nodeView->setEditing(false);
+    nodeView->setTitle(toPlainText());
     if (!cancel)
-        emit editEnded();
+        emit editEnded(nodeView);
 }
