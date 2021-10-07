@@ -81,8 +81,8 @@
         "WritingGridControl/1.0",
         "PageBoxControl/1.0",
         "InkStrokeControl/1.0",
-        "HanziControl/1.0"
-        "MindMap/1.0"
+        "HanziControl/1.0",
+        "MindMap/1.0",
         "MindMapControl/1.0"
     ]
 }
