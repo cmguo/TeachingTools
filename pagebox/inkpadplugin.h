@@ -1,7 +1,7 @@
 #ifndef INKPADPLUGIN_H
 #define INKPADPLUGIN_H
 
-#include "pageboxplugin.h"
+#include <pagebox/pageboxplugin.h>
 
 #include <InkCanvas_global.h>
 

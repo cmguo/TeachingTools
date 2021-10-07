@@ -1,6 +1,7 @@
 #include "inkpadplugin.h"
-#include "pageboxdocitem.h"
 #include "inkstroke/inkstrokehelper.h"
+
+#include <pagebox/pageboxdocitem.h>
 
 #include <core/toolbutton.h>
 

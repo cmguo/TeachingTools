@@ -1,9 +1,11 @@
 #include "pageboxcontrol.h"
 #include "pageboxitem.h"
-#include "pagenumberwidget.h"
-#include "pageboxdocitem.h"
-#include "qpropertybindings.h"
 #include "inkpadplugin.h"
+
+#include <pagebox/pagenumberwidget.h>
+#include <pagebox/pageboxdocitem.h>
+#include <pagebox/qpropertybindings.h>
+#include <pagebox/pagesource.h>
 
 #include <core/resource.h>
 #include <core/resourceview.h>
@@ -22,7 +24,6 @@
 #include <QApplication>
 #include <QUrl>
 #include <QDir>
-#include <pagesource.h>
 
 PageBoxControl::PageBoxControl(ResourceView * res, Flags flags, Flags clearFlags)
     : Control(res, flags | KeepAspectRatio | Touchable, clearFlags)

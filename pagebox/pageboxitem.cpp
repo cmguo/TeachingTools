@@ -1,9 +1,10 @@
 #include "pageboxitem.h"
-#include "pageboxdocitem.h"
 #include "pageboxcontrol.h"
-#include "pageboxtoolbar.h"
-#include "pagenumberwidget.h"
-#include "pageboxplugin.h"
+
+#include <pagebox/pagenumberwidget.h>
+#include <pagebox/pageboxplugin.h>
+#include <pagebox/pageboxdocitem.h>
+#include <pagebox/pageboxtoolbar.h>
 
 #include <views/toolbarwidget.h>
 #include <core/control.h>
