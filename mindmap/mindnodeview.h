@@ -55,6 +55,8 @@ public:
 
     QPointF pos() const { return pos_; }
 
+    QRectF rect() const { return rect_; }
+
     QSizeF size() const { return size_; }
 
     QPointF inPort() const;
@@ -82,7 +84,7 @@ public:
 
     MindNodeView * findChildBefore(MindNodeView * before = nullptr);
 
-    MindNodeView * findChild(MindNodeView * after = nullptr);
+    MindNodeView * findChildAfter(MindNodeView * after = nullptr);
 
     void moveChild(MindNodeView * child, MindNodeView * toParent, MindNodeView * after = nullptr);
 
@@ -100,6 +102,8 @@ public:
     MindNodeView * nextFocus(FocusDirection dir);
 
 private:
+    int findChild(MindNodeView * node, bool beforeOrAfter);
+
     void moveBy(QPointF const & off);
 
 protected:
@@ -107,7 +111,7 @@ protected:
     MindSwitch * switch_ = nullptr;
     MindViewStyle const * style_ = nullptr;
     QPointF pos_;
-    QPointF pos2_; // sub tree topLeft
+    QRectF rect_; // sub tree rect
     QSizeF size_;
     bool editing_ = false;
 

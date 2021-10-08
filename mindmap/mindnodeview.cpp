@@ -26,9 +26,9 @@ MindNodeView::~MindNodeView()
 void MindNodeView::layout(MindViewTemplate & tl)
 {
     tl.push(pos_);
-    pos2_ = pos_;
     if (size_.isEmpty())
         size_ = style_->measureNode(node_);
+    rect_.setTopLeft({pos_.x() + size_.width(), pos_.y()});
     if (switch_ == nullptr && !node_->children_.empty()) {
         switch_ = tl.createSwitch();
         switch_->setParent(this);
@@ -64,6 +64,7 @@ void MindNodeView::layout(MindViewTemplate & tl)
         tl.yoffset += tl.siblinPadding;
     }
     tl.yoffset -= tl.siblinPadding;
+    rect_.setBottomRight({tl.xmax, tl.yoffset});
     int oldy = pos_.y();
     pos_.setY((pos_.y() + tl.yoffset - size_.height()) / 2);
     if (oldy > pos_.y()) {
@@ -100,11 +101,11 @@ MindBaseView *MindNodeView::hitTest(const QPointF &point, int types)
     if ((types & 2) && point.x() < pos_.x() + size_.width() && this != HitTestSpacing.prev() && parent_) {
         if (point.y() < pos_.y()) {
             MindNodeView * siblin = parent_->findChildBefore(this);
-            if (siblin && HitTestSpacing.setPrevNext(siblin, this))
+            if (HitTestSpacing.setPrevNext(siblin, this))
                 return &HitTestSpacing;
         } else {
-            MindNodeView * siblin = parent_->findChild(this);
-            if (siblin && HitTestSpacing.setPrevNext(this, siblin))
+            MindNodeView * siblin = parent_->findChildAfter(this);
+            if (HitTestSpacing.setPrevNext(this, siblin))
                 return &HitTestSpacing;
         }
         return nullptr;
@@ -118,7 +119,7 @@ MindBaseView *MindNodeView::hitTest(const QPointF &point, int types)
     }
     MindNodeView * last = nullptr;
     for (auto & c : children_) {
-        if (c.first->pos2_.y() > point.y()) {
+        if (c.first->rect_.top() > point.y()) {
             break;
         }
         last = c.first;
@@ -173,19 +174,12 @@ bool MindNodeView::toggle()
     return node_->expanded_;
 }
 
+static MindNodeView * FIRST_NODE = reinterpret_cast<MindNodeView*>(1);
+static MindNodeView * LAST_NODE = reinterpret_cast<MindNodeView*>(2);
+
 void MindNodeView::insertChild(MindNode const & node, MindNodeView *after)
 {
-    int n = node_->children_.size();
-    if (after) {
-        n = 0;
-        for (auto c : children_) {
-            if (c.first == after) {
-                ++n;
-                break;
-            }
-            ++n;
-        }
-    }
+    int n = findChild(after, false);
     node_->children_.insert(n, node);
     node_->expanded_ = true;
     if (!children_.empty())
@@ -224,33 +218,34 @@ void MindNodeView::removeChild(MindNodeView *child)
 
 MindNodeView *MindNodeView::findChildBefore(MindNodeView *before)
 {
-    int n = 0;
-    if (before) {
-        for (auto c : children_) {
-            if (c.first == before) {
-                --n;
-                break;
-            }
-            ++n;
-        }
-    }
+    int n = findChild(before, true);
     return (n >= 0 && n < children_.size()) ? children_.at(n).first : nullptr;
 }
 
-MindNodeView *MindNodeView::findChild(MindNodeView *after)
+MindNodeView *MindNodeView::findChildAfter(MindNodeView *after)
 {
-    int n = node_->children_.size() - 1;
-    if (after) {
-        n = 0;
-        for (auto c : children_) {
-            if (c.first == after) {
-                ++n;
-                break;
-            }
-            ++n;
-        }
-    }
+    int n = findChild(after, false);
     return (n >= 0 && n < children_.size()) ? children_.at(n).first : nullptr;
+}
+
+int MindNodeView::findChild(MindNodeView *node, bool beforeOrAfter)
+{
+    if (node == nullptr)
+        return beforeOrAfter ? 0 : node_->children_.size();
+    if (node == this)
+        return beforeOrAfter ? node_->children_.size() : 0;
+    int n = 0;
+    for (auto c : children_) {
+        if (c.first == node) {
+            if (beforeOrAfter)
+                --n;
+            else
+                ++n;
+            break;
+        }
+        ++n;
+    }
+    return n;
 }
 
 void MindNodeView::moveChild(MindNodeView *child, MindNodeView *toParent, MindNodeView *after)
@@ -267,17 +262,7 @@ void MindNodeView::moveChild(MindNodeView *child, MindNodeView *toParent, MindNo
     children_.removeAt(m);
     node_->children_.removeAt(m);
     if (toParent == this) {
-        int n = node_->children_.size();
-        if (after) {
-            n = 0;
-            for (auto c : children_) {
-                if (c.first == after) {
-                    ++n;
-                    break;
-                }
-                ++n;
-            }
-        }
+        int n = findChild(after, false);
         children_.insert(n, cld);
         node_->children_.insert(n, node);
         cld.first->node_ = &node_->children_[n];
