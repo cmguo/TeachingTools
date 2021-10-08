@@ -155,6 +155,12 @@ bool MindMapItem::sceneEvent(QEvent *event)
         static_cast<QGraphicsSceneDragDropEvent*>(event)->accept();
         break;
     }
+    case QEvent::GraphicsSceneDragLeave:
+        if (targetView_) {
+            QGraphicsItem::update(viewRect(targetView_, nullptr));
+            targetView_ = nullptr;
+        }
+        break;
     case QEvent::GraphicsSceneDrop: {
         // TODO: why sometime no drop event with touch release?
         moveNode();
