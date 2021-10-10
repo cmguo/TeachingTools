@@ -224,9 +224,9 @@ void MindMapItem::newNode(bool childOrSiblin)
         after = focusedView_;
     else
         return;
-    parent->insertChild(template_->createNode(), after);
+    auto ref = parent->insertChild(template_->createNode(), after);
     updateLayout();
-    focusedView_ = parent->findChildAfter(after);
+    focusedView_ = parent->childAt(ref);
     editItem_->attachTo(focusedView_);
 }
 

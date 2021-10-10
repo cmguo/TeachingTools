@@ -78,9 +78,11 @@ public:
     void setEditing(bool b) { editing_ = b; }
 
 public:
-    void insertChild(MindNode const & node, MindNodeView * after = nullptr);
+    int insertChild(MindNode const & node, MindNodeView * after = nullptr);
 
     void removeChild(MindNodeView * child);
+
+    MindNodeView * childAt(int index);
 
     MindNodeView * findChildBefore(MindNodeView * before = nullptr);
 

@@ -177,13 +177,14 @@ bool MindNodeView::toggle()
 static MindNodeView * FIRST_NODE = reinterpret_cast<MindNodeView*>(1);
 static MindNodeView * LAST_NODE = reinterpret_cast<MindNodeView*>(2);
 
-void MindNodeView::insertChild(MindNode const & node, MindNodeView *after)
+int MindNodeView::insertChild(MindNode const & node, MindNodeView *after)
 {
     int n = findChild(after, false);
     node_->children_.insert(n, node);
     node_->expanded_ = true;
     if (!children_.empty())
         children_.insert(n, {nullptr, reinterpret_cast<MindConnector*>(&node_->children_[n])});
+    return n;
 }
 
 void MindNodeView::removeFromParent()
@@ -214,6 +215,11 @@ void MindNodeView::removeChild(MindNodeView *child)
     children_.removeAt(n);
     delete child;
     node_->children_.removeAt(n);
+}
+
+MindNodeView *MindNodeView::childAt(int index)
+{
+    return children_.at(index).first;
 }
 
 MindNodeView *MindNodeView::findChildBefore(MindNodeView *before)
