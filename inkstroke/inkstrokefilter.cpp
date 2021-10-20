@@ -1,8 +1,8 @@
 #include "inkstrokecontrol.h"
 #include "inkstrokefilter.h"
 
-#include <views/qsshelper.h>
-#include <views/toolbarwidget.h>
+#include <widget/qsshelper.h>
+#include <widget/toolbarwidget.h>
 
 #include <Windows/Controls/inkcanvas.h>
 

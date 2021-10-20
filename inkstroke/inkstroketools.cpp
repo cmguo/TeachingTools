@@ -2,12 +2,12 @@
 #include "inkstrokehelper.h"
 #include "inkstroketools.h"
 
-#include <views/whitecanvaswidget.h>
+#include <widget/whitecanvaswidget.h>
 #include <views/whitecanvas.h>
-#include <views/qsshelper.h>
-#include <views/toolbarwidget.h>
-#include <views/floatwidgetmanager.h>
-#include <views/framewidget.h>
+#include <widget/qsshelper.h>
+#include <widget/toolbarwidget.h>
+#include <widget/floatwidgetmanager.h>
+#include <widget/framewidget.h>
 #include <core/control.h>
 #include <core/optiontoolbuttons.h>
 #include <core/resourcepackage.h>

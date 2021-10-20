@@ -5,7 +5,7 @@
 
 #include <views/whitecanvas.h>
 #include <views/itemselector.h>
-#include <views/toolbarwidget.h>
+#include <widget/toolbarwidget.h>
 #include <core/resourcetransform.h>
 
 #include <Windows/Controls/inkcanvas.h>

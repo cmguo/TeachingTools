@@ -6,7 +6,7 @@
 #include <pagebox/pageboxdocitem.h>
 #include <pagebox/pageboxtoolbar.h>
 
-#include <views/toolbarwidget.h>
+#include <widget/toolbarwidget.h>
 #include <core/control.h>
 #include <core/resourceview.h>
 #include <core/resourcetransform.h>

@@ -14,7 +14,7 @@
 #include <Windows/Input/mouseeventargs.h>
 #include <Windows/Input/stylusdevice.h>
 #include <Windows/Input/styluseventargs.h>
-#include <views/qsshelper.h>
+#include <widget/qsshelper.h>
 #include <views/whitecanvas.h>
 #include <views/itemselector.h>
 
