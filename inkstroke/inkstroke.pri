@@ -5,7 +5,8 @@ HEADERS += \
     $$PWD/inkstrokehelper.h \
     $$PWD/inkstrokerenderer.h \
     $$PWD/inkstrokes.h \
-    $$PWD/inkstroketools.h
+    $$PWD/inkstroketools.h \
+    $$PWD/strokesrecordhelper.h
 
 SOURCES += \
     $$PWD/inkstrokecontrol.cpp \
@@ -14,4 +15,5 @@ SOURCES += \
     $$PWD/inkstrokehelper.cpp \
     $$PWD/inkstrokerenderer.cpp \
     $$PWD/inkstrokes.cpp \
-    $$PWD/inkstroketools.cpp
+    $$PWD/inkstroketools.cpp \
+    $$PWD/strokesrecordhelper.cpp

@@ -1,21 +1,28 @@
 #include "inkstrokegeometry.h"
 
-#include <views/qsshelper.h>
+#include <widget/qsshelper.h>
+#include <showboard.h>
+#include <core/control.h>
+#include <core/resourceview.h>
+#include <core/resourcepage.h>
 
 #include <qcomponentcontainer.h>
 
 #include <Windows/Ink/stroke.h>
-
 #include <Landing/Qt/inkcanvasqt.h>
-
 #include <Windows/Controls/inkcanvas.h>
 #include <Windows/Controls/inkevents.h>
-
 #include <Windows/Input/stylusdevice.h>
 
 INKCANVAS_USE_NAMESPACE
 
 std::array<InkStrokeGeometry::Shape, 4> InkStrokeGeometry::Shapes = {None, Line, Wavy, Auto};
+
+static QObject * geometryHelper()
+{
+    static QObject* geometryHelper = QComponentContainer::globalInstance().getExportValue("GeometryHelper");
+    return geometryHelper;
+}
 
 void InkStrokeGeometry::reshape(QSharedPointer<Stroke> stroke, Shape shape)
 {
@@ -30,7 +37,11 @@ void InkStrokeGeometry::reshape(QSharedPointer<Stroke> stroke, Shape shape)
         toCurve(stroke, sin, dp(4.0));
         break;
     case Auto:
-        autoShape(stroke);
+        if (autoGeometry_)
+            killTimer(0);
+        autoShape(stroke, autoStrokes_, autoGeometry_);
+        if (autoGeometry_)
+            startTimer(2000);
         break;
     }
 }
@@ -87,7 +98,9 @@ void InkStrokeGeometry::toCurve(QSharedPointer<Stroke> stroke, qreal(func)(qreal
         if (f)
             x = l;
         qreal y = func(x * scale_) * scale;
-        StylusPoint p(x, -y);
+        StylusPoint p = stylusPoints[0];
+        p.SetX(x);
+        p.SetY(-y);
         points->Add(p);
         if (f)
             break;
@@ -95,7 +108,7 @@ void InkStrokeGeometry::toCurve(QSharedPointer<Stroke> stroke, qreal(func)(qreal
     }
     stroke->SetStylusPoints(points);
     Matrix m;
-    static QObject* geometryHelper = QComponentContainer::globalInstance().getExportValue("GeometryHelper");
+    QObject * geometryHelper = ::geometryHelper();
     if (geometryHelper) {
         qreal angle = 0;
         bool ok = QMetaObject::invokeMethod(geometryHelper, "angle", Q_RETURN_ARG(qreal,angle),
@@ -107,14 +120,48 @@ void InkStrokeGeometry::toCurve(QSharedPointer<Stroke> stroke, qreal(func)(qreal
     stroke->Transform(m, false);
 }
 
-void InkStrokeGeometry::autoShape(QSharedPointer<Stroke> stroke)
+static qreal length2(QPointF const & p1, QPointF const & p2)
 {
-    (void) stroke;
+    auto d = p2 - p1;
+    return QPointF::dotProduct(d, d);
+}
+
+void InkStrokeGeometry::autoShape(QSharedPointer<Stroke> stroke, QSharedPointer<StrokeCollection> & allStrokes, void * & autoGeometry)
+{
+    if (stroke->StylusPoints()->Count() < 2)
+        return;
+    QObject * geometryHelper = ::geometryHelper();
+    if (geometryHelper == nullptr)
+        return;
+    if (autoGeometry == nullptr) {
+        qreal epsilon = 20;
+        bool ok = QMetaObject::invokeMethod(geometryHelper, "approxGeometryBegin", Q_RETURN_ARG(void*,autoGeometry),
+                                            Q_ARG(qreal,epsilon));
+        if (!ok || autoGeometry == nullptr)
+            return;
+    }
+    StylusPointCollection & stylusPoints = *stroke->StylusPoints();
+    QVector<QPointF> points;
+    for (auto & p : stylusPoints) {
+        points.append(p.ToPoint());
+    }
+    bool result;
+    bool ok = QMetaObject::invokeMethod(geometryHelper, "approxGeometryAddPoints", Q_RETURN_ARG(bool,result),
+                                        Q_ARG(void*,autoGeometry),
+                                        Q_ARG(QVector<QPointF>,points));
+    if (ok) {
+        if (!allStrokes)
+            allStrokes.reset(new StrokeCollection);
+        if (!result)
+            allStrokes->Clear();
+        allStrokes->Add(stroke);
+    }
 }
 
 InkStrokeGeometry::InkStrokeGeometry(InkCanvas *ink)
     : QObject(ink)
     , ink_(ink)
+    , shapeMode_(Auto)
 {
     ink_->AddHandler(InkCanvas::StrokeCollectedEvent, RoutedEventHandlerT<
                      InkStrokeGeometry, InkCanvasStrokeCollectedEventArgs, &InkStrokeGeometry::applyShape>(this));
@@ -144,4 +191,26 @@ void InkStrokeGeometry::applyShape(InkCanvasStrokeCollectedEventArgs &e)
 {
     QSharedPointer<Stroke> stroke = e.GetStroke();
     reshape(stroke, shapeMode_);
+}
+
+void InkStrokeGeometry::timerEvent(QTimerEvent * event)
+{
+    if (autoGeometry_) {
+        QObject * geometryHelper = ::geometryHelper();
+        QObject * geometry = nullptr;
+        if (geometryHelper) {
+            QPointF offset = ink_->mapToParent({0, 0});
+            QMetaObject::invokeMethod(geometryHelper, "approxGeometryFinish",Q_RETURN_ARG(QObject*,geometry),
+                                      Q_ARG(void*,autoGeometry_),
+                                      Q_ARG(QPointF,offset));
+        }
+        if (geometry) {
+            geometry->setProperty("strokes", QVariant::fromValue(autoStrokes_));
+            Control::fromItem(ink_)->resource()->page()->addResource(qobject_cast<ResourceView*>(geometry));
+            ink_->Strokes()->Remove(autoStrokes_);
+        }
+        autoStrokes_.reset();
+        autoGeometry_ = nullptr;
+    }
+    killTimer(event->timerId());
 }

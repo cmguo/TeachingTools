@@ -4,12 +4,14 @@
 #include <InkCanvas_global.h>
 
 #include <QSharedPointer>
+
 #include <array>
 
 INKCANVAS_FORWARD_DECLARE_CLASS(InkCanvas);
 INKCANVAS_FORWARD_DECLARE_CLASS(Stroke);
 INKCANVAS_FORWARD_DECLARE_CLASS(InkCanvasStrokesReplacedEventArgs);
 INKCANVAS_FORWARD_DECLARE_CLASS(InkCanvasStrokeCollectedEventArgs);
+INKCANVAS_FORWARD_DECLARE_CLASS(StrokeCollection);
 
 class Geometry;
 
@@ -30,7 +32,7 @@ public:
     static std::array<Shape, 4> Shapes;
 
 public:
-    static void reshape(QSharedPointer<Stroke> stroke, Shape shape);
+    void reshape(QSharedPointer<Stroke> stroke, Shape shape);
 
     static void applyPressure(QSharedPointer<Stroke> stroke);
 
@@ -38,7 +40,7 @@ public:
 
     static void toCurve(QSharedPointer<Stroke> stroke, qreal(func)(qreal), qreal scale);
 
-    static void autoShape(QSharedPointer<Stroke> stroke);
+    static void autoShape(QSharedPointer<Stroke> stroke, QSharedPointer<StrokeCollection> & allStrokes, void * & autoGeometry);
 
 public:
     InkStrokeGeometry(InkCanvas* ink);
@@ -56,8 +58,13 @@ private:
     void applyShape(InkCanvasStrokeCollectedEventArgs &e);
 
 private:
+    void timerEvent(QTimerEvent *event) override;
+
+private:
     InkCanvas * ink_;
     Shape shapeMode_;
+    QSharedPointer<StrokeCollection> autoStrokes_;
+    void * autoGeometry_ = nullptr;
 };
 
 #endif // INKSTROKEGEOMETRY_H
