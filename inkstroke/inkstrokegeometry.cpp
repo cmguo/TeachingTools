@@ -134,9 +134,7 @@ void InkStrokeGeometry::autoShape(QSharedPointer<Stroke> stroke, QSharedPointer<
     if (geometryHelper == nullptr)
         return;
     if (autoGeometry == nullptr) {
-        qreal epsilon = 20;
-        bool ok = QMetaObject::invokeMethod(geometryHelper, "approxGeometryBegin", Q_RETURN_ARG(void*,autoGeometry),
-                                            Q_ARG(qreal,epsilon));
+        bool ok = QMetaObject::invokeMethod(geometryHelper, "approxGeometryBegin", Q_RETURN_ARG(void*,autoGeometry));
         if (!ok || autoGeometry == nullptr)
             return;
     }
