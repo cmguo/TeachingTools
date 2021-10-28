@@ -8,6 +8,8 @@
 #include "mindmap/mindmap.h"
 #include "mindmap/mindmapcontrol.h"
 #include "inkstroke/inkstrokes.h"
+#include "misctool/loupetool.h"
+#include "misctool/capturetool.h"
 
 REGISTER_CONTROL(PageBoxControl, "pages")
 REGISTER_CONTROL(HanziControl, "hanzi")
@@ -20,5 +22,8 @@ REGISTER_COMMON_RESOURCE_TYPES(hanzi, "hanzi", {}, {})
 
 REGISTER_RESOURCE_VIEW(MindMap, "mindmap");
 REGISTER_CONTROL(MindMapControl, "mindmap");
+
+REGISTER_CONTROL(LoupeTool, "loupetool");
+REGISTER_CONTROL(CaptureTool, "capturetool");
 
 #endif // CONTROLS_H

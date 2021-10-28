@@ -66,6 +66,20 @@
         },
         {
             "attrs": {
+                "mineType": "loupetool"
+            },
+            "meta": "LoupeTool/1.0",
+            "type": "Control/1.0"
+        },
+        {
+            "attrs": {
+                "mineType": "capturetool"
+            },
+            "meta": "CaptureTool/1.0",
+            "type": "Control/1.0"
+        },
+        {
+            "attrs": {
                 "mineType": "hanzi"
             },
             "meta": "HanziControl/1.0",
@@ -82,6 +96,8 @@
         "PageBoxControl/1.0",
         "InkStrokeControl/1.0",
         "HanziControl/1.0",
+        "LoupeTool/1.0",
+        "CaptureTool/1.0",
         "MindMap/1.0",
         "MindMapControl/1.0"
     ]

@@ -29,11 +29,13 @@ prod_qxkt{
 }
 
 SOURCES += \
+    loupeitem.cpp \
     teachingtoolsplugin.cpp
 
 HEADERS += \
     TeachingTools_global.h \
     controls.h \
+    loupeitem.h \
     teachingtoolsplugin.h
 
 RESOURCES += \
@@ -46,6 +48,7 @@ include(writing/writing.pri)
 include(pagebox/pagebox.pri)
 include(inkstroke/inkstroke.pri)
 include(mindmap/mindmap.pri)
+include(misctool/misctool.pri)
 
 includes.files = $$PWD/*.h
 win32 {
