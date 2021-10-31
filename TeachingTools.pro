@@ -1,4 +1,4 @@
-QT += widgets quick quickwidgets qml multimedia
+QT += widgets quick quickwidgets qml multimedia charts
 
 TEMPLATE = lib
 DEFINES += TEACHINGTOOLS_LIBRARY
@@ -49,6 +49,7 @@ include(pagebox/pagebox.pri)
 include(inkstroke/inkstroke.pri)
 include(mindmap/mindmap.pri)
 include(misctool/misctool.pri)
+include(chart/chart.pri)
 
 includes.files = $$PWD/*.h
 win32 {

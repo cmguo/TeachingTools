@@ -80,6 +80,13 @@
         },
         {
             "attrs": {
+                "mineType": "chart"
+            },
+            "meta": "ChartControl/1.0",
+            "type": "Control/1.0"
+        },
+        {
+            "attrs": {
                 "mineType": "hanzi"
             },
             "meta": "HanziControl/1.0",
@@ -95,6 +102,7 @@
         "WritingGridControl/1.0",
         "PageBoxControl/1.0",
         "InkStrokeControl/1.0",
+        "ChartControl/1.0",
         "HanziControl/1.0",
         "LoupeTool/1.0",
         "CaptureTool/1.0",

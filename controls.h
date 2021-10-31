@@ -10,6 +10,7 @@
 #include "inkstroke/inkstrokes.h"
 #include "misctool/loupetool.h"
 #include "misctool/capturetool.h"
+#include "chart/chartcontrol.h"
 
 REGISTER_CONTROL(PageBoxControl, "pages")
 REGISTER_CONTROL(HanziControl, "hanzi")
@@ -25,5 +26,7 @@ REGISTER_CONTROL(MindMapControl, "mindmap");
 
 REGISTER_CONTROL(LoupeTool, "loupetool");
 REGISTER_CONTROL(CaptureTool, "capturetool");
+
+REGISTER_CONTROL(ChartControl, "chart");
 
 #endif // CONTROLS_H
